@@ -1,0 +1,68 @@
+mtk driver is vcom    different than normal usb driver install it before communicating
+
+GSI(Generic System Image), purest form of android framework built from AOSP(android open source project)   
+
+there will a vendor(gsi compatible) implementation for the device. and so there will be a boundary between vendor(hardware related) and the android  framework. 
+
+but for unofficial Treble device like the Mi A1(ARM64), it's our (tissot(codename) OEM(xiaomi) developers) responsibility to make a Vendor/Kernel that is as GSI-compatible as possible.
+
+" The system image of an Android device is replaced with a GSI then tested with the Vendor Test Suite (VTS) and the Compatibility Test Suite (CTS) to ensure that the device implements vendor interfaces correctly with the latest version of Android. "
+
+wrapping this up.   we need the vendor image and the latest GSI.
+but for mi-a1 we need to repartition the user data to a vendor and user data then install a treble ROM (AIO) then the GSI.
+twrp uses .ZIP file to install. this are little special than img files.
+
+GSI CONFIGURATION: [current]
+	devices that uses HIDL vendor Interfaces.
+	Device must have a method for disabling verify boot.
+	uses ext4 file system.
+	uses system-as-root partition layout
+	ARM,X86,etc and cpu bitness 32 or 64
+GSI TARGETS FOR TREBLE COMPLIANCE TESTS:
+	 The GSI used for compliance testing is determined by the Android version that the device launches with. 
+	          Device type 					     Build target
+	Devices launching with Android 10 			aosp_$arch-user
+	Devices launching with Android 9 			aosp_$arch-userdebug
+	Devices launching with Android 8.0 or Android 8.1 	aosp_$arch_ab-userdebug
+
+VENDOR BINARIES AND VNDK DEPENDENCIES:
+
+BUILD GSI:
+
+custom rom such as RR, Lineage os comes with GSI compatible vendor(treble version). they are called ALLINONE. but there should be a VENDOR partition. 
+
+FLASH GSI:
+https://forum.xda-developers.com/mi-a1/how-to/treble-stock-to-treble-everything-to-t3793734
+
+https://forum.xda-developers.com/mi-a1/development/recovery-twrp-3-3-1-0-tissot-manager-t3976117
+
+https://forum.xda-developers.com/mi-a1/development/aio-project-treble-tissot-t3793408
+
+
+https://forum.xda-developers.com/mi-a1/how-to/rom-complete-list-b-gsis-t3799378 all the AIO
+
+
+
+RESULTS:
+	slot_a twrp image patched
+	slot_b twrp image patched
+
+FORMATTING USER DATA
+	vendor_a
+	vendor_b
+
+our twrp is installed in slot_a or slot_b
+right now both AIO and TWRP is installed in slot_b and slot_b is active
+so if it loops then try "fastboot --set-active=a"
+GSI should go in slot_b too.(using the system img)
+now old resurection system will get removed and new GSI will take cover. it's taking time.
+crossed finger  no not working
+
+
+
+system image for booting logo + the who system.
+vendor is device specific
+kernel
+
+
+samsung J500F/DD frp reset. first flash the latest file may be from 2017 then reset the react/frp using z3x

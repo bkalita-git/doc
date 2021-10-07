@@ -1,0 +1,40 @@
+
+Open
+1. !net !cache  : alert
+2. !net  cache  : display_from_cache
+3.  net !cache	: refresh
+4.  net  cache	: refresh
+
+Refreshing || scrolling_from_top
+1. !net !cache  : alert
+2. !net  cache  : display_from_cache + alert
+3.  net !cache	: download_to_cache  + display_from_cache
+4.  net  cache  : update_cache	     + display_from_cache
+
+scrolling_50%_of_cache
+1. !net !cache  : invalid
+2. !net  cache  : refresh
+3.  net !cache	: invalid
+4.  net  cache	: download_to_cache_if_space_left + display_old_data
+
+scrolling_from_end
+1. !net !cache  : refresh
+2. !net  cache  : refresh
+3.  net !cache	: refresh
+4.  net  cache	: scrolling_50%_of_cache
+
+
+a. alert
+b. display_from_cache
+c. download_to_cache
+d. update_cache
+e. download_to_cache_if_space_left
+f. display_old_data
+
+cache(50)
+  >empty
+  >mid
+  >full
+
+cache[]  =  Latest(Latest()[:50] + updated(cache()))[:50]
+

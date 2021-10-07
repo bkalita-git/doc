@@ -1,0 +1,43 @@
+KONG  COMMUNITY GATEWAY  DB-LESS MODE INSTALLATION:
+	# it uses NGINX server and kong is written in lua
+	$ mkdir kong-sources
+	$ cd kong-sources
+	$ git clone git@github.com:Kong/kong-build-tools.git
+	$./kong-build-tools/openresty-build-tools/kong-ngx-build \
+	    --prefix deps \
+	    --work work \
+	    --openresty 1.19.3.1 \
+	    --openssl 1.1.1k \
+	    --kong-nginx-module master \
+	    --luarocks 3.5.0 \
+	    --pcre 8.44 \
+	    --jobs 6 \
+	    --force
+	$ export OPENSSL_DIR=$(pwd)/deps/openssl
+	$ export PATH=$(pwd)/deps/openresty/bin:$PATH
+	$ export PATH=$(pwd)/deps/openresty/nginx/sbin:$PATH
+	$ export PATH=$(pwd)/deps/openssl/bin:$PATH
+	$ export PATH=$(pwd)/deps/luarocks/bin:$PATH
+	$ export KONG_DATABASE=off   //for dbless
+	$ eval `luarocks path` //add this too in .profile
+
+	$ nginx -V
+	$ resty -v
+	$ openresty -V
+	$ openssl version -a
+	$ luarocks --version
+	#libyaml-dev
+	$ sudo pacman -S libyaml
+	
+	
+	$ sudo mkdir /etc/kong
+	$ sudo sudo cp /home/common/Programs/Arch_linux/kong-sources/kong/kong.conf.default /etc/kong/kong.conf  
+	# sudo mkdir /usr/local/kong
+	# sudo chown bipul /usr/local/kong
+	$ kong start -c /etc/kong/kong.conf
+	$ curl --include http://localhost:8001/
+	
+	ADD A SERVICE// service can be a rest url json api
+	ADD A ROUTE TO THAT SERVICE
+	APPLY 1 Kong Gateway microservice logic(common policy) using a plugin for that SERVICE// plugin can be key-auth etc.
+	ADD CONSUMER AND CONGIGURE IT

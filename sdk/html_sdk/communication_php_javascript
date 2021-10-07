@@ -1,0 +1,95 @@
+var obj = XMLHttpRequest();
+obj.onreadystatechange = function(){ this.response};
+obj.open("GET","url",true);
+obj.send(payload);
+
+4 types of encrypt
+    application/x-www-form-urlencoded (the default)
+    multipart/form-data
+    text/plain
+    application/json (less support)
+
+
+Headers :GET
+	:Response Headers : Content-Type: text/html; or application/json ...
+			  : Content-Length :549
+			  : Server : Apache/2.4.43 (Unix) PHP/7.4.8		  
+	:Request  Headers : User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0
+			  : Cookie
+			  : Host : localhost
+
+
+Cookies : 
+Request
+Response : Response Payload
+
+
+
+*********************************************JSON with AJAX************************************************
+    
+a json string object is like this 		=    '{"name":"this","number":2102}' //see the quotes
+a json array object is like this       		=    '[ "Ford", "BMW", "Audi", "Fiat" ]'
+a javascript key and pair objext like this      =    {name:"this",number:2102}
+
+
+
+
+json_string_obj = JSON.stringify(javascript_k&p_obj);
+js_obj          = JSON.parse(json_string_obj);
+js_array	= JSON.parse(json_array_obj);
+
+
+php:
+	$myObj->name="this";
+	$myObj->number=2102;
+	json_string_obj = json_encode($myObj);
+
+	$php_myObj = ["name"=>"this","number"=>2102];
+	json_array_obj = json_encode($myObj);
+
+	php_array_obj = json_decode(json_array);
+	
+	recieve json in php:
+	   $json    =  file_get_contents('php://input');
+    	   $php_var = json_decode($json);
+    	   echo $php_var->name;
+    	   
+    	   
+*******************************************FormData with Ajax***********************************************
+The FormData interface provides a way to easily construct a set of KEY/VALUE PAIRS representing form fields and their values, which can then be easily sent using the XMLHttpRequest.send() method. It uses the same format a form would use if the encoding type were set to "multipart/form-data"
+
+var form_data_obj = new FormData(existing_form_object or empty);  note: FormData() object and <form> are two different
+form_data_obj.append('name','bipul');
+form_data_obj.append('number',2102);
+form_data_obj.delete('name');
+form_data_obj.append('userpic', uvr string or Blob or file, 'file_name');
+
+file_obj = new File([""],"file_name");
+
+ex: get files from <input type="file">
+	<input type="file"> is same as  var x=document.createElement("INPUT"); x.setAttribute("type","file");
+	list of files:  x.files;
+	the actual file is  x.files[0]
+
+form_data_obj: appending the file from <input id="input" type="file">  to form data object
+	var files = document.getElementById('input').files[0];
+	form_data_obj.append('file',files);
+	there is no way to get data out of a FormData object. You can only use them for building FormData to send via an AJAX request.
+	enctype="multipart/form-data" must be present in form_data_obj or form
+note:For security and privacy reasons web apps do not have direct access to the files
+on the user's device. If you need to read one or multiple local files, you can do
+this through the usage of a file input 
+
+php:
+	PHP supports HTML array feature even with files. 
+	<input name="AnotherArray[]" /> key 0
+	<input name="AnotherArray[]" /> key 1
+	<input name="AnotherArray[email]" /> key email
+	<input name="AnotherArray[phone]" /> key phone
+	these are 1 array...and anotherarray has keys, ie. 0,1 email and phone
+	<select name="var[]" multiple="yes">
+	
+	echo $_POST['name'];
+	$_FILES[input_name]['name']; //here input_name is the name of that input field.
+	move_uploaded_file($_FILES['userfile']['tmp_name'], '/where/to/upload.jpg')
+

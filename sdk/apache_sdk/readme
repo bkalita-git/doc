@@ -1,0 +1,82 @@
+ARCH LINUX
+installed using pacman -S apache
+
+1. Starting apache server
+	#sudo systemctl start httpd
+
+Apache configuration files
+	#/etc/httpd/conf/
+	extra  httpd.conf  magic  mime.types
+
+2. Document root    /etc/httpd/conf/httpd.conf
+
+	DocumentRoot "/srv/http"
+	<Directory "/srv/http">
+	    #
+	    # Possible values for the Options directive are "None", "All",
+	    # or any combination of:
+	    #   Indexes Includes FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+	    #
+	    # Note that "MultiViews" must be named *explicitly* --- "Options All"
+	    # doesn't give it to you.
+	    #
+	    # The Options directive is both complicated and important.  Please see
+	    # http://httpd.apache.org/docs/2.4/mod/core.html#options
+	    # for more information.
+	    #
+	    Options Indexes FollowSymLinks
+
+	    #
+	    # AllowOverride controls what directives may be placed in .htaccess files.
+	    # It can be "All", "None", or any combination of the keywords:
+	    #   AllowOverride FileInfo AuthConfig Limit
+	    #
+	    AllowOverride None
+
+	    #
+	    # Controls who can get stuff from this server.
+	    #
+	    Require all granted
+	</Directory>
+
+
+
+3. php  installed with   pacman -S php php-apache
+
+
+4. phpmyadmin installed with   pacman -S phpmyadmin  
+	configuration file in apache  
+	nano /etc/httpd/conf/extra/phpmyadmin.conf
+	
+     	Alias /phpmyadmin "/usr/share/webapps/phpMyAdmin"
+        <Directory "/usr/share/webapps/phpMyAdmin">
+            DirectoryIndex index.html index.php
+            AllowOverride All
+            Options FollowSymlinks
+            Require all granted
+        </Directory>
+        
+
+5. To create a new Website
+	create a website.conf  in   /etc/httpd/conf/extra/  like this->
+	
+	Alias /website "/location/of/the/public/index"
+        <Directory "/location/of/the/public/index">
+            DirectoryIndex index.html index.php
+            AllowOverride All
+            Options FollowSymlinks
+            Require all granted
+        </Directory>
+	
+	then include that file in apache main    httpd.conf like this at the end of the file
+	Include conf/extra/susrusha.conf
+
+
+
+6. ".htaccess" file in root of the public html :[executed by apache web server, before the page]
+	ErrorDocument 404 /error_pages/404.html   #when url on website does not work
+	Redirect /old_dir/ http://www.test.com(your domain)/new_dir/index.html   #redirect
+	
+	.htaccess can degrade the performance of the server
+	The use of .htaccess files can be disabled completely by setting the AllowOverride directive to none:
+	AllowOverride None

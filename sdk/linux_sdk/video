@@ -1,0 +1,46 @@
+
+reencode the video file using ffmpeg and forcing encoded files to ignore original file's metadata
+ffmpeg -i sample.webm -acodec copy -vcodec copy -map_metadata -1 test.webm
+-acodec codec force audio codec (‘copy’ to copy stream)
+-vcodec codec force video codec (‘copy’ to copy stream)
+-map_metadata outfile[,metadata]:infile[,metadata] set metadata information of outfile from infile
+
+
+
+
+
+Depending on your container of choice, this won't always work. For instance, containers like Matroska are designed to handle almost any stream you care to put in them, whether they're valid or not. This means the command:
+
+ffmpeg -i input.mp4 output.mkv
+
+may result in a file with the same codecs as input.mp4 had, which may or may not be what you want.
+The container is the wrapper for the streams. It presents a single interface that media players and tools can interact with. Some containers are highly advanced and allow for any sort of stream, including multiple video and audio streams inside a single container. The streams in a container don't have to be just audio or video though. Different containers will allow for different streams, e.g., subtitles, chapter information, or other metadata. It all depends on what the container is set to allow.
+
+This flag lets you set the different codec to use for each stream. For example, to set the audio stream to be Vorbis, you would use the following command:
+
+ffmpeg -i input.mp3 -c:a libvorbis output.ogg
+
+The same can be done to change the video as well as the audio stream:
+
+ffmpeg -i input.mp4 -c:v vp9 -c:a libvorbis output.mkv
+
+This will make a Matroska container with a VP9 video stream and a Vorbis audio stream, essentially the same as the WebM we made earlier.
+
+The command ffmpeg -codecs will print every codec FFmpeg knows about. The output of this command will change depending on the version of FFmpeg you have installed.
+
+
+ffmpeg -i input.webm -c:v copy -c:a flac output.mkv
+
+This command copies the video stream from input.webm into output.mkv and encodes the Vorbis audio stream into a FLAC. The -c flag is really powerful.
+
+
+
+The prior example can be applied to both the audio and video streams, allowing you to convert from one container format to another without having to do any additional stream encoding:
+
+ffmpeg -i input.webm -c:av copy output.mkv
+
+ffmpeg -i sample.webm -c:a copy -c:v copy -f matroska /dev/null
+
+ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 out.webm #duration in seconds
+
+#https://opensource.com/article/17/6/ffmpeg-convert-media-file-formats

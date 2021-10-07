@@ -1,0 +1,36 @@
+cycle vs evee
+	cycle is slow but more accurate
+	evee does not support reflection
+1. cycles kinetic typography
+	convert text object to mesh
+	add a remesh modifier
+		uncheck remove disconnected pieces
+		increase octree depth
+		check smooth shading
+		then aply the modifier
+	
+	each object has its own timeline for animation
+		just select the object,
+		rotation change 
+		add key
+		move timeline
+		add key
+	
+	Render properties setting
+		render engine
+	output settng is the render output setting
+		resolution
+		output format
+		encoding
+	then render animation
+
+2. motion graphics
+	Natron
+
+Project>Scene>Tools>Modes
+
+you can add a material to Object or Object's Data
+COlision works on rigid body, so make sure the object is a rigid  or add rigid body property. passive means that object stays but rigid.
+	1. object with rigid+active+animated
+	2. object with rigid+active
+	3. object wuth rigid+passive

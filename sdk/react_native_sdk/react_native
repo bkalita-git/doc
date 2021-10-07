@@ -1,0 +1,329 @@
+# react-native
+
+
+++++install:
+#openJDK  (check java -version)
+#android sdk
+#NPM
+#sudo pacman -S watchman
+#sudo pacman -S x11-ssh-askpass
+
+++for VS install:
+#react native tools by microsoft
+#react-native/react/redux snippet
+#prettier by esben petersen
+#material icon theme by phillip 
+
+++++configure:
+#nano ~/.profile
+
+export ANDROID_HOME=/home/common/Programs/Arch_linux/android
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+vscode setting: search "formatonsave" on setting and click enable
+
+
+
+++++emulator connection
+#connect with tcp adb
+
+++++usage
+#npx react-native init MyBJP
+#npx react-native start
+#npx react-native run-android
+
+
+
+React Native = React (a JavaScript library) + Native (mobile application type).
+
+REACT: to render interactuve UIs in a web browser, developer must edit the virtual DOM and that changes the Browser's DOM.
+
+REACT NATIVE: uses API  to render to platform-specific components, it invokes Objective-C/Swift or Java APIs to render to iOS and Android components.
+
+https://www.simplytechnologies.net/blog/2017/6/6/6-tips-you-want-to-know-about-react-native-performance
+
+
+asset:
+    store images/videos
+
+App.js:
+    import React from 'react'
+    class component/function component (returning jsx expression under a view referencing  a object)
+
+metro Bundler will make our final project either for android, iOS...etc
+
+debugging can be done in chrome called remote debugging
+shake device to open remote debug while adb connected
+also in vscode
+
+
+
+View
+SafeAreaView
+
+export default function App(){
+    const handlePress = () => console.log("Text pressed");
+
+<Text numberOfLines={1} onPress={()=>console.log("text)}>
+<Text numberOfLines={1} onPress={handlePress}>
+ddndjkndk
+</Text>
+}
+
+image: touchable
+import Image,TouchableWithoutFeedback from reactNative
+//place the image in asset
+<Image source={require("./asset/icon.png")}/>  //static image
+<Image source={{ width:300, height:200, blurRadius={10},fadeDuration={1000}, resizeMode={}, uri:"https://......"}}/>
+
+<TouchableWithoutFeedback onPress={()=>console.log("touched")}>
+    <Image source={{ width:300, height:200, blurRadius={10},fadeDuration={1000}, resizeMode={}, uri:"https://......"}}/>
+</TouchableWithoutFeedback>
+TouchableOpacity
+TouchableHighlight
+TouchableNativeFeedback
+
+<View style={{width:200, height:70, background
+
+Buttons:
+Import Button from...
+<Button color="orange" title="click me" onPress={()=>console.log("tets")} />
+
+
+Alert:
+import  Alert ...
+alert("button tapped")
+Alert.alert("my title","My message",[{text:"Yes", onPress= ()=>},{text:"No"}])
+Alert.prompt("My title","My message", (text)=>console.log(text))
+
+
+
+stylesheet:
+const styles=StyleSheet.create({  //styles object
+    container:{ //container object //shows error if something wrong
+        flex: 1,
+        backgroundColor:
+    }
+})
+
+const containerStyle = {backgroundColor:"orange"};
+and can be reffered it by
+style={containerStyle}
+or
+style={Styles.container}
+or
+style={[styles.container,containerStyle]} //multiple style
+or
+//from a separate file
+
+
+import Platform,StatusBar ...
+
+in styles..
+...
+paddingTop:Platform.OS==="android"? StatusBar.currentHeight:0,
+...
+
+
+
+
+
+Layouts:
+Dimensions---
+Density-independent Pixels (DIPs)
+Physical Pixels = DIPs X Scale Factor of a device
+
+ex: iphone 4,4s can display 320x480 abstract point not pixels
+Scale Factor: 2x
+Pixels= 640x960
+if view width is 150dips then actual actual width = 150x2 = 300pixels
+
+
+
+import {View,Dimensions} from "react-native";
+import {useDimensions, useDeviceOrientation} from "@react-native-community/hooks"; //detetct orientation 
+
+export default function App(){
+    console.log(Dimensions.get('screen')); //detail of device
+    or
+    console.log(useDimensions());//everytime rotate it is recalled
+    const {landscape} = useDeviceOrientation();
+    return(
+        <SafeAreaView style={styles.contaimer}>
+            <View style={{
+                backgroundColor: "dodgerblue",
+                height:150,
+                width:70
+                or
+                width:"100%",
+                height:landscape?"100%":"30%",
+
+            }}></View>
+        <SafeAreaView>
+    )
+}
+
+detecting orientation:
+use a library hooks
+#npm i @react-native-community/hooks
+>app.json
+"orientation":"default",
+or
+"orientation":"portrait",
+
+
+
+Flexbox:
+flex:1 view takes 100% screen
+flex:0.5 view takes 50% screen
+...
+return(
+    <View style={{backgroundColor:"dodgerblue",flex=1}}>
+        <View Style={{
+            backgroundColor:"dodgerblue",
+            flex:2,  //will get divided into 4 equal part
+        }}/>
+        <View Style={{
+            backgroundColor:"dodgerblue",
+            flex:1,
+        }}/>
+        <View Style={{
+            backgroundColor:"dodgerblue",
+            flex:1,
+        }}/>
+    </View>
+);
+}
+
+Flexdirection:
+flexDirection:"row"
+
+aligning:
+a view
+
+justifyContent : "center", //same as web
+alignItems:"center"
+alignSelf:"flex-start"
+
+flexwrap:
+in view
+handling overflow
+in root view
+flexWrap:"wrap"
+alignContent:"center" //need wrapping
+
+
+
+flexbasis:
+flexBasis:100 //map width or height
+flexGrow:1
+flexShrink:
+
+
+positioning:
+top:20
+position:"absolute" //relative to parent
+
+>app>assets
+update app.json if necessary
+>app>screens>WelcomeScreen.js
+
+import React from 'react';
+import {ImageBackground,StyleSheet,View,Image} from 'react-native';
+function WelcomeScreen(props){
+    return(
+        <View>
+            <ImageBackground style={styles.background}, source={{require('../assets/background.jpg')}}>
+            <Text>sell what u don't need</Text>
+        </View>
+
+        <Image style={styles.logo} source={require("./asset/..png")}/>
+        <View style={styles.loginButton}></View>
+        <View style={styles.registerButton}></View>
+        </ImageBackground>
+    );
+}
+const styles=StyleSheet.create({
+    background:{
+        flex:1,
+        justifyContent:"flex-end",
+        alignItems:"center",
+    },
+    loginButton:{
+        width:100%,
+        height:70,
+        backgroundColor:""
+    },
+    registerButton:{
+        width:100%,
+        height:70,
+        backgroundColor:""
+    },
+    logo:{
+        width:100,
+        height:100,
+        position:absolute,
+        top:70
+    }
+});
+export default WelcomeScreen;
+
+>App.js
+
+import {View} from "react-native";
+import WelcomeScreen from "./app/screens/WelcomeScreen";
+
+export default function App(){
+    return
+        <WelcomeScreen/>;
+
+}
+
+
+refactoring:
+>app>config>color.js
+
+export default{
+    primary:"#fc5c65".
+    secondry:
+}
+
+in >file.js
+import color from '../config/color'
+...
+backgroundColor:color.primary
+
+
+{{{{{{LearninG REACT-NATIVE}}}}}}
+use the notebook
+>package.json
+"homepage" : "https://yourdomain.com"
+
+>metro bundler is running on localhost:8081 by npx react-native start
+>metro is a java script bundler like webpack.
+
+_______________________example____________________________
+>dist
+>src>package.json
+    >javascript.js > console.log("test");
+    >build.js> const Metro = require("metro");
+    	       Metro.loadConfig()
+    	            .then(config=> {
+    	            	Metro.runBuild(config,{
+    	            		entry: './src/javascript.js',
+    	            		out  : './dist/javascript.js',
+    	            	});
+    	            });
+#node build.js
+------------------------Metro as a Server----------------------
+>src>server.js> const Metro = require("metro");
+		Metro.loadConfig()
+		     .then(config =>{
+		     	Metro.runServer(config,{});
+		     })
+#node server.js
+#localhost:8080/src/javascript.bundle //a script file can be include in a index.html
+

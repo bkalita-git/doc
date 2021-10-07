@@ -1,0 +1,122 @@
+IMBA Installation:
+using NPM manager. where node.js is also necessary. go to the extracted imba directory and hit #npm-install
+
+	or	
+	
+sudo npm install -g imba
+/usr/bin/imba -> /usr/lib/node_modules/imba/bin/imba
+/usr/bin/imbac -> /usr/lib/node_modules/imba/bin/imbac
+/usr/bin/imbapack -> /usr/lib/node_modules/imba/bin/imbapack
+
+here /usr/lib/node_modules is the global node modules directory
+
+like for Composer for PHP
+
+
+Imba.mount <element,where_to_mount>
+ex: Imba.mount <div -> <span> "lets go"  will add to document.body
+
+******************************************************************Custom Tags:*****************************************************************
+By default custom tags inherit from DIV but we can specify. also we can device instance method on them. This feature is present in html also.
+
+tag App //inherited from DIV
+
+let app = <App.main> <h1> "Hello" #created an instance of App tag. just like any other tag
+
+
+tag customForm < form //inherrited from form
+	def onsubmit event
+		console.log "submitted"
+	def someMethod
+		console.log "hello"
+		self
+
+let form = <customForm>
+form.someMethod  #=> "hello"
+
+class SomeClass .<div>  creates a new instance of this tag.
+
+
+
+
+
+But how custom tag should render? declare the render method
+tag CustomTag
+	def render
+		<self> <h1> "Hello world{Math.random}">
+let app = <CustomTag.main>
+
+now it render as:    <div class'CustomTag main'><h1>Hello world</h1></div>
+app.render will now update its own DOM tree every time it is called
+everything inside <self> is reactive so. also we can do:
+var live = Imba.mount <div -> <span> "date is {Date.new.toLocaleString}"
+now we can do, live.render  because ->  does it.
+
+
+Properties:
+tag App
+	prop slug #custom  properties
+	prop greeting default: 'Hello Human!'  #properties with default value
+	
+	def render
+		<self>
+			<h1> "Slug is:{slug}"
+			if slug == '/home'
+				<div> "{greeting} you are home"
+				
+let app = <App slug='/home'> 
+
+
+***************************************************************Event******************************************************************************
+
+Listening to Events
+<tag :click=(do counter++)>
+
+we can do also
+<tag :click='function_inside_the_custom_tag'>
+<tag :click.function>
+
+<tag :click=['function',argument]>
+<tag :click.function(argument)>
+
+Event modifiers
+<tag :submit.prevent.function> #prevent default so here, prevent is also a function, we can define such types custom modifers. here after executing prevent, function will be called
+some readymade:
+.stop .prevent .silence .self
+
+Key Modifers:
+For keyboard events (keydown, keyup, keypress) there are also some very handy modifiers available.
+# trigger addItem when enter is pressed
+<input type='text' :keydown.enter.addItem>
+
+# multiple handlers for the same event is allowed
+# trigger gotoPrev/gotoNext when pressing up/down keys
+<div :keydown.up.gotoPrev :keydown.down.gotoNext>
+
+
+Declaring default handlers:
+When an event is processed by Imba, it will also look for an on(eventname) method on the tags as it traverses up from the original target.
+tag App
+    def onsubmit e
+        e.prevent
+        window.alert('Tried to submit!')
+
+    def render
+        <self>
+            <form>
+                <input type='text'>
+                <button type='submit'> "Submit"
+
+Imba.mount <App>
+
+
+let data = {title:"title",done:false}
+data:title
+data:done
+trigger('event',data)
+
+def onevent e
+	e.data:done
+	e.data:title
+
+<tag.class1 .class2=expression_is_true>

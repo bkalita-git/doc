@@ -1,0 +1,121 @@
+install
+
+    Ruby
+    	the language: sudo pacman -S ruby
+    	the ruby doc through ri command eg- ri Array.pop: sudo pacman -S ruby-rdoc ruby-docs
+    	the ruby language on TOP of Java Virtual Machine: sudo pacman -S jruby
+    	package manager for ruby modules(gems): sudo pacman -S rubygems
+    		gem: install a gem systemwide or user wise, they can be installed with pacman or gem
+    		~/.profile
+			export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
+			export PATH="$PATH:$GEM_HOME/bin"
+		source ~/.profile
+	bundler, which installs a list of gems in your application: gem install bundler
+    The Rails Framework
+    	install for user: gem install rails --no-document
+    	create test app: rails new testapp_name, cd testapp_name, rails server (comes with a default server called puma but not for production)
+    	bundle install --path vendor/cache //if  error  in future
+    A Web Server
+    	Apache HTTP Server using Phusion passanger module:
+    		install:	$ sudo pacman -S mod_passenger
+		configure: 	 /etc/httpd/conf/httpd.conf 
+					#add these lines
+					LoadModule passenger_module /usr/lib/httpd/modules/mod_passenger.so
+					PassengerRoot /usr/lib/passenger 
+					PassengerRuby /usr/bin/ruby
+					Listen 8080
+					
+				/etc/hosts
+					127.0.0.1 rubytest.com
+					
+				$ sudo chmod -R 755 /home/common/git_working_dir/ruby-on-rails/testapp/public	
+				
+	
+		DEPLOY DEVELOPMENT:	#add virtual host to your application
+					#test app ruby www.rubytest.com
+					<VirtualHost *:8080>
+					    ServerName rubytest.com
+					    ServerAlias www.rubytest.com
+					    ServerAdmin webmaster@localhost
+					    DocumentRoot "/home/common/git_working_dir/ruby-on-rails/testapp/public"
+					    RailsEnv development
+					    ErrorLog /var/log/httpd/error_log
+					    CustomLog /var/log/httpd/access_log combined
+					    <Directory "/home/common/git_working_dir/ruby-on-rails/testapp/public">
+						Options FollowSymLinks
+						Require all granted
+					    </Directory>
+					</VirtualHost>
+
+					config.hosts << "rubytest.com"  in config/environment/development.rb
+					
+					$ sudo systemctl restart httpd
+			    		//check apache error log
+			    		
+			    		
+			    		
+		DEPLOY PRODUCTION:     	#test app ruby www.rubytest.com
+					<VirtualHost *:8080>
+					    ServerName rubytest.com
+					    ServerAlias www.rubytest.com
+					    ServerAdmin webmaster@localhost
+					    DocumentRoot "/home/common/git_working_dir/ruby-on-rails/testapp/public"
+					    RailsEnv production
+					    ErrorLog /var/log/httpd/error_log
+					    CustomLog /var/log/httpd/access_log combined
+					    <Directory "/home/common/git_working_dir/ruby-on-rails/testapp/public">
+						Options FollowSymLinks
+						Require all granted
+					    </Directory>
+					</VirtualHost>
+					
+					
+    					$ rake secret
+    					#config/secrets.yml
+    					production:
+  					  secret_key_base: 03ce0a1c01729d14868181d893fcd8901abea96266f2ef74...
+  					  
+  					  
+    					$ rails generate controller welcome index   //rails d controller welcome to revert
+    					
+    					#config/routes.rb
+    					Rails.application.routes.draw do
+					  root 'welcome#index'
+					end
+					
+    					$ bundle exec rails assets:precompile RAILS_ENV=production
+    					$ sudo systemctl restart httpd
+    					
+    					tail -f log/production.log
+   
+   
+    A Database System			
+    					# client libraries to connect to mariadb	
+    					$ sudo pacman -S mariadb-libs
+    					
+    					#bundle add mysql2
+    					
+    					#config/database.yml
+    					development:
+					  adapter: mysql2
+					  encoding: utf8
+					  pool: 5
+					  min_messages: warning
+					  timeout: 5000
+					  username: root
+					  password: root
+					  socket: /var/run/mysqld/mysqld.sock
+
+
+GUIDE: https://guides.rubyonrails.org/configuring.html
+
+
+
+
+
+// you can not add or install a gem in deployment mode so     $ bundle config unset deployment
+// ERROR: LOADERROR You might by mistake have set bundle install --without at some point, I sure did anyways.To revert this run: 
+	$ bundle config --delete without
+	$ bundle config --delete with
+	$ bundle install
+// ERROR: PARSE yml does not accept \t replace with 2 space

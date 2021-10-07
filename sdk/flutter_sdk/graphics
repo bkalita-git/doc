@@ -1,0 +1,29 @@
+https://undraw.co/illustrations
+
+https://rive.app/
+
+https://itnext.io/svg-and-custom-animated-icons-in-flutter-ios-android-web-with-minimum-effort-118c2d71b2e7
+
+if something is mutable then everytime setState is called it will make a new object, for example, Tween object below is mutable, so it should be declared as final
+return Center(
+        child:TweenAnimationBuilder(
+          duration: Duration(seconds:2),
+          tween: Tween<double>(begin: 0,end: _angle),
+          builder: (_,double __angle,__){
+            return Transform.rotate(
+            angle:__angle,
+            child: Container(
+                color: Colors.red,
+                height: 49,
+                width: 10+__angle,
+                child: GestureDetector( 
+                        onPanDown: (f){setState(() {
+                          _angle=_angle!=0?0:35;
+                          //_width=_width!=200?200:500;
+                        });},
+              ),));
+          },
+ 	     )
+);
+      
+

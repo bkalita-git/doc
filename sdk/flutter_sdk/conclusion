@@ -1,0 +1,40 @@
+Network:
+	1. Client to Server and immediate 	Receive.
+	2. Listen Always On Server and wait for Receive.
+	https://www.twilio.com/blog/create-php-websocket-server-build-real-time-even-driven-application
+	3. Server to Client and immediate 	Receive.
+
+
+Listener:
+	1. Event Consumer (Provider).
+	2. Custom Software Interrupt.
+
+Responsiveness:
+	1. MaterialApp
+	2. Scaffold
+	3. SafeArea
+	4. Container
+	5. Row
+	6. Column
+	7. Types of Widgets
+
+Interaction:
+	1. Native to Flutter. 
+	
+Design:
+	1. Animation RIVE
+
+Integration:
+	1. Signup Google Facebook Instagram Twitter
+	2. Signin Google Facebook Instagram Twitter
+	3. Email OTP
+	4. Mobile OTP
+	
+Database:
+	1. Image, Video Storage
+	2. Mariadb Large DB
+	3. DB for flutter
+
+Security:
+	1. Encrypted Not Accessible Password.
+	2. Host Protection Layer

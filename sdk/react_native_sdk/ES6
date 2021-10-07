@@ -1,0 +1,97 @@
+utilities.js>
+	export default function cube(x){  //only to export cube from this file
+	return x*x*x;
+	}
+		or
+	export function cube(x){
+	return x*x*x;
+	}
+	export const foo = Math.PI+Math.SQRT2;
+App.js>
+	import Cube from './utilities';
+	Cube(3);
+		or
+	import {cube,foo} from './utilities';
+	cube(3);
+	foo;
+		or
+	import * as utilities from './utilities';
+	utilities.cube(3);
+	utilities.foo;
+
+we can export:
+	function
+	object
+	class
+	expression
+from:
+	script file
+	module
+	
+	
+ES6 SYNTAX and JS
+
+ 1.let 
+ 	var x=10; //here x = 10
+ 	{
+ 	 let x=2; //here x = 2
+ 	}
+ 	//here x = 10
+
+ 2. const , const array index, object proprties can be changed but can't be reassigned
+ 	var x = 10;
+ 	{
+ 	 const x = 2;
+ 	 can't change x here
+ 	}
+ 3. Hoisting //a variable can be declared after it has been used. features of js
+ 	x = 5;
+ 	var x;
+ 4. Arrow function
+ 	      x = (x,y) => 	  x*y ;
+ 	      x = (x,y) =>	 (x*y);
+ 	      x = (x,y) =>{return x*y};
+ 	const x = (x,y) => 	  x*y ;
+ 	var   x = (x,y) => 	  x*y ;
+ 	let   x = (x,y) => 	  x*y ;
+ 	
+ 		 x(5,1);
+ 5. class //a javascript class is not an object, it is a template for js object
+ 	class Car{
+ 	 constructor(name,year){
+ 	  this.name = name;
+ 	  this.year = year;
+ 	 }
+ 	}
+ 	let myCar1 = new Car("ford",2014);
+ 	let myCar2 = new Car("Audi",2019);
+ 6. Promise object //A Producing code take some time and consuming code must wait for the result
+ 	let myPromise = new Promise(function(myResolve,myReject){
+ 								 //producing code
+ 								 myResolve; //when successful
+ 								 myReject; //when error
+	});
+	//"consuming code" must wait for a fulfilled Promise
+	myPromise.then(
+	 function(value){/*code if successful*/},
+	 function(error){/*code if some error*/}
+	);
+ 7. JSON
+ 	DATA    "firstname":"john"  //require double quotes. JS names do not.
+ 	OBJECT {"firstname":"john","lastname","Doe"}
+ 	ARRAY  "employees":[{"firstname","John","lastname":"Doe"},
+ 			    {"firstname","Anna","lastname":"Smith"},
+ 			    {"firstname","Peter","lastname":"Jones"}
+ 	       ]
+    	JSON TEXT TO -> JS OBJECT  : when exchanging data between a browser and a server, the data can only be text.
+    		var json_as_text = '{"employees":['+
+    				   '{"firstname","John","lastname":"Doe"},'+
+		 		   '{"firstname","Anna","lastname":"Smith"},'+
+		 		   '{"firstname","Peter","lastname":"Jones"}]}';
+	        var js_obj = JSON.parse(json_as_text);
+	            js_obj.employees[1].firstname;
+        JS OBJECT    -> JSON TEXT
+        	var js_obj = {name: "john",age:31,city:"New York"};
+        	var json_as_text = JSON.stringify(js_obj);
+ 8. this https://www.freecodecamp.org/news/learn-es6-the-dope-way-part-ii-arrow-functions-and-the-this-keyword-381ac7a32881/
+ 	

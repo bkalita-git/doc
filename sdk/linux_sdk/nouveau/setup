@@ -1,0 +1,62 @@
+lspci -vvv -nnn | grep -A  10 -E "3D" and lspci -k | grep -A  10 -E "3D" 
+	outputs that my graphics card is NVIDIA GEFORCE 820M based on fermi architecture with 2.1 compute capability (not NVIDIA GEFORCE GT 820M) and inside it there is a  NVIDIA GF117M GPU
+	My graphics card is a hybrid graphics card,because I have intel graphics card inside and also Nvidia graphics card.
+	Hardware generation vs compute capability and cuda support
+supported technology
+	CUDA 2.1
+	Optimus       :allows an Intel integrated GPU and discrete NVIDIA GPU to be built into and accessed by a laptop. (bumblebee)
+	Physx
+	GPU Boost 2.0
+	DirectX 12
+	OpenGL 4.5
+
+
+CUDA SDK 8.0 support for compute capability 2.0 – 6.x (Fermi, Kepler, Maxwell, Pascal). Last version with support for compute capability 2.x (Fermi) (Pascal GTX 1070Ti Not Supported).
+
+
+3  methods:
+	use intel graphics only
+	use NVIDIA graphics only
+	use NVIDIA GPU when needed and keep it powered off to save power
+		using prime render offload
+		using optimus-manager
+		using nvidia-xrun
+		using bumblebee : Allows application with NVIDIA
+		using nouveau
+		
+
+
+
+
+Bumblebee is a software implementation comprising two parts:
+    1. Render programs off-screen on the dedicated video card and display it on the screen using the integrated video card. This bridge is provided by VirtualGL or 
+    primus (read further) and connects to a X server started for the discrete video card.
+    
+    2. Disable the dedicated video card when it is not in use (see the #Power management section)
+
+install: 
+	bumblebee 
+	mesa:  An open-source implementation of the OpenGL specification.
+	mesa-demos : use glxgears to test if if Bumblebee works with your Optimus system
+	xf86-video-intel
+	Xorg
+	lib32-virtualgl
+	lib32-nvidia-utils
+	nvidia:
+		The NVIDIA GeForce 820M actually uses nvidia-390xx-{dkms,utils}
+	
+	
+    
+### yay -S nvidia-390xx-dkms nvidia-smi works
+# sudo pacman -S mesa-demos
+# sudo pacman -S mesa
+# sudo pacman -S lib32-mesa
+# sudo pacman -S xf86-video-nouveau
+# modprobe nouveau
+# rmmod nvidia
+
+# sudo pacman -S bumblebee  optirun glxgears  and optirun glxspheres64 and alternatives primusrun and pvkrun
+# sudo pacman -S xf86-video-intel
+
+https://en.wikipedia.org/wiki/CUDA
+

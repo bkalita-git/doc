@@ -1,0 +1,92 @@
+HOW THEY ARE EARNING MONEY:
+	1. THEY EARN MONEY FROM RUNNING A OPENSOURCE PROJECT ON SERVER AND LET YOU ACCESS TO IT. here, the cost of the business is only the Server.
+	2. Selling Code At Code Canyon
+	3. They offer services at fiver
+	4. MONEY FROM DART COMMUNITY TO MAKE IT BETTER(PATREON)
+
+WHAT SERVICE THEY ARE PROVIDING ON FIVER:
+	DIGITAL MARKETING:
+		1. social media marketing
+			1. social media management
+			2. profile setup and integration
+			3. social content
+			4. consultation and auduence research
+				1. instagram hashtags to grow instagram organically
+			5. analytics and tracking
+				1. facebook pixel
+				2. identify ghost follower
+				3. facebook conversion API
+			6. Promote and grow instagram page organically
+		2. search engine optimization
+		3. social media advertising
+		4. public relations
+		5. content marketing
+		6. podcast marketing
+		7. video marketing
+		8. email marketing
+		9. crowdfunding
+		10. search engine marketing
+		11. display advertising
+		12. marketing strategy
+		13. web analytics
+		14. book and ebook marketing
+		15. influencer marketing
+		16. community management
+		17. local SEO
+		18. e-commerce marketing
+		19. affiliate marketing
+		20. mobile app marketing
+		21. music promotion
+		22. web traffic
+			1. drive 50000 google organic search traffic with keywords
+			2. send google search traffic with guarantee
+			3. google whitehat seo and keyword targeted traffic
+			4. drive unlimited usa traffic  for 30 days
+		23. text messaging marketing
+
+TYPES OF REGISTERED BUSINESS IN INDIA FROM SMALL TO BIG:
+	1. Oneperson Company
+	2. LLP
+	3. Company
+
+BUSINESS MODEL:
+	1. TARGET MARKET:
+		GEOGRAPHIC
+		DEMOGRAPHIC
+		PSYCHOGRAPHIC
+		BEHAVIORAL
+	2. SPECIFIC PAYMENT MODEL FOR TARGET CUSTOMER
+	3. SERVICES:
+		CREATE PRODUCT & SELL:
+			ONE TIME
+			RECURRENT
+		RESELLER: 
+			SELL FOR OTHER
+			AFFILIATE MARKETING: COMMISION PER SALE 
+		BROKER: SELL FOR OTHER AND BUY FOR OTHER
+		OFFER FREE SERVICE AND SHOW ADS (EG: FACEBOOK)
+		OFFER SERVICE  ON DEMAND(EG: UBER)
+		FREEMIUM: OFFER A FREE CORE SERVICE AND ADD PAID PLUGINS 
+
+BUSINESS REGISTRATION IN INDIA:
+	1. NEED A OFFICE, or a VIRTUAL OFFICE
+
+SERVICES AND DEPLOYMENT:
+	opensource SAAS product 
+		https://github.com/nikhilrayaprolu/awesome-open-saas
+		tawk.to
+	WHERE TO HOST
+		DEDICATED>VPS>SHARED
+		CLOUD
+	APPLICATION MODEL
+		CREATE READ UPDATE DESTROY (CRUD)
+	APPLICATION BUILDING PIPELINE
+		DEVELOPMENT>DEBUGGING>BUILDING>RUNTIME>TESTING
+	DEPLOYMENT MODEL:
+		SERVER:
+			CLIENT<--->KONG-API-GATEWAY  <---->DOCKER-CONTAINER[GO-MICROSERVICE] 
+		SERVERLESS:
+			CLIENT<--->AMAZON-API-GATEWAY<---->AWS-CONTAINER   [GO-MICROSERVICE] 
+
+SERVICE ARCHITECTURE:
+	DOMAIN DRIVEN DESIGN

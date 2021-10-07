@@ -1,0 +1,57 @@
+electronic network comprising of virtual server
+data are stored on different components via the Internet.
+
+Serverless means that the developers can do their work without having to worry about servers at all.
+__________________________________________
+|Management Software|Deployment Software |
+------------------------------------------
+|  		Hypervisor		 |
+------------------------------------------
+|   Network |    Server	   | Storage     |
+|----------------------------------------|
+
+Hypervisor: firmware/low-level program acts as a Virtual Machine Manager. It allows to share the single physical instance of cloud resources between several tenants( kiraidaro/ bharatiya ).
+Management Software:   It helps to maintain and configure the infrastructure
+
+Deployment Software: It helps to deploy and integrate the application on the cloud.
+
+Deployment Model: Public cloud / private cloud / Hybrid Cloud /Community Cloud 
+
+
+Service Model: 
+1. infrastructure as a service (IAAS)
+2. Platform as a service (PAAS)
+3. Software as a service (SAAS)
+4. Identify as a service (IDAAS)
+5. Network as a service (NAAS)
+
+
+IAAS: ex: AWS_EC2
+ Provides - 
+ a. Physical Machines
+ b. Virtual storage
+ c. Virtual Local Area Network (VLANs)
+ d. Load Balancer
+ e. Ip addresses
+ f. Software bundles
+ All of the above resources are made available to end user via server virtualization. Moreover, these resources are accessed by the customers as if they own them. (Virtual Machine Automation)
+ 
+PAAS: ex: AMAZON WEB SERVICES, MICROSOFT AZURE, AWS ELASTIC BEANSTALK, HEROKU, FORCE.COM, GOOGLE APP ENGINE, APACHE STRATOS, OPENSHIFT
+ Provides - 
+ a. runtime environment for application
+ b. development and deployment tools
+ c. point-and-click for non developer
+ d. App Engine of Google and Force.com are examples of PaaS offering vendors. ()
+
+SAAS: Gmail, hotmail, google docs
+ Provides -
+ a. software application to end users.(billing and invoicing system/CRM application,help desk,HR solutions)
+
+IDAS:
+ Provides -
+ a. 
+
+NAAS:
+ Provides - 
+ a. custom routing protocols
+

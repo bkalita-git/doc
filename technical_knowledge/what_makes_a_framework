@@ -1,0 +1,35 @@
+Framework:
+	asset pipeline
+	runtime  environment eg:javascript runtime environment is NodeJS / java runtime environment is JRE
+	package manager eg:gem,node,pip,pacman,composer
+	dependency manager eg: bundler
+	module bundler eg:webpack, webpacker
+	build utility eg: rake,make
+	testing tool eg: minitest
+	domain name parser eg: public_suffix
+	URI implentation eg: addressable
+	exception binding eg:bindex	
+	object serialization library eg: msgpack
+	app optimizer eg: bootsnap
+	language debugger eg: byebug
+	regular expressesion eg:regexp_parser
+	pseudo language/DSL for XML eg: xpath
+	integration testing tool for website eg: capybara
+	external background programs controlling eg: childprocess
+	dynamically-linked native libraries loader eg: ffi
+	pseudo language/DSL for JSON eg:jbuilder
+	HTTP server eg:puma,apache
+	zip file tool eg: rubyzip
+	C/C++ port of saas engine eg:libsass, sassc, sassc-rails
+	programming language extensions eg:sass for css
+	template engine eg: ERB.HAML,SLIM
+	generic interface over varient template engines eg: tilt
+	mimic user automated tests eg: selenium-webdriver
+	database bridge/interface eg: sqlite3
+	webpage navigation optimizer eg:turbolinks-source, turbolinks
+	IANA time zone database data eg: tzinfo-data
+	application level debugger eg:web-console
+	webdriver management eg: webdrivers
+
+Framework have states:
+	DEVELOPMENT>DEBUGGING>BUILDING>RUNTIME>TESTING

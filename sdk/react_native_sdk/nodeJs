@@ -1,0 +1,93 @@
+Node.js is a backend javascript runtime env that works without a web browser
+#node App.js
+
+NPM is a official node package installer for javascript
+#npm install package_name
+
+for  simplicity we have created a 'App.js' file under a directory named 'myapp'
+		import * as React from 'react';
+		import * as ReactDOM from 'react-dom';
+
+		function App(){
+		return (
+			<p>Hello World!</p>
+		);
+		}
+		ReactDOM.render(
+			<App/>,
+			document.getElementById('root')
+		);
+		
+		
+		
+Now, we want to convert that 'App.js' file to a output javascript file 'out.js' which will be included in our entry point 'index.html'
+		<html>
+		<body>
+			<div id="root"></div>
+			<script src="out.js"></script>
+		</body>
+		</html>
+
+
+
+converting our 'App.js' to final 'out.js'
+	for  that we will use metro-bundler #npm i metro-bundler
+					    #npm i metro //this will install metro-bundler inside our project directory under a directory named 'node_modules'
+					    #npm install --save-dev @babel/preset-env //babel support
+					    #npm install --save-dev @babel/preset-react  //babel support for react
+	also we have installed 		    #npm i react //since our App.js contains a statement import React from 'react';
+					    #npm i react-dom
+	Now we created a 'bundler.js' file with 
+	
+		const Metro = require("metro");
+	    	       Metro.loadConfig()
+	    	            .then(config=> {
+	    	            	Metro.runBuild(config,{
+	    	            		entry: 'App.js',
+	    	            		out  : 'out.js',
+	    	            	});
+	    	            });
+	
+	Now babel config file  ".babelrc" with
+		{
+			"presets" : [
+				[
+					"@babel/preset-env",
+					{
+						"targets":{
+							"chrome":"58",
+							"ie":"11"
+						}
+					}
+				],
+				"@babel/preset-react"
+			]
+		}
+		
+	#node bundler.js //will produce the out.js file
+								OPEN THE INDEX.HTML FILE AND ENJOY
+							
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+conclusion:
+
+4 files:
+		index.html
+		bundler.js
+		App.js
+		.babelrc
+
+5 installation:
+		#npm i react
+		#npm i react-dom
+		#npm i --save-dev @babel/preset-env
+		#npm i --save-dev @babel/preset-react
+		#npm i metro
+
+1 run
+		#node bundle.js
+
+
+	
+	
+
+

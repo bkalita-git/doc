@@ -1,0 +1,9 @@
+get the test api key for the gateway
+then you will have testing netbanking account or  debit card so you can pay to the test account
+Now, there will  be server code, client code
+client code will initiate the payment whoever wanna pay and then client code will server code will send orderid etc.. to paytm server.
+so server code is needed for securing the paytm api keys and some configuration file.
+later using order id you can check the transaction details in paytm dashboard too.
+and to get the production key, you will need website/app privacy policy etc.. so  paytm can verify
+
+PAYTM DONATION ALERT? the software reads the notification from google pay and paytm and reads email notification from phonepe. that app is  "stream-easy donation alert tool" this tool will send the alert to stream-easy server account then the stream-easy server will send to  the stream lab studio/obs using a website link

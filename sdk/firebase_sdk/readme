@@ -1,0 +1,72 @@
+firebase is a subset of cloud 
+sms verification is free for all ANDROID apps(available in kotlin and java) with sms retriever api or sms consent api from google cloud API
+also for all other platform firebase can be used with 10k/m sms verification and email and others are free 
+firebase cloud messaging, in app messaging are free
+
+govt has too https://apisetu.gov.in/
+
+see https://developers.google.com/products for services
+COMPLETELY FREE SERVICES:
+	FIREBASE
+		A/B TESTING
+		ANALYTICS
+		APP DISTRIBUTION
+		APP INDEXING
+		EMAIL/PASSWORD GOOGLE PLAYGAMES GAMECENTER FACEBOOK TWITTER GITHUB YAHOO MICROSOFT APPLE ANONYMOUS
+		CLOUD MESSAGING (FCM)
+		CRASHLYTICS
+		DYNAMIC LINKS
+		CUSTOM DOMAIN AND SSL
+		MULTIPLE SITE PER PROJECT
+		IN-APP MESSAGING
+		CUSTOM MODEL DEPLOYMENT
+		PERFORMANCE MONITORING
+		PREDICTION
+		REMOTE CONFIG
+		BIGQUERY
+
+SMS VERIFICATION USING FIREBASE AUTH for WEB WITH FLUTTERFIRE
+	1. create or select firebase project
+	2. create a webapp within that projet and copy the given script in to the web>index.html in first of body tag
+	3. Now initialized flutterfire->   flutter pub add firebase_core must be initialized before any firebase services
+	4. go to firebase auth section
+	5. enable phone in signin method and authorized domain
+	6. since  we are using flutter see flutter firebase auth doc 
+	7. 'flutter pub add firebase_auth'  this will also generate a file lib>generated_plugin_registrant.dart
+	8. add firebase_auth sdk in web>index.html <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-auth.js"></script>
+	9. for Native Platform use : verifyPhoneNumber and for Web Platform: signInWithPhoneNumber
+
+GOOGLE SIGNIN USING FIREBASE AUTH for WEB WITH FLUTTERFIRE
+	1. create or select firebase project
+	2. create a webapp within that projet and copy the given script in to the web>index.html in first of body tag
+	3 . Now initialized flutterfire->   flutter pub add firebase_core must be initialized before any firebase services
+	4. go to firebase auth section
+	5. enable google in signin method and authorized domain
+	6. since  we are using flutter see flutter firebase auth doc 
+	7. 'flutter pub add firebase_auth'  this will also generate a file lib>generated_plugin_registrant.dart
+	8. add firebase_auth sdk in web>index.html <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-auth.js"></script>
+	9. Now use the google verification flutter code
+	10. Now since the app is not verified by google you have to continue unsafely 
+	11. upon successful login it will store the user info in frebase auth daskboard and also returns the cred to the client app
+
+NOTIFICATION USING FIREBASE FCM for WEB WITH FLUTTERFIRE  (  FAILED	)
+	1. create or select firebase project
+	2. create a webapp within that projet and copy the given script in to the web>index.html in first of body tag
+	3. Now initialized flutterfire->   flutter pub add firebase_core must be initialized before any firebase services
+	4. go to firebase cloud messaging section
+	5. since  we are using flutter see flutter firebase CLOUD MESSAGING doc 
+	6. 'flutter pub add firebase_messaging'
+	7. add the firebase_messaging sdk in web>index.html   <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js"></script>
+	8. add service worker in index.html  navigator.serviceWorker.register("/firebase-messaging-sw.js");
+	9. create firebase-messaging-sw.js  in web> and code
+	10. request permission code for web in flutter
+	11.//only for handling incoming msg create a Web Push Certificate in firebase console in project setting within cloud messaging and it will provide a key
+	    also CODE for web handsake with firebase using the key
+	12. now  you can send notification using flutter cloud messaging console or you can integrate it to a server ex. send notification from php
+	
+HOW FIREBASE WORKS FLUTTER:
+	1. create project
+	2. create (web,android,ios) APP within that projet
+	3. initialized firebase in client app with credentials provided by the firebase project>platform>
+	4. enable firebase API or services even configure them
+	5. initialized client app if needed for the selected firebase API or service 

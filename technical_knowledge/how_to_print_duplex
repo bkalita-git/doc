@@ -1,0 +1,20 @@
+landscape: 
+output  ABC->
+input <-ABC (blank & first page up)
+
+
+portrait:
+output CBA->
+inpu <-ABC  (blank & first page up)
+
+
+Booklet in landscape turned on
+dont flip or stack pages (requires only rotating)
+output CBA->
+input <-ABC
+
+portrait:
+print on both side settings->
+dont flip or stack pages (reuires only rotating)
+output  CBA->
+input <-ABC

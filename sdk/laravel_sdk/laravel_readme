@@ -1,0 +1,598 @@
+#download the laravel installer
+composer global require laravel/installer
+ ->/home/bipul/.config/composer
+
+#adding path of laravel bin in  .profile   
+export PATH=$PATH:/home/bipul/.config/composer/vendor/bin 
+
+
+#create a project called mylara
+laravel new mylara
+
+#start a development server (running artisan php script)
+php artisan serve
+
+#directory structures
+./resources/views/welcome.blade.php #pages
+		 /sample.blade.php  #pages
+	   /js/
+	   /saas/
+	   /lang/
+		 
+./routes/web.php #return a page
+	/api.php #api route
+
+./app #we write our controller,Model,Middleware,service provider
+     /Console/Kernal.php #Custom Command
+     /Exceptions/Handler.php #handle Exceptions
+     /Http/Controllers/Controller.php
+     		      /UsersController.php 
+     	  /Middleware/
+     /Providers
+     User.php #Model on root level, default Model
+./bootstrap/cache/
+	   /app.php
+
+./config/
+	/database.php #database
+	/session.php
+	/
+
+./database #migration,seeds,factories
+
+./public/index.php #browser 1st 
+	/.htaccess
+	/robots.txt
+
+./storage/app/public/ #profile pic, pdf
+	 /framework/ #cache
+
+./tests/
+
+./vendor/ #composer  php library
+
+.env #environment config like database, etc. 1st change here
+
+composer.json #
+
+
+
+***************************ROUTING***********************************
+./routes/web.php  for returning web pages
+	Route::get('/url',function(){
+		return view('page_name_without_blade.php_ext');
+	});
+			or
+	Route::view('url','page_name');
+
+	********************GET DATA******************
+	Route::get('/url/{id}',function($id){
+		echo $id;
+		return view('page_name_without_blade.php_ext');
+	});
+
+	REDIRECT
+	Route::redirect('/','output_page');
+			or
+	Route::get('/url',function(){
+		return redirect('page_name_without_blade.php_ext');
+	});
+
+
+***************************CONTROLLER***********************************
+./app/Http/Controllers/Controller.php
+connect view and model
+to make a Controllers
+$php artisan make:controller Users   #Plurals
+./app/Http/Controllers/Users.php
+
+	class Users extends Controller{
+		function index(){
+			return ['name'=>'anil sindhu'];
+		}
+		function show(){
+			echo "Hello from controller";
+		}
+	}
+	then make a Route in web.php
+	Route::get('users',''Users@index);
+	Route::get('users',''Users@show);
+	
+	PASSING ARGUMENT
+	Route::get('users/{id}',''Users@show);
+	class Users extends Controller{
+		function index(){
+			return ['name'=>'anil sindhu'];
+		}
+		function show($id){
+			echo $id;
+		}
+	}
+	
+***************************VIEW***********************************
+{blade} template engine
+./resources/views/welcome.blade.php
+
+make a controller function
+	function index(){
+		return view('welcome');
+	}
+
+make a route to display
+	Route::get('users','Users@index');
+
+http://localhost:8000/users
+
+PASSING DATA FROM web.php(->controller) to View
+	function index(){
+		return view('welcome',['name'=>'anil sidhu']);
+	}
+	in welcome.blade.php
+	<h1>{{$name}}
+	
+	from web.php
+	Route::view('welcome','welcome',['name'=>'sam sid']);
+
+blade.php IN FOLDER
+	function index(){
+		return view('folder_name.welcome',['name'=>'anil sidhu']);
+	}
+	Route::view('welcome','folder_name.welcome',['name'=>'sam sid']);
+
+***************************Components*************************************
+reusablity latest features
+for example, a header can be used in every page of the webpage
+$php artisan make:component Header
+
+./resources/views/components/header.blade.php #html file write here
+./app/view/components/Header.php	      #subcontroller 
+
+USE IT
+	have a view file
+	./resources/views/sample.blade.php
+	<h1></h1>
+	<x-header />
+	
+	make a route for it (web.php)
+	Route::view('sample','sample');
+
+PASS DATA TO COMPONENT
+	from view file (sample.blade.php)
+		edit  sample.blade.php
+		<x-header title="Sample Page"/>
+		
+		then inside ./app/view/components/Header.php
+		class Header extends Component{
+			public $title;
+			public function __contruct($title){
+				$this->title=$title;
+			}
+		}
+		then edit ./resources/views/components/header.blade.php 
+		<h1>{{$title}}</h1>
+	from route (web.php)
+		Route::get('/sample',function(){
+			return view('sample',["name"=>"john"]);
+		});
+		
+		then recieve it on sample.blade.php and send it to header
+		<x-header title="Sample page" :name="$name" />
+		then edit Header.php
+		class Header extends Component{
+			public $title;
+			public $info;
+			public function __contruct($title,$name){
+				$this->title=$title;
+				$this->info=$name;
+			}
+		}
+		then edit header.blade.php
+		<h1>{{$title}}</h1>
+		<h2>{{$info}}</h2> 
+		
+
+REUSE IT
+	make a one more view file for test
+		./resources/views/components/example.blade.php 
+		edit it
+		<x-header title="example Page"/>
+		make a route for it(web.php)
+		Rout::view('example','example')
+		
+	
+***************************SUBMIT FORM*************************************
+we must put a token
+create user.blade.php
+	<form action="usercontroller" method="POST">
+		<input type="text" name="email">
+		{{@csrf_field()}}
+		<input type="password" name="password">
+		<input type="submit">
+	</form>
+make a controller
+$php artisan make:controller UsersController
+
+edit UsersController.php
+	class UsersController extends Controller{
+		function account(Request $req){
+			return $req->input();
+				or
+			return $req->input(['address']);
+		}
+	}
+nake a controller (web.php)
+Route::view('userview','user');
+Route::post('usercontroller','UsersController@account');
+
+***************************HTTP CLIENT(API CALL)*******************************
+NEW FEATURES
+it needs guzzlehttp/guzzle  which is present by default
+
+***************************FORM VALIDATION*******************************
+in controller
+	function index(Request $req){
+		$req->validate(['address'=>'required | min:3 | max:7','email'=>'required | email']); //type is email
+		return $req->input();
+	}
+	in view files can use 
+	@if($errors->any())
+	<div>
+	<ul>
+	@foreach($errors->all() as $err)
+	<li>{{$err}}</li>
+	@endforeach
+	</ul>
+	</div>
+	@endif
+			or
+	<form....>
+		...	
+		@error('address') 
+		<span>{{$message}}</span>
+		@enderror
+		...
+	</form>
+
+
+***************************BLADE TEMPLATE*******************************
+Create a controller
+	$php artisan make:controller UsersController
+	edit it. ./app....
+		class UsersController....
+			function index(){
+				//$d='bipul';
+				$d = ['name'=>'bipul','email'=>'test@mail.com']
+				return view('users',['data'=>$d]);
+			}
+		}
+create a view  ./resources...
+	users.blade.php
+	edit it.
+		<h1>....
+		//{{$data}}
+		//{{$data=>name}}
+		{{$data['name']}}
+	IF CONDITION
+		@if($data['name']=='bipul')
+			<h1>...
+		@else
+			<h1>...
+		@endif
+	FOR EACH LOOP
+		@foreach($data as $item)
+			<h1>{{$item}}..
+		@endforeach
+	FOR EACH LOOP WITH KEYS
+		@foreach($data as $key=>$item)
+			<h1>{{$key}} : {{$item}}..
+		@endforeach
+	FOR LOOP
+		@for($i=0; $i<10; $i++)
+		<h1...{{$i}}
+		@endforeach
+	@csrf_field
+		cross site security 
+		<form....
+			@csrf
+		</form>
+	ADD PUT METHOD
+		@method('PUT')
+	INCLUDE A VIEW
+		@include('other_view')
+	INCLUDE A COMPONENT
+		<x-component_name />	
+add a route web.php
+	Route::get('users','UsersController@index);
+	
+.......................................................................
+Common Layout page
+layout.blade.php >
+<html>
+	<head>
+		<title> @yield('title') - page </title>
+	</head>
+	<style>
+		.header{
+			color:'green';
+		}
+		.content{
+			color:'blue';
+		}
+	</style>
+	<body>
+		<div class='header'>
+		@section('header')
+			<h1...header is common..
+		@show
+		</div>
+		<div class='content'>
+		@section('content')
+		@show
+		</div>
+	</body>
+</htm>
+
+in home.blade.php >
+	@extend('layout');
+	@section('title','Home')
+	
+	@section('content')
+		<h1>This is home page content</h1>
+	@endsection
+	
+***************************MIDDLEWARE*******************************
+filter out http requests
+GLOBAL
+GROUP
+ROUTE
+
+make a GLOBAL middleware
+$php artisan make:middleware CheckAge
+ ./app/Http/Middleware/CheckAge.php  >
+	
+	....
+	public function handle($request, Closure $next ){
+		//echo "test";
+		if($request->age && $request->age<20){
+			return redirect('noaccess');
+		}
+		return $next($request);
+	}
+	...
+ 
+ 
+ 
+ Apply middle ware
+ ./app/Http/Kernel.php >
+ 	...
+	protected $middleware = [ ...
+		...
+		\App\Http\Middleware\CheckAge::class,
+		...
+	];
+	...
+ make a view
+ ./resources/.../noaccess.blade.php
+ 	<h1>restricted access</h1>
+ 
+ make a route
+ web.php >
+ 	Route::view('noaccess','noaccess');
+...............................................................
+Apply on Specific Route	
+GROUP ROUTE
+same middleware as above 
+Apply middle ware
+ ./app/Http/Kernel.php >
+ 	...
+	protected $middlewareGroups = [ ...
+		'web' => [...
+			
+			...
+		],
+		'api' => [....
+			...
+		],
+		'customAuth'=>[
+			\App\Http\Middleware\CheckAge::class,
+		]
+	];
+
+web.php >
+	Route::group(['middleware'=>['customAuth']],function(){
+		Route::get('/',function(){
+			return view('welcome');
+		});
+		Route::view('profile','profile');
+	});
+	Route::view('noaccess','noaccess');
+
+profile.blade.php>
+	<h1>user profile page </h1>
+
+.......................................................................
+ROUTED MIDDLEWARE
+everything same except
+kernel.php >
+	protected $routeMiddleware = [
+		'customRouteAuth' => \App\Http\Middleware\CheckAge::class,
+		...
+	];
+web.php >
+	Route::view('profile','profile')->middleware('customRouteAuth');
+*****************************CSRF TOKEN************************************
+Cross site request origin
+
+*****************************SESSIONS************************************
+make a form in view
+ login.blade.php >
+ 	<form action="login" method="post">
+ 		<input type="text" name="user">
+ 		<input type="password" name="password">
+ 		<input type="submit">
+ 	</form>
+ web.php >
+ 
+ 	Route::view('login','login');
+ 	Route::post('login','Login@index');
+ 	Route::view('profile','profile');
+ 	Route::get('profile/', function(){
+ 		if(!session()->has('data')){
+ 			return redirect('login');
+ 		}
+ 		return view('profile');
+ 	});
+ 	Route::get('/logout',function(){
+ 		session()->forget('data');
+ 		return redirect('login');
+ 	});
+ 
+ Login.php >
+ 	class Login extends Controller{
+ 		function index(Request $req){
+ 			//return $req->input();
+ 			$req->session()->put('data',$req->input());
+ 			//return $req->session()->get('data');
+ 			return redirect('profile');
+ 		}
+ 	}
+ profile.blade.php >
+ 	<h1>{{session('data')['user']}}</h1>
+ 	<h1>{{session('data')['password']}}</h1>
+ 	<a href="logout">logout</a>
+.............................................................................
+SESSION WITH MIDDLEWARE
+make the middleware
+ $php artisan make:middleware CustomAuth
+ CustomAuth.php>
+ 	...
+	 	if(!session()->has('data')){
+	 		return redirect('login');
+	 	}
+	 	return $next('$request');	
+ 	...
+ 
+Register the middleware
+ use group middleware
+ 'customAuth':....
+ 
+web.php>
+	Route::group([
+		'middleware'=>['customAuth']
+	],function(){
+		Route::view('profile','profile');
+		Route::get('/',function(){
+			return view('welcome');
+		});
+	});
+
+*****************************FLASH SESSION************************************
+normally sessions can work for many days, we can retrieve the data based on session configuration.
+in Flash session, it is only accessible for one time
+ task.blade.php >
+ 	<h1>{{session('status')}}</h1>
+ 	<form ....
+ 	@csrf
+ 	</form>
+ web.php >
+ 	Route::view('task','task');
+ 	Route::post('task','Task@index');
+ $php artisan make:controller Task
+ Task.php >
+ 	...
+ 	function index(Request $req){
+ 		$req->session()->flash('status','Task has been submitted'); 
+ 		return redirect('task');
+ 	}
+ 	...
+ 
+*********************************LOCALIZATION********************************
+change language according to the country
+ profile.blade.php >
+ 	<h1>{{__('profile.welcome')}}</h1>
+ 	<a href="#">Home</a>
+ ./resources/lang/en/profile.php >
+ 			<?php return ['welcome'=>'welcome to profile page',
+ 				      'home'=>'Home',
+ 				      'setting'=>'Setting'
+ 				      ]; ?>
+ 		 /hindi/profile.php  >
+ 			<?php return ['welcome'=>'swagat hai aapka',
+ 				      'home'=>'Home',
+ 				      'setting'=>'Setting'
+ 				      ]; ?>
+ ./config/app.php >
+ 	'locale'=> 'en',	 //by default
+ 	'fallback_locale' => 'hindi',
+ 
+ web.php >
+ 	Route::get('/profile/{lang}',function(){
+ 		App:setLocale($lang);
+ 		return view('profile');
+ 	});		 
+ 
+
+***************************UPLOAD FILE*************************
+store it in ./storage/app/avatars/
+ profile.blade.php >
+ 	<form method="POST" action="profile" enctype="multipart/form-data">
+ 		<input type="file" name="img">
+ 		@csrf
+ 		<button type="submit">Upload File</button>
+ 	</form>	
+ $php artisan make:controller Profile 
+ Profile.php >
+ 	function store(Request $req){
+ 		//echo 'hello from controller'
+ 		$req->file('img')->store('avatars');
+ 		return ['path'=>$path,'upload'=>'success'];
+ 	}
+ web.php >
+ 	Route::post('profile','Profile@store');
+ 	Route::view('profile','profile');
+
+*******************************DATABASE***********************************
+make a database
+
+ .env >
+	DB_DATABASE=youtube
+	DB_USERNAME=root
+	DB_PASSWORD=password
+ $php artisan make:controller Profile
+ Profile.php >
+ 	use Illuminate\Support\Facades\DB;
+ 	function index(){
+ 		return DB::select('select * from users');
+ 	}
+ web.php >
+ 	Route::get('profile',''Profile@index);
+.......................................................................
+QUERY BUILDER
+ Profile.php >
+ 	use Illuminate\Http\Facades\DB;
+ 	function index(){
+ 		//return DB::table('users')->get();
+ 		//return DB::table('users')->where('name','ricky')->get();
+ 		//$data = DB::table('users')->where('name','ricky')->get();
+ 		//$data = DB::table('users')->count();
+ 		//$data = DB::table('users')->first();
+ 		//$data = DB::table('users')->find(8); //id
+ 		//$data = DB::table('users')->where('name','ricky')->delete();
+ 		//$data = DB::table('users')->insert([
+	 		'name'=>'bruce',
+	 		'password'=>'98688',
+	 		'email'=>'timr@mail.com'
+ 		]);
+ 		//$data = DB::table('users')->where('name','ricky')->update([
+ 			'password'=>'111',
+ 			"email"=>'new@mail.com'
+ 		]);
+ 		print_r($data);
+ 	}	
+...................................................................... 	
+ AGGREGATES  also can directly use pagination
+ 	use Illuminate\Http\Facades\DB;
+ 	function index(){
+ 		//$data = DB::table('users')->max('age');
+ 		print_r($data);
+ 	}

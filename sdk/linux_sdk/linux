@@ -1,0 +1,27 @@
+LINUX PACKAGE INSTALL:
+	BUILD FROM SOURCE
+	APPIMAGE //DOUBLE CLICK
+	PACKAGE MANAGER
+	CONAINER INSTALL
+System Calls:
+	Access to the Unix kernel is only available through these system calls
+	https://man7.org/linux/man-pages/man2/intro.2.html
+	strace to trace syscalls
+	libc function “printf” is just a wrapper around syscall “write”
+
+	always use glibc instead of calling sys from assembly
+
+POSIX function:
+	https://en.wikipedia.org/wiki/C_POSIX_library
+	<sys/socket.h>
+	<netdb.h> 
+	..etc
+
+Sockets:
+	endpoint for communication with process
+		transport layer
+		1. send and receive
+		2. bind and listen
+		linux installation:
+
+

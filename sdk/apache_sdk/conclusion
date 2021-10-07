@@ -1,0 +1,70 @@
+see http://httpd.apache.org/docs/2.4/mod/directives.html for all modules
+
+
+Apache does not natively support PHP scripts without a special module. The module that tells Apache how to handle PHP scripts is referred to as a PHP handler. Without a properly configured module, Apache will just send you the PHP file as a download since it doesn't know what else to do.
+
+
+mod_mpm = multi-processing modules
+
+
+default MPM: unix:  prefork, worker, event
+1. system supports threads
+2. system supports thread-safe polling (specially,kqueue and epoll)
+if 1,2==true  then : event
+if 1==true 2==false : worker
+if 1,2==false : prefork
+ 
+ 
+changing default MPM:
+1. The server must be rebuilt in order to change the MPM.
+2. MPM built as DSO module and synamically loaded into server as DSO modules(LoadModules) :works in UNIX and simillar platform
+Attempting to LoadModule more than one MPM will result error.
+
+
+apache includes:
+1. CORE: http request/response processing  AND MPM
+2. MODS (first and 3rd party)
+
+THE TWO APACHE PROTOCOLS:
+
+1. CGI scripts is a way how to run a server side script when a HTTP request comes; this has nothing to do with PHP
+
+2. FastCGI is a "better CGI" - CGI is known to be slow, Fast CGI is a different approach with much faster results; this has also nothing to do with PHP.
+
+3. NO CGI
+
+TERMS:
+MOD_PHP
+	RUNNING a PHP as Apache Module, PHP request is run under Apache process with everything that goes with it - Apache processes are defined by Apache 	   	   configuration, PHP is run with Apache permission etc.
+PHP-FPM
+	PHP-FPM runs as a standalone FastCGI server(php's implementation) and Apache connects to the server using Apache's module, usually mod_fcgid or mod_fastcgi or proxy_fcgi; 
+
+
+RUNNING PHP ON APACHE HTTPD : see https://cwiki.apache.org/confluence/display/httpd/php
+1. using proxy_fcgi and php-fpm (fastCGI process manager)(for 2.4) with mpm: event or worker
+2. using php with fastcgi (2.2 and older) allow threaded mpm
+3. using php with fcgid (2.2 and older) allow threaded mpm
+4. using mod_php as a DSO with threaded mpm (2.0 and newer)
+5. using mod_php as a DSO With prefork MPM (don't use it anymore, very slow) : default serverAPI: apache2handler.
+	
+	how to use it anyway:
+	/etc/httpd/conf/httpd.conf >
+	 LoadModule php5_module lib/httpd/modules/libphp5.so
+	 LoadModule mpm_prefork_module modules/mod_mpm_prefork.so 
+	 #LoadModule mpm_event_module modules/mod_mpm_event.so
+	
+	/etc/httpd/conf/extra/php7_module.conf >
+	 <FilesMatch \.php$>
+
+		{{ SetHandler application/x-httpd-php}}
+
+	</FilesMatch>
+	
+
+
+dedicated hosting : need backups of data
+
+cloud hosting : not have one server, they use load balancer
+
+
+

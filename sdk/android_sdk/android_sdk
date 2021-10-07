@@ -1,0 +1,202 @@
+ART is an Ahead-of-time(AOT) virtual machine:
+	for the first time when the app runs, its code is compiled to machine code which can then read by real machine. this means that the code is not compiled part by part at run time. this enhances the installtime of the app while reducing the battery usage.
+
+
+eg:
+test.c
+#include <stdio.h>
+void hello()
+{
+    printf("Hello world!\n");
+}
+
+main.c
+#include<stdio.h>
+extern void hello();
+void main(){
+	hello();
+}
+gcc -shared -o libtest.so -fPIC test.c
+gcc -L/home/bipul/temp main.c -ltest  //why? because there should be the path whom to call, and that code should be compiled. in main.c that hello() will only contains the instruction location of that function defined in .so file. that .SO file is in ELF format
+export LD_LIBRARY_PATH=/home/bipul/temp:$LD_LIBRARY_PATH //
+We can't make an android app using only c or c++, they must be used as library and functions can be called from Java. A library(compiled library eg .SO stands for shared object same as windows DLL) does not have an environment. there are linked during runtime.
+
+
+
+
+Environment:
+	DALVIK(DEX->(dexopt ->.odex(DEX Byte Code)->Dalvik Virtual Machine))
+	ART   (DEX->(dex2oat->.oat (Native Code)  ->ART Runtime))
+
+
+JAVA android compilation toolchain:
+	1. javac(.java->.class)->dx(.class->.dex)
+	2. Jack and jill(.java->.jack->.dex)
+
+Java Native Interface:
+	C++ <-> Java
+	
+
+
+SDK:
+	Java  SDK:
+		View compiler: XML to Java for layout.
+	Python SDK:
+		transpiled to dex file.
+	KOTLIN SDK
+NDK:
+	C,C++ Building
+OADK
+
+IDE:
+	droiddraw: to make XML for layout, 
+	wireframe tool, 
+	mockup: just use drag and drop for displaying only.
+	
+
+INSTALLATION:
+SDK Build Tools:aapt2,apksigner,zipalign
+SDK Platform Tools: adb, fastboot,
+https://maven.google.com/
+groovy: apache groovy is a java-syntax-compatible OOP language for Java Platform.
+
+
+
+Partition
+1. Table: GPT, DOS
+2. Type: EFI system, Linux Filesystem, Microsoft Basic Data
+3. file system: NTFS, EXT4, FAT16
+
+
+
+A brief on qualcomm:
+primary bootloader(resides in ROM can't be corrupted)
+	EDL
+secondary bootloader
+	fastboot,download,recovery
+edl protocols on hardware
+	sahara
+	firehose
+in EDL mode, it implements frehose or sahara protocol and they will be acting like a secondary bootloader.
+edl accepted file format
+	ELF
+	MBN
+edl protocols can accept commands from a pc over usb
+tools
+	QPST
+	QFIL
+	MSMDownload
+driver
+	Qualcomm HS-USB QDLoader 9008
+	
+	
+SDK: (for device support)
+min sdk version="integer" 
+target sdk version = "integer"
+max sdk version = "integer"
+
+what is API level:
+	It's an integer value which identifies the framework API revision offered by a version of the android platform.
+	The android platform provides a framework API that applications can use to interact with the underlying android system. the framework api consists of -
+		A core set of packages and classes
+		A set of XML elements and attributes for declaring a manifest file
+		A set of XML elements and attributes for declaring and accessing resources
+		A set of Intents
+		A set of permissions that applications can request, as well as permissions enforcements included in the system.
+		
+		for example - 
+		Platform_VER	API_LEVEL	VERSION_CODE
+		Android 11	30		R
+		Android 10	29		Q
+		Android 9	28		P
+		android 8.1	27		0_MR1
+		Android 8.0	26		0
+		...
+		...
+		Android 5.0	21		Lollipop
+
+what this sdk contains?
+all the platform tools build tools etc.
+they are downloaded from https://dl.google.com/android/repository/sources-30_r01.zip
+
+MyBJP/app/src/main/java/com.example.mybjp/MainActivity.java
+		  /res/drawable/splash_screen_background.xml
+		      /layout/activity_main.xml
+		      /values/style.xml
+		      	     /strings.xml
+		      	     /style.xml
+		      	     /themes.xml
+		  /AndroidManifest.xml
+		  
+
+whenever you  use @tag/name   then it is a tag in xml like  <tag name="name">value</tag> in any file withinany sub tag
+@android:tag/name is for system value
+
+some attributes:
+android:drawable
+android:src
+android:gravity
+android:opacity
+android:theme
+android:name
+
+
+
+
+fragment and bottom navigation drawer
+
+1. create new fragment with view model which will create two java in java>com.example.mybjp>ui>frg_name> file and one layout.xml file
+2. add a icon in drawable with ...24dp.xml
+3. in menu>bottom_nav_menu.xml add new item with linked icon(xml) that will be displayed on bottom drawer
+4. in res>navigation>mobile_navigation.xml add that new item
+5. a HomeActivity.java(in java>com.example.mybjp>) and activity_home.xml(layout) will be needed,this is the main thing here which will set up the nav drawer and edit this file
+
+
+A layout can be a single XML file without JAVA
+A layout can include another layout without JAVA 
+A layout can contain a single button or a group of item too.
+
+
+
+androidx
+	constraintlayout
+		widget
+			ConstraintLayout
+	fragment
+		app
+			FragmentContainerView
+	appcompat
+		widget
+			Toolbar
+com
+	google
+		android
+			material
+				bottomnavigation
+					BottomNavigationView
+
+artifacts:
+appcompat
+fragment
+
+AppCompatActivity
+FragmentContainerView
+ViewModel
+
+
+
+xmlns:android
+     :app
+     :tools
+
+android :id
+	:layout_width
+	:layout_height
+	:name
+	:background
+app	:layout_constraintBottom_toBottomOf
+	:navGraph
+	:menu
+tools	:layout
+	
+

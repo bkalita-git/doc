@@ -1,0 +1,213 @@
+#npm i redux
+functional programming:
+JS is multi paradigm lang.
+
+assigning---
+function sayHello(){
+  return "hello world!";
+}
+let fn = sayHello;
+fn();
+sayHello();
+
+passing---
+function greet(fnMessage){
+   console.log(fnMessage());
+}
+greet(sayHello);
+
+returning---
+function sayHello(){
+    return function(){ //anonymous function
+        return "Hello world!";
+    }
+}
+let fn = sayHello();
+let message = fn();
+
+higher order function and example---
+//function having parameters or returning a function
+let numbers = [1,2,3];
+numbers.map(number=>number*2); //result [2,4,6] //here number is a function
+setTimeout(()=>console.log("Hello"),1000);
+
+function composition---
+let input = "   javascript   ";
+let output = "<div>+input.trim()+"</div>";
+		or
+const trim = str =>str.trim();
+const wrapInDiv = str =>`<div>${str}</div>`;
+const toLowerCase = str => str.toLowerCase();
+wrapInDiv(toLowerCase(trim(input)));
+
+composing and piping---
+//using Lodash
+#npm i lodash
+import {compose,pipe} from 'lodash/fp';
+const transform = compose(wrapInDiv,toLowerCase,trim);
+transform(input);
+	or
+const transform = pipe(trim,toLowerCase,wrapInDiv);
+
+currying---
+const trim = str =>str.trim();
+//const wrapInDiv = str =>`<div>${str}</div>`;
+//const wrapInSpan = str =>`<span>${str}</span>`;
+const wrap = (type,str) =>`<${type}>${str}</${type}>`;
+const toLowerCase = str => str.toLowerCase();
+const transform = pipe(trim,toLowerCase,wrap);
+transform(input); //ERROR: since wrap takes 2 param 
+sol:
+const wrap =type=>str=>{`<${type}>${str}</${type}>`}; //currying a function inside a function
+const transform = pipe(trim,toLowerCase,wrap("div"));
+transform(input);
+
+pure function---
+//for same input it should return same result
+//use immutable object.
+//in js object and arrays are not immutable
+const person = {name:"bipul"};
+const updated = Object.assign({},person,{name:"bob",age:23});
+			or
+spread operator---
+const updated = {...person,name:"new name"}; //shallow copy not for nested object
+ex---
+const person = {name:"john",
+		address:{
+			country: "India",
+			city:"Guwahati"
+		}
+};
+const updated = {...person,name:"bob"};
+updated.address.city = "kolkata"; //here origin person object changed
+console.log(person); //here original person object is changed
+sol---
+//but more verbose
+const updated = {...person,
+		    address:{
+		    	...person.address,
+			   city:"kolkata"
+		    },
+		   name:"bob"};		
+ex2:
+const numbers = [1,2,3];
+const added = [0,...numbers,4];
+const index = numbers.indexOf(2);
+const added = [...numbers.slice(0,index), 4, ...numbers.slice(index)];
+const removed = numbers.filter(n=>n!=2);
+const updated = numbers.map(n=>(n===2?20:n));
+
+immutable---
+#npm i immutable
+or
+#npm i immer
+let book = {title:"harry potter"};
+function publish(book){
+	book.isPublished= true;
+}
+publish(book);
+console.log(book); //{"title":"harry potter","isPublished":true} 
+
+import {Map} from 'immutable';
+let book = Map({title:"Harry Potter"});
+function publish(book){
+	return book.set("isPublished",true); 
+}
+book = publish(book)
+console.log(book.get("title")); //book.toJS()
+	or use immer
+import {produce} from 'immer';
+let book = {title:"harry potter"};
+function publish(book){
+	return produce(book,draftBook=>{draftBook.isPublished=true});    
+}
+const updaed = publish(book);
+console.log(updated); 
+
+
+------------------------------REDUX---------------------------
+#npm i redux@4.0
+//we have a store object
+const store = {};
+but store in immutable object so change it using library, can't change it directly, use a reducer function to do this job
+
+1. a simple reducer
+function reducer(store){
+	return {...store}; //updated clone
+}
+2. what to update? send a parameter called action(an object)
+function reducer(store,action){
+	return {...store}; //updated clone
+}
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+A. Creating action Types
+>src>actionTypes.js
+export const BUG_ADDED = "bugAdded";
+export const BUG_REMOVED = "bugRemoved";
+export const BUG_RESOLVED = "bugResolved";
+
+B. Creating Reducer
+>src>reducer.js
+import * as actions from './actionTypes';
+let lastId=0;
+export default function reducer(state=[],action){ //initial state 
+	switch(action.type){
+	case actions.BUG_ADDED: return [...state,
+				 {
+				  id: ++lastId,
+				  description: action.payload.description,
+				  resolved:false
+				 }
+	];
+	case actions.BUG_REMOVED: return state.filter(bug=>bug.id!==action.payload.id);
+	case actions.BUG_RESOLVED : return state.map(bug=>bug.id!==action.payload.id?bug:{...bug,resolved:true});
+	default: return state;
+	}
+}
+
+C. Creating a Store object
+//for each slice one reducer
+>src>store.js
+import {createStore} from 'redux';
+import reducer from './reducer';
+const store = createStore(reducer);
+export default store;
+
+D. Create Action Object
+>src>actions.js
+import * as actions from './actionTypes';
+export const bugAdded = description => ({
+	{
+		type: actions.BUG_ADDED,
+		payload:{
+			Description
+		}
+	}
+});
+export const bugRemoved = id => ({type: actions.BUG_REMOVED,
+	payload:{id}
+});
+export const bugResolved = id => ({type:actions.BUG_RESOLVED,
+	payload:{id}  //since both are same so == id:id
+});
+
+
+E. using Reducer using store object with passing Action Object using a function
+>src>App.js>
+import {bugAdded,bugRemoved} from './actions';
+import store from './store';
+
+const unsubsctibe = store.subscribe(()=>{
+	console.log("store changed!",store.getState());
+});
+store.dispatch(bugAdded("Bug 1"));
+unsubsctibe(); //can't be notified again
+store.dispatch(bugResolved(1));
+store.dispatch(bugRemoved(1));
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+

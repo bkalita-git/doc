@@ -1,0 +1,14 @@
+Let’s consider the example of tests of any kind. You can skip writing tests at the beginning of the project. You will obviously save some time and management will be happy. Calculation seems to be simple – the project was delivered faster.
+But this shortcut is not worthwhile in the longer term. When the project grows, your team will start to be afraid of making any changes. In the end, the sum of time that you will spend will be higher than implementing tests from the beginning. You will be slow down in the long term because of sacrificing quality for quick performance boost at the beginning. On the other hand - if a project is not critical and needs to be created fast, you can skip tests. It should be a pragmatic decision, not just “we know better, and we do not create bugs”.
+
+
+If things like DevOps and CI/CD are not obvious to you, you can start with these books: The Phoenix Project and The DevOps Handbook.
+
+
+Unfortunately, in real life, many so-called service-oriented architectures don’t permit testing and deploying services independently of each other, and thus will not enable teams to achieve higher performance.
+
+design systems are loosely coupled — that is, can be changed and validated independently of each other.
+
+Using just microservices architecture and splitting services to small pieces is not enough. If it’s done in a wrong way, it adds extra complexity and slows teams down. DDD can help us here.
+
+

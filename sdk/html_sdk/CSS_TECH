@@ -1,0 +1,54 @@
+flexbox : in a row or a column
+	  content first
+	  less code
+	  move contents inside
+	  display:flex;
+	  flex-wrap:wrap/nowrap(default)/wrap-reverse; // breaks contents based on resizing
+	  flex-direction: row-reverse/column-reverse;
+	  flex-flow:row  wrap; //combination of direction and wrap
+	  justify-content:center(all in center, horizontally for rows) 
+	  		  flex-start(contents from begining of the container)
+	  		  flex-end
+	  		  space-around(spaces around every content)
+	  		  space-between
+	  align-items: center(vertically middle for row and for column horizontally middle)
+	  	       flex-start (align at the top of the container)
+	  	       flex-end (align at the bottom of the container)
+	  	       stretch (fill the content vertically (for row) )
+	  	       baseline (aign items as their baseline is same) baseline is where is the middle point of a number "2" and draw a line horizontally
+	  	       
+          align-content: space-between (when contents wraps in more than one line, then it keeps equal space between those)
+          		 space-around (around flex wrapped lines)
+          		 stretch (stretches contents vertically (rows))
+          		 center (lines in middle vertically for rows)
+          		 flex-start (first line from the top of the container)
+          		 flex-end (last line from bottom of the container)
+	 
+	 order: $number (position of that content inside the flex container)
+	 flex-grow: $number (applied on content, how much bigger than other contents)
+	 flex-shrink: $number (applied on content) how much smaller than other contents
+	 flex-basis: $pixels length of that content
+	 flex: $flex-grow $flex-shrink $flex-basis
+	 align-self: center/flex-start/flex-end (overrides containers aligns rules for that content)
+          
+          
+         https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Mastering_Wrapping_of_Flex_Items		           		 
+	  	       
+
+ 
+
+grid: 	row and column
+	layout first
+	more code
+	fix layout
+	
+
+inline-block vs flex-box
+
+float:left/right; image will float and contents next to it will go underneath it. float component uses auto margin. so texts dont go underneath. 2 floats can't go underneath of each other, because the z-axis will be same, so they will appear side by side.
+clear: left/right/both;  stop going underneath.
+
+
+
+   
+   

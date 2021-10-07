@@ -1,0 +1,151 @@
+"It's developers understanding, not your knowledge that becomes software!"
+"It's not customer job to know what they want"
+
+the first job of developer not to code but understand domain is going to code.
+Domain driven design is a tool box that is technology agnostic, means does not depend on specific technology
+
+DDD is a way of looking at software from top down
+
+Domain is the business we are trying to solve
+
+DDD gives us Two Tools
+	Tactical Design Tool  TDT
+	Strategic Design Tool SDT
+
+SDT helps to solve these:
+	Domain eg: e-commerce domain
+		Sub-domains eg: product-domain,customer-domain etc
+			Service
+			
+TDT helps to solve these :
+	service
+		exe/jar/zip
+		objects
+		classes
+		oop
+		design patterns
+		modules
+		layers 
+		project
+	#Generaly takes care of components inside a BC	
+	
+SDT
+	boubded-context			 BC
+	context-map				 CM
+	ubiquitous language		 UL
+	Types of Relation BC can have
+		shared kernel			 SK
+		customer/supplier teams	 C/ST
+		conformist			     C
+		open host service		 OHS
+		published language		 PL
+		separate ways			 SW
+		anticorruption layer	 AL
+		continuous integration	 CI
+
+BC:
+	SOMETHING INSIDE DIFFERENT CONTEXT WILL MEAN DIFFERENT, THESE CONTEXT ARE CALLED BOUNDED CONTEXT
+	customer in sales dept. means his id, social interests, likes, needs
+	customer in support dept mean his history, order history, tickets he has raised
+	etc.
+	each of these BC will have their own Domain model and own UL
+	each of them have their own DB, own API, own User Manual
+	In reality each of BC will have its own MicroService
+CM:
+	RELATIONS AMONG BC
+UL:
+	CREATE DOMAIN MODEL
+	domain expert, analyst. developer, application code,test code, specs and doc everything should use same words for same concept, so that everyone understand
+	
+PROBLEM SPACE
+	Domain
+		Sub-domains
+			Core Sub-domain
+			supporting  Sub-domain 
+			generic Subdomain
+
+SOLUTION SPACE
+	Domain Model for each BC
+		BC have own UL
+	CM
+
+STRATEGIC DESIGN		
+	TALK TO DOMAIN EXPERT
+	SEE WHAT OTHER PEOPLE HAVE DONE RIGHT
+	THEN IMAGINE WHAT YOU WILL DO, WHICH IS CALLED A DOMAIN
+	YOU WILL HAVE SUBDOMAINS 
+	CREATE MODEL[DETAIL MODEL] FOR SUBDOMAINS, WHICH ARE CALLED DOMAIN MODEL
+
+TDT
+	model-driven design 	MDD
+	services			    S
+	layered architecture	LA
+	entities			    E
+	smart ui				SU
+	value objects			VO
+	factories				F
+	aggregates				A
+	repositories			R
+
+MDD
+	Domains
+		subdomains
+			bounded context
+				domain model
+					ubiquitous language
+	#world is a domain, countries are bounded context, each country have its own UL and map of the country is the domain model
+
+LA
+	#McDonals analogy
+		Request Handlers: they take the order req and pass to next layer
+		Controllers		: they pass the order to the chief, and each request is served well
+		Business		: Cooks will be business layer who will be cooking for you
+		Persistence		: All of the raw materials comming from this to cooks
+
+VO
+	#a string, which is a general purpose value object designed to handle complexities of char arrays
+	they come from UL
+	Always immutable
+	auto-validating
+	thread safe
+	strong equality
+
+Entities
+	can be uniquely identified using an ID
+	consists of VO
+	genereally persisted as a row in DB
+	typically mutable
+	generally implements some business logic
+	
+Aggregates
+	collection of entities and values which comes under a single transaction boundary
+	An aggregates controls the change
+	lets say if order items are changes then total cost will have to change
+	root entity governs the lifetime of other entities in the aggregate
+	always consistent
+	
+factories
+	say, ingredients of pancakes are entities and values and the pancake is an aggregate
+	factories help you create new aggregate
+
+Repositories
+	helps you get persisted aggregates
+	you should only create a repository for an aggregate not for entities	
+
+Implementing Strategic Domain Design:
+	#How would you discuss your understanding with domain expert
+		in old days: Use Case Diagram,	Activity Diagram, Sequence Diagram, ER diagram
+		new days: USe EVENT STORMING
+			It is an exercise for creating Domain Models for strategic design
+
+
+
+HOW DOES EVENT STORMING WORK?
+	first bring the right people in	[domain experts and technical expers]
+	write events in different color pallete
+	
+Implementing DDD in code[IMPORTANT FOR DEVELOPER]:
+	Use own data type, don't use premitive to value object	
+	don't use magic numbers, like integer literals, string literals because who knows what they mean.
+	don't use i for items, o for orders...it;s called fuzzy terminology
+	try to make everything in your code explicit

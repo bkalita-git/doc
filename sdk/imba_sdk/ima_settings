@@ -1,0 +1,76 @@
+IMBA Installation:
+using NPM manager. where node.js is also necessary. go to the extracted imba directory and hit #npm-install
+
+	or	
+	
+sudo npm install -g imba
+/usr/bin/imba -> /usr/lib/node_modules/imba/bin/imba
+/usr/bin/imbac -> /usr/lib/node_modules/imba/bin/imbac
+/usr/bin/imbapack -> /usr/lib/node_modules/imba/bin/imbapack   #npm install -g webpack it takes all the code from your application and makes it usable in a web browser
+
+place the index.js file to src/index.js
+
+need module loader-utils
+then run imbapack
+created a folder called dist/main.js
+in main.js it's so messy
+imbapack --watch --serve --hmr this command continiously does that (imbapack) whereever there's a change in that index.js file
+
+manual entry point imbapack --entry ./src/index.js   and webpack/imbapack uses loader to handle these types of file
+for ex: html-webpack-plugin generates an HTML file for your application by injecting automatically all your generated bundles.
+
+
+here /usr/lib/node_modules is the global node modules directory
+
+like for Composer for PHP
+
+
+step1: npm init -y # creates a package.json file
+
+in that file we can add dependencis like:
+"dependencies": {
+    "webpack": "^3.6.0"
+  }
+  also
+  "scripts": {
+   "start": "webpack"
+  }
+  now when npm start , it will trigger the webpack command
+
+
+step2: create webpack.config.js #without this file works too.
+the file is look like this
+
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'index.html',
+      title: 'HTML Webpack Plugin'
+    })
+  ]
+};
+
+
+
+since the package imbapack is good as webpack
+so, we will use imbapack, and all the global modules will be parsed by this. but not using webpack
+
+
+recap:
+imbac : compile the .imba to .js
+imbapack : convert the js to browser understandable js
+
+then install npm install -g concurrently
+it looks like this in package.json under scripts
+"dev": "concurrently --kill-others \"npm run start-watch\" \"npm run wp-server\""
+and just can use
+npm run dev
+--mode development for imbapack
+

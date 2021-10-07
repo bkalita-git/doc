@@ -1,0 +1,14 @@
+signaling server
+STUN/TURN server  or  upnp(some router supports)
+
+upnp
+	If your router has uPNP enabled, then most torrent clients will take advantage of this to automatically set up port forwarding. 
+	localhost:2222 works but whats_my_public_ip:2222 does not
+	upnp client (miniupnpc) #sudo pacman -S miniupnpc
+		upnpc -a 192.168.254.10 2222 7777 tcp 
+		now whats_my_public_ip:7777 will work
+	public ipv6     inet6 2401:4900:3a65:1094:c2ab:ac20:a6c2:82d/64 scope global dynamic mngtmpaddr noprefixroute 
+create an offer (object) SDP(session and description protocol) in it and ICE candisates
+send an answer
+
+transfer network information

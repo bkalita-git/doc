@@ -1,0 +1,710 @@
+//DART installing a package
+
+1. Add dependencies
+>pubspec.yaml
+dependencies:
+   english_words: "3.1.5"
+
+2. Install it
+#pub get
+or
+#flutter pub get
+
+3. import
+
+import 'package:english_words/english_words.dart'
+
+//data types
+String, int, dynamic, const, final
+
+
+
+import 'package:flutter/material.dart';
+
+void main()=>runApp(MyApp());   					          // 1. run state less widget
+
+class MyApp extends StatelessWidget{
+  @override
+  Widget build(BuildContext context){
+    return MaterialApp(home:homeEntry());       		//2. return a stateless widget called MaterialApp with key:Widget()
+  }
+}
+
+
+Widget homeEntry()=>Scaffold(						            //3. describing our Widget of each "key"
+  appBar:AppBar(title:Text('Entry1')),
+  body:DynamicBody(),           		                //4. returning a stateful widget to key 'body'
+);
+
+class DynamicBody extends StatefulWidget{
+  @override
+  DynamicBodyState createState()=>DynamicBodyState();
+}
+
+class DynamicBodyState extends State<DynamicBody>{
+  int count = 0;
+
+  void changeData(){
+    setState(() {
+      count +=1;
+    });
+  }
+  Widget build(BuildContext context){
+    return(bodyEntry(this));                      //5. actual returning of a stateful widget
+  }
+
+}
+Widget bodyEntry(obj)=>Center(
+  child: Column(
+  children:<Widget>[
+    Text('${obj.count}'),
+    RaisedButton(onPressed:()=> obj.changeData(), child: Text("click me!"),),
+    //RaisedButton(onPressed:()=> consoleGlobal(obj)),
+  ],
+  )
+);
+
+void consoleGlobal(obj){
+  print(obj.count);
+}
+//child: to add a Widget inside another
+
+
+4. json handling 
+return can be a ---List object(containing json objects as strings) or a ---String object(containing 1 json data as strings)
+case 1: convert List object to a Map object as ->   Map data = jsonDecode(response.body).asMap();
+case 2: convert String object to a Map object as -> Map data = jsonDecode(response.body);
+case 3: converting a map to list
+void main() {
+  Map data = {
+    0:{'title':'bipul'},
+    1:{'title':'john'}
+  };
+  
+List x=[];
+data.forEach((k,v)=>x.add('${v["title"]}'));
+print(x);
+}
+
+case 4:map.entries.map((e) => Customer(e.key, e.value)).toList();
+case 5: import 'dart:convert';
+void main() {
+  dynamic stage1= '[{"title":"bipul"},{"title":"john"},{"title":"prn"},{"title":"lex"}]'; //String -> JSArray<dynamic>
+  dynamic obstage1 = '{"title":"bipul"}'; //String -> _JsonMap
+  dynamic stage2= jsonDecode(stage1);  //JSArray<dynamic>
+  print(stage2.getRange(0,2));
+  print(stage2[0]);
+  print(stage2[0]['title']);
+  print(stage2.sublist(0,3).map((e)=>e['title']).toList());
+}
+
+5. Hive database caching
+hive: ^0.1.5
+hive_flutter: ^0.3.1
+path_provider:^1.6.5
+
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart' as http;
+
+void main() async{
+	await Hive.initFlutter();
+}
+class DynamicBodyState extends State<DynamicBody>{
+	Box box;
+	List data = [];
+	Future openBox() async{
+		var dir = await getApplicationDocumentsDirectory();
+		Hive.init(dir.path);
+		box = await Hive.openBox('data');
+		return;
+	}
+	Future<boool> getAllData() async{
+		//if internet?update_db:load_from_db;
+		//if refresh?(if internet?update_db:load_from_db):_;
+		await openBox();
+		String url = "https://jsonplaceholder.typicode.com/photos";
+		try{
+			var response = await http.get(url);
+			var json_decode = jsonDecode(response.body);
+			await putData(json_decode);
+			
+		} catch(SocketException){
+			print("No Internet");
+		}
+		
+		//get the data from db and show them
+		var myMap = box.toMap().values.toList();
+		if(myMap.isEmpty){
+			data.add('empty');
+		}else{
+			data = myMap;
+		}
+		return Future.value(true);
+		
+	}
+	
+	Future putData(data)async{
+		await box.clear();
+		//insert the data
+		for(var d in data){
+			box.add(d);
+		}
+	}
+	
+	Future<void> updateData() async{
+		String url = "https://jsonplaceholder.typicode.com/photos";
+			try{
+				var response = await http.get(url);
+				var json_decode = jsonDecode(response.body);
+				await putData(json_decode);
+				
+				setState((){
+					
+				});
+				
+			} catch(SocketException){
+				Toast.show("No Internet",conntext,duration:Toast.LENGTH_LONG,gravity:Toast.BOTTOM);
+			}
+	}
+	@override
+	Widget build(BuildContext context){
+		return Scaffold(
+			body: Center(
+				child: FutureBuilder(
+					future: getAllData(),
+					builder: (context,snapshot){
+						if(snapshot.hasData){
+							if(data.contains('empty')){
+								return Text('noData'),
+							}else{
+								return Column(
+									children:
+								);
+							}
+						}else{
+						
+						}
+					}
+				)
+			)
+		);
+	}
+}
+
+	loading = 0  means can check for network
+  int network = 0;
+  int loading = 0; in class 
+if loading==0 then network can be 1 or 0
+but ig loading =1 
+loading==1?[Text('Loading')]
+	  :(network==1?[Text('Connected')]
+	  	      :[Text('No Net')]
+	   ),
+   
+   
+   
+
+SENSITIVE TO NETWORK:
+#The StreamProvider is a class that listens to a stream and exposes the value to its descendants.(trashed old object and send new object actually or enum)
+#only the Widget uses Provider will be updated, Awesome.
+#What this allows us to do is access any value from that stream using Provider.of<ConnectivityStatus>(context) anywhere in our app. When a new value is emitted this value automatically updates and the widget using it is rebuilt.
+
+1. We need a service which will regenerates its results on each time an interrupt happens on something, so to achieve this we use StreamController inside of that service/class. Remember StreamController is a package of DART
+2. We connect that service with a StreamProvider, which will get the results whenever that service regenerates.
+3. StreamProvider and Provider are connected and both classes of  Provider package. StreamProvider stores the results from the service and using Provider we can access them.
+4. inside  the StreamProvider A child widget is called each time the StreamProvider gets Data. inside we can have custom Widget too.
+5. The custom widget which takes a Widget as a child or can Take other param too and and returns a Modified Widget
+
+------------------------------------------------------------Self-contained executables (exe)-----------------------------------------------------------------------
+#dart compile exe myapp.dart -o myapp
+#./myapp
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------ENUM---------------------------------------------------------------------------------
+	enum Flavor{dev,stag,prod}
+	Flavor.values
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------DART GENERIC----------------------------------------------------------------------------
+	List<int> li = [1,2,3];
+	Map<String,dynamic> mp = {'name':'bipul','roll':3}; //String is a key type and dynamic is a value type
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------Collection----------------------------------------------------------------------------
+	Map
+	List
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------Provider-----------------------------------------------------------------------------
+ChangeNotifierProvider listener : register the current widget as a listener and rebuilt the whole widget tree.
+ChangeNotifierProvider consumer : only register the changeable widget as a listener and rebuilt only that particular widget. _ __ are placeholder
+
+ChangeNotifier
+ChangeNotifierProvider
+StateNotifier
+StateNotifierProvider
+immutable state using StateNotifier so every history can be made.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------FUTURE-------------------------------------------------------------------------------
+Futures are run asynchronously
+1.uncompleted/
+2.completed with value/
+3.completed with error
+eg: 	returns_a_future = http.get("https://example.com"); 
+	returns_a_future = SharedPreferences.getInstance;
+Also Constructors can be used,eg:
+	import 'dart:async';
+	void main(){
+		final myFuture = Future((){return 12;});
+	}
+	returns_a_future = Future.value(12);
+	returns_a_future = Future.error(Exception());
+	returns_a_future = Future.delayed(Duration(second:5),()=>12);
+	
+
+Syntax:
+	Future<int> future = getFuture();
+	future.then((value) => handleValue(value))
+	      .catchError((error) => handleError(error));
+
+A really Nice example:
+
+	import 'dart:async';
+	void main(){
+		Future<int>.delayed(
+			Duration(seconds: 3),
+			(){return 100;},
+		).then( 
+			(value){print(value);}  
+		).catchError(
+			(err){print('caught $err');},
+		   test:(err)=>err.runtimeType==String,
+		).whenComplete(
+			(){print("All finished");}
+		);
+		print("waiting...");
+	}
+
+In flutter,
+I could create a stateful Widget, create a future, check for completion or error, call setState(),
+generally Handle All Manually or Use FutureBuilder?
+you give it a future, and a builder method and will automatically rebuild its children when the future completes.
+it does that by calling it's builder method, which takes a context and a snapshot of the current state of the
+future. you can check this snapshot if future completed with an error and report it.
+or you can check the hasData property to see if it is completed with a value and if not,
+you know you're still waiting, so you can output something for that.
+FutureBuilder<String>(
+	future: _fetchNetworkData(),
+	builder: (context, snapshot){
+		if(snapshot.hasError){
+			
+		}else if(snapshot.hasData){
+			//automatically rebuild the builder method without setState;
+		}else{
+			//waiting 
+		}
+	}
+);
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------STREAMS------------------------------------------------------------------------------
+Also  these are async.
+dummy eg:
+final myStream = NumberCreator().stream; //this output natural number every 3 sec
+final subscription = myStream.listen(
+	(data) => print('Data: $data');
+);
+o/p: Data: 1
+     Data: 2
+     Data: 3
+By default Streams are setup for single subscription
+exception if 
+final subscription2 = myStream.listen(
+	(data) => print('Data: $data');
+);
+
+but Dart offers Broadcast Streams
+final myStream = NumberCreator().stream.asBroadcastStream;
+now, this will work
+final subscription = myStream.listen(
+	(data) => print('Data: $data');
+);
+final subscription2 = myStream.listen(
+	(data) => print('Data: $data');
+);
+
+Now, more accurate ways:
+
+final subscription = myStream.listen(
+	(data) => print('Data: $data'),
+	onError: (err) => print('error'),
+	cancelOnError:false,
+	onDone: ()=>print('Done'), //stream is finished
+);
+we can use,
+subscription.pause();
+subscription.resume();
+subscription.cancel();
+
+Also we can manipulate a Stream, eg:
+
+NumberCreator().stream
+	       .map((i)=>'String $i')
+	       .listen(print);
+
+like, we used Future Constructor to make our own future object, we can make streams too, using StreamController
+eg:
+
+class NumberCreator{
+	NumberCreator(){
+		Timer.periodic(Duration(seconds:1), (t){
+			_controller.sink.add(_count); //new data added to the stream
+			_count++;
+		});
+	}
+	
+	var _count=1;
+	final _controller = StreamController<int>();
+	Stream<int> get stream=> _controller.stream; //stream end where data arrives
+}
+
+like future builder, there's StreamBuilder?
+
+StreamBuilder<String>(
+	stream: NumberCreator().stream.map((i)=>'String $i'),
+	builder: (context, snapshot){
+		if(snapshot.connectionState == ConnectionState.waiting){
+			return Text('no Data yet');
+		}else if(snapshot.connectionState == ConnectionState.done){
+			return Text('Done');
+		}else if(snapshot.hasError){
+			return Text('Error');
+		}else{
+			return Text(snapshot.data??'');
+		}
+	}
+)
+
+
+
+So both future and stream, we don't have to use async explicitly.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------ASYNC/WAIT-----------------------------------------------------------------------------
+eg:
+Future<int> _loadFromDisk(){} //1st do this
+Future<String> _fetchNetworkData(int id){} //2nd 
+
+class ProcessedData { //make a processedData with the result fron 2nd
+	ProcessedData(this.data);
+	final String data;
+	...
+}
+sol:
+
+Future<ProcessedData>createData(){
+	return _loadFromDisk().then((id){
+		return _fetchNetworkData(id);
+	}).then((data){
+		return ProcessedData(data);
+	}).catchError(
+	
+	).whenComplete(
+	
+	); 
+}
+		or
+Future<ProcessedData> createData() async{ //because before ProcessedData is ready, it had to wait for 2 instruction so.
+	try{
+		final id = await _loadFromDisk();
+		final data = await _fetchNetworkData(id);
+		return ProcessedData(data);
+		}on HttpException catch(err){
+			return ProcessedData.empty();
+		}finally{
+			print("All DOne");
+		}
+}
+
+BOTH ARE SAME PROCESS
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------NULL SAFTEY---------------------------------------------------------------------------------
+eg:
+			bad(String maybeString){
+			  print(maybeString.length);
+			}
+
+			void main() {
+			  bad(null);
+			}
+
+
+with NO null safety option>
+	Runtime Error: TypeError: can't access property "get$length" of nullError: TypeError: can't access property "get$length" of null
+with Null Saftey option>
+	Compile Time Error: Error compiling to JavaScript:
+				Warning: Interpreting this as package URI, 'package:dartpad_sample/main.dart'.
+				lib/main.dart:6:7:
+				Error: The value 'null' can't be assigned to the parameter type 'String' because 'String' is not nullable.
+				  bad(null);
+				      ^
+				Error: Compilation failed.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------Rendering Widget---------------------------------------------------------------------------------
+eg:
+void main()=>runApp(
+	RichText(
+		text: TextSpan(
+			text: "Hello World",
+		),
+	),
+);
+
+1. It takes the Widget within the runApp and makes it as the root Widget in the tree
+
+void runApp(Widget app){
+	WidgetFlutterBinding.ensureInitialized()
+		..attachRootWidget(app)
+		..scheduleWarmUpFrame();
+}
+
+2. Creates the Render Object element(LeafRenderObjectElement
+)
+
+abstract class LeafRenderObjectWidget extends RenderObjectWidget{
+	const LeafRenderObjectWidget({Key key}):super(key: key);
+	@override
+	LeafRenderObjectElement createElement()=>
+		LeafRenderObjectElement(this);
+}
+
+@override
+void mount(Element parent, dynamic newSlot){
+	super.mount(parent,newSlot);
+	_renderObject = widget.createRenderObject(this);
+	assert((){_debugUpdateRenderObjectOwner(); return true;}());
+	assert(_slot==newSlot);
+	attachRenderObject(newSlot);
+	_dirty=false;
+}
+
+3. Ask the element to create the render object
+@override
+RenderParagraph createRenderObject(BuildContext context){
+	assert(textDirection!=null||debugCheckHasDirectionality(context));
+	return RenderParagraph(text,
+		textAlign: textAlign,
+		textDirection: textDirection ?? Directionality.of(context),
+		softWrap: softWrap,
+		overflow: overflow,
+		textScaleFactor: textScaleFactor,
+		maxLines: maxLines,
+		locale: locale??Localizations.locleOf(context,nullOk:true),
+	);
+}
+
+when Things change, running runApp twice so replace the old widget
+
+void main(){
+	runApp(
+		RichText(
+			text: TextSpan(
+				text: "Hello World",
+			),
+		),
+	);
+	
+	runApp(
+		RichText(
+			text: TextSpan(
+				text: "Hello new World",
+			),
+		),
+	);
+}
+
+1. flutter calls the canUpdate method checks if they are same
+
+static bool canUpdate(Widget oldWidget, Widget newWidget){
+	return oldWidget.runtimeType==newWidget.runtimeType
+		&& oldWidget.key==newWidget.key;
+}
+
+2.when new widget pop up, then element calls the updateRenderObject
+@override
+void updateRenderObject(BuildContext context, RenderParagraph renderObject){
+	assert(textDirection!=null||debugCheckHasDirectionality(context));
+	renderObject
+		..text = text,
+		..textAlign: textAlign,
+		..textDirection: textDirection ?? Directionality.of(context),
+		..softWrap: softWrap,
+		..overflow: overflow,
+		..textScaleFactor: textScaleFactor,
+		..maxLines: maxLines,
+		..locale: locale??Localizations.locleOf(context,nullOk:true);
+}
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------KEYS--------------------------------------------------------------------------------------
+1. Global Key : uniquely identify across the whole app.
+2. Value Key  : A key That uses a value of a particular type to identify itself. 
+3. Unique Key : A key that is only equal to itself.
+4. Object Key : A key that takes its identify from the object used as its value.
+5. PageStorageKey : ValueKey that defines where PageStorage values will be saved.
+
+1.=> eg. 1
+class ....{
+	final _formKey  =  GlobalKey<FormState>();
+	Widget bu....{
+		return Form(
+			key: _formKey;
+			...
+			validator: (value){
+				return something; //if not validated;
+				return null; //validated;
+			}
+			...
+			onPressed: ()=> if(_formKey.currentState.validate()){}
+		);
+	}
+}
+
+eg. 2
+class...{
+	GlobalKey<_CounterState> _counterState;
+		GlobalKey<_counterState> _counterState;
+	
+	void initState(){
+		...
+		_counterState = GlobalKey();
+		
+		Widget bui....{
+			return Scaffold(
+				...
+					Counter(
+						key: _counterState;
+					),
+					...
+					return Page2(_counterState);
+					...
+				...
+			);
+		}
+	}
+}
+
+class Counter ...StatefulWidget{
+	const Counter({Key key}): super(key: key); //super assign the key to this widget
+	_CounterState createState() => _CounterState();
+}
+class _CounterState extends State<Counter>{
+	void initState(){
+		...
+		
+		...
+	}
+	Widget bui...{
+		return ...(
+			...
+			
+			...
+		);
+	}
+}
+
+class Page2 ...StatefulWidget{
+	final GlobalKey<_CounterState> counterKey;
+	Page2(this.counterKey);
+	_Page2State createState()=>_Page2State();
+}
+class _Page2State...{
+	Widget buil....{
+		return ...(
+			...
+			onPressed: (){
+				...
+				Widget.counterKey.currentState.variable++;
+				...
+			}
+			...
+		);
+	}
+}
+
+
+
+2.=> eg. 1
+Interesting Example:
+...
+	children: <Widget>[
+		if (show)  TextFormField(),
+			   TextFormField()
+	]
+	...
+		onPressed: (){
+			setState(
+				(){
+					show = !show();
+				}
+			);
+		}
+	...
+...
+//this would result that 2nd formfield will disappear, but we need first one to disappear.
+//we can change the code 
+...
+if (show)  TextFormField( key: ValueKey('a')),
+	   TextFormField( key:ValueKey('b')),
+...
+
+
+when we create a widget tree, flutter create a element tree with respect to it in the background. in above example it were like this..
+//without Keys they were mapped like position
+Widget 	Tree::Column->Text(Keshab)
+		    ->Text(Mundhra)
+
+Element Tree::Column->Text()
+		    ->Text()
+
+//with keys they were mapped with key variable ids
+Widget 	Tree::Column->Text(Keshab) a
+		    ->Text(Mundhra)b
+
+Element Tree::Column->Text()a
+		    ->Text()b
+		    
+	
+3. =>
+instead of using ValueKey use UniqueKey()
+
+		
+conclusion: Using Key, we can access a class variable using key.currentState.variable;
+	    A Key is a built is variable of StatefulWidget class. we can override it using super(key: key);
+	    A key can be assigned to any Widget too.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------MIXIN---------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------WIDGET LESS WIDGET--------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------CONTEXT----------------------------------------------------------------------------------------
+A context only belongs to one widget.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Toast with No Build Context (Android & iOS)

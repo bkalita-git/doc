@@ -1,0 +1,18 @@
+USER AND PAGE   TOKEN NEED LOGIN WITH FACEBOOK FROM A SOFTWARE WHERE IT RETURNS THE TOKEN: [SIGNIN REQUIRED] [AN DEVELOPER ACCOUNT IS REQUIRED WITH AN FB APP]
+	USAGE: TO MODIFY AND USE THAT LOGGED IN USER's  OR PAGE's ACCOUNT
+APP  AND CLIENT TOKEN NEED FACEBOOK DEVELOPER APP SETTINGS WHERE IT IS THERE		   [NO SIGNIN] [AN DEVELOPER ACCOUNT IS REQUIRED WITH AN FB APP]
+	USAGE: TO USE SOME FACEBOOK PRODUCTS WHERE FACEBOOK ACCOUNT IS NOT REQUIRED
+WHY DEVELOPER ACCOUNT WITH AN FACEBOOK APP IS REQUIRED FOR USER TOKEN? SO THAT UNKNOWN SOFTWARE CAN'T USE SIGNIN FROM FACEBOOK TO GET ACCESS TOKEN.
+the login with facebook works by signin facebook through the "FB APP" reference by giving it the permissions and both software and FB APP store the access token.
+So, the APP ADMIN can do some task on those signed in users too.
+then we have app roles(ADMIN,DEVELOPER,TESTER,ANALYTICS USER)
+then we have app permissions: to allow some permission in the app, admin must ask facebook so they grant, because misuse of permission can be happen. it's like verify the app. facebook calls it App Review
+THE type FB APP is related WHat types of FB Product can be added. which is asked at very begining of the app creation.
+
+HOW FACEBOOK API WORKS:
+	1. create an app in https://developers.facebook.com/apps/
+	2. add a product to it
+
+WHATSAPP BUSINESS API:
+	USING THE API WHICH  IS NOT FREE (large business)
+	USING THE BUSINESS APP WHICH IS FREE (small business)

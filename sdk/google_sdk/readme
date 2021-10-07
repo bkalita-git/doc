@@ -1,0 +1,14 @@
+GOOGLE BRAND ACC SAME LIKE FACEBOOK  PAGE 
+the gmail can be send using smtp library without any api but for that you have to enable less secure app in the gmail setting
+all google api https://developers.google.com/apis-explorer
+
+HOW GOOGLE API WORKS:
+	1. create or select a project in cloud console (dont activate for paid or trial)
+	2. create credentials by selecting client app type, for ex: android app, desktop app etc and download the json which can be used by the client program
+	3. register an APP and create OAuth consent screen (internal and external app) 	
+	4. enable a API
+	5. also when run the client program it will redirect to Auth screen for continue and upon finish it will send acknowledge to that program (using localhost 
+	   and a port)
+	6. upon finished the client program will save a token.json file and later can be used by the program without resigning
+
+

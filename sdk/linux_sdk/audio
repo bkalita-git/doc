@@ -1,0 +1,86 @@
+ALSA provides api for sound card device drivers
+pulseaudio and jack are sound server
+qjackctl works only if advance input set to hw:PCH HDA intel PCH(hw:1) [also output is same] and those will be displayed on connections
+ardour can starts jackserver using session creates. 
+simplescreenrecord will work after jack module loaded, using jack system speakers
+
+If you have a newer Nvidia or ATI graphics processor that includes HDMI output you have multiple sound device hardware
+
+can't start the server with input output[HDA Intel HDMI (hw:0)-HDA Intel HDMI (hw:0), Mi A1 (hw:2)-Mi A1 (hw:2), ]
+works[HDA Intel PCH (hw:1)-HDA Intel PCH (hw:1),  HDA Intel PCH (hw:1)-HDMI 0 (hw:0,3)[displays 8 playback], HDA Intel PCH (hw:1)-HDMI 1 (hw:0,7)[displays 8 playback], HDA Intel PCH (hw:1) - HDMI 2 (hw:0,8)[displays 8 playback], HDA Intel PCH (hw:1) - ALC3234 Analog (hw:1,0)[displays 2 playback],  ]
+
+works but no output displayed[HDA Intel PCH (hw:1)-HDA Intel HDMI (hw:0)]
+hw:PCH HDA intel PCH(hw:1) == ALC3234 Analog (hw:1,0) =>
+	capture_1 = microphone but echo too much[loudy noise]
+	capture_2 = microphone
+	playback_1 = left speaker
+	playback_2 = right speaker
+
+#lspci
+00:03.0 Audio device: Intel Corporation Haswell-ULT HD Audio Controller (rev 0b)
+00:1b.0 Audio device: Intel Corporation 8 Series HD Audio Controller (rev 04)
+
+[bipul@archlinux ~]$ cat /proc/asound/cards
+ 0 [A1             ]: USB-Audio - Mi A1
+                      Xiaomi Mi A1 at usb-0000:00:1d.0-1.1, high speed
+ 1 [HDMI           ]: HDA-Intel - HDA Intel HDMI
+                      HDA Intel HDMI at 0xf7a04000 irq 55
+ 2 [PCH            ]: HDA-Intel - HDA Intel PCH
+                      HDA Intel PCH at 0xf7a00000 irq 50
+
+[bipul@archlinux ~]$ ls -ld /proc/asound/card* | grep ^d
+dr-xr-xr-x  7 root root 0 Apr 23 14:59 /proc/asound/card0
+dr-xr-xr-x 10 root root 0 Apr 23 14:49 /proc/asound/card1
+dr-xr-xr-x  6 root root 0 Apr 23 14:49 /proc/asound/card2
+
+ #How can I check how many number of devices attached to sound card like speakers, mic, woofers etc
+[bipul@archlinux ~]$ cat /proc/asound/devices
+  1:        : sequencer
+  2: [ 0- 0]: raw midi
+  3: [ 0]   : control
+  4: [ 2- 0]: digital audio playback #speaker
+  5: [ 2- 0]: digital audio capture #mic
+  6: [ 2- 0]: hardware dependent
+  7: [ 2]   : control
+  8: [ 1- 3]: digital audio playback #speaker
+  9: [ 1- 7]: digital audio playback #speaker
+ 10: [ 1- 8]: digital audio playback #speaker
+ 11: [ 1- 0]: hardware dependent
+ 12: [ 1]   : control
+ 33:        : timer
+
+[bipul@archlinux ~]$ aplay --list-devices
+**** List of PLAYBACK Hardware Devices ****
+card 1: HDMI [HDA Intel HDMI], device 3: HDMI 0 [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: HDMI [HDA Intel HDMI], device 7: HDMI 1 [HDMI 1]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: HDMI [HDA Intel HDMI], device 8: HDMI 2 [HDMI 2]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: PCH [HDA Intel PCH], device 0: ALC3234 Analog [ALC3234 Analog]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+[bipul@archlinux ~]$ 
+
+
+#How can I get which Kernel module or sound driver details for my sound card. 
+[bipul@archlinux ~]$ grep snd /proc/asound/modules
+ 0 snd_usb_audio
+ 1 snd_hda_intel
+ 2 snd_hda_intel
+[bipul@archlinux ~]$ 
+
+
+#recordmydesktop
+hw:1 is mic
+hw:1,0 is mic
+
+
+touch daw app : don't use rtp midi and use just the default multicast protocol from touchdaw and ardour will detect it automatically using qjackctl
+
+two important file:
+jack_load.sh #before execution of jack   qmidinet --no-gui -n 4 -i wlp6s0 -j yes & #loads qmidinet with 4 port
+jack_unload.sh #before exit 

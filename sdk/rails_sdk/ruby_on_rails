@@ -1,0 +1,24 @@
+RAILS:	
+	framework-architectural pattern/logical component: MVC(MODEL VIEW CONTROLLER)
+		model :databases
+		views :webpages
+		controller: brain
+	generators:
+		$ rails g controller home index #localhost:3000/home/index
+		$ rails d controller home 		#revert everything
+	routes: 
+		$rails routes 				    #just to display all routes
+		#file config/routes.rb
+			get 'home/index' #localhost:3000/home/index
+			root 'home#index' #localhost:3000
+	views:
+		#file app/views/home/index.html.erb
+	layouts: It is like a template file for views html, or fixed design so this can be used as base design
+		#file app/views/layouts/application.html.erb
+	partials:
+		#file app/views/home/_header.html.erb
+			<%= render 'home/header' %>   --> #app/views/layouts/application.html.erb 
+	scaffold:
+		#friends is a database here to create, this will create a migration so you have to push it to the database
+		$ rails g scaffold friends first_name:string last_name:string email:string phone:string twitter:string 
+		$ rails db:migrate

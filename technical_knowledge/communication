@@ -1,0 +1,120 @@
+API architectural pattern:
+	RESTful
+	REST-like
+	GRAPHQL
+	FALCOR
+	RPC API STYLE
+		SOAP
+		GRPC
+	
+API TESTING TOOL 
+	INSOMNIA
+
+API GATEWAY MODEL:
+	1 TIER GATEWAY:
+		TLS TERMINATION
+		CLIENT AUTHENTICATION
+		AUTHORIZATION
+		REQUEST ROUTING
+		RATE LIMITING
+		LOAD BALANCING
+		REQUEST/RESPONSE MANIPULATION
+		FACADE ROUTING
+	2 TIER GATEWAY:
+		1st layer: SECURITY GATEWAY
+			TLS TERMINATION
+			CLIENT AUTHENTICATION
+			CENTRALIZED LOGGING
+			TRACING INJECTION
+		2nd layer: ROUTING GATEWAY
+			AUTHORIZATION
+			SERVICE DISCOVERY
+			LOAD BALANCING
+	MICROGATEWAY:
+		1st layer:
+			TLS TERMINATION
+			ROUTING
+			RATE LIMITING
+		2ND layer: 
+			LOAD BALANCING
+			SERVICE DISCOVERY
+			AUTHENTICATION PER API
+	SIDECAR GATEWAY:
+		1st layer: EDGE/SECURITY GATEWAY
+			TLS TERMINATION
+			CLIENT AUTHENTICATION
+			CENTRALIZED LOGGING
+			TRACING INJECTION
+		2ND layer:
+			OUTBOUND LOAD BALANCING
+			SERVICE DISCOVERY INTEGRATION
+			AUTHENTICATION
+			AUTHORIZATION
+		3RD layer:
+			...INCOMPLETE
+	SERVICE MESH:
+		1st layer: INGRESS/ EDGE GATEWAY
+		...INCOMPLETE
+		...INCOMPLETE
+		
+MICROSERVICE DEPLOYMENT: 
+	OPTION A. CONAINER PATTERN:1 service in 1 container
+	OPTION B. MULTIPLE SERVICE INSTANCE PER HOST PATTERN: each service instance runs at a well known port since 1 host(eg 1 ip)
+		B1. 1 service instance in one process or process group.
+		B2. MULTIPLE SERVICE INSTANCE IN THE SAME PROCESS OR PROCESS GROUP 
+			(EG: multiple java web application on the same apache server or run multiple OSGI bundles in the same OSGI container)
+	OPTION C. SERVICE INSTANCE PER HOST PATTERN: each service instance in isolation on its own host.
+		C1. 1 SERVICE INSTANCE PER VM:
+			#package the service as an vm image(eg: amazon ec2 ami) and deploy it in ec2 instances. so each ec2 instance is a service instance
+		C2. 1 SERVICE INSTANCE PER CONTAINER
+			#package the service as an container image(eg: docker) and launch as container in a vm or a real host. you can run multiple container per vm/host.
+	OPTION D. SERVERLESS DEPLOYMENT:
+		D1. AWS LAMBDA: it support JAVA,NODE.JS,PYTHON
+			#package the service and metadata(so aws knows what it is)as a zip file and upload to aws lambda. they will run enough instances for  your service.
+			
+TECHNOLOGY:
+	1. JAMSTACK: load whole page from CDN and only received the dyamic content using api from cdn.
+	2. MICROSERVICE
+	3. REST
+		HTTP PROTOCOL CAN  BE USED
+		it is stateless
+		REST has the highest abstraction and best modeling of the API. But it tends to be heavier on the wire and chattier – a downside if you’re working on 
+		mobile.
+		server does not have to kepth the connection alive
+		Statelessness means that every HTTP request happens in complete isolation. When the client makes an HTTP request, it includes all information necessary 
+		for the server to fulfill that request. The server never relies on information from previous requests. If that information was important, the client 
+		would have sent it again in this request.
+	4. RPC
+		With its tight coupling, RPC works for internal microservices but it’s not an option for a strong external API or an API service.	
+		RPC FRAMEWORK: 
+			GRPC
+				HTTP/2 PROTOCOL
+				a client application can directly call a method on a server application on a different machine as if it were a local object
+			Apache Dubbo
+			JSON-RPC
+			Tars
+			Mercury
+	5. GRAPHQL
+			HTTP PROTOCOL
+			is a big step forward in terms of data fetching but not everyone has enough time and effort to get the hang of it.
+	6. SOAP 
+			HTTP PROTOCOL
+			is troublesome but its rich security features remain irreplaceable for billing operations, booking systems, and payments.
+	7. Webhooks
+			HTTP PROTOCOL
+			Data updates to be served automatically, rather than requested. 
+	8. Websockets
+			HTTP PROTOCOL
+			WebSocket uses HTTP as the initial transport mechanism, but keeps the TCP connection alive after the HTTP response is received so that it can be used 
+			for sending messages between client and server.
+	9. AMQP
+			Advanced Message Queuing Protocol 
+   10. WEBRTC
+   11. REVERSE PROXY
+   			A server which accept client request and sends request to one of many server in a purpose to load balancing
+   12. COFIGURATION
+   			DECLARATING CONF
+   			Imperative style configuration
+
+REFERENCES:
+	1. https://www.nginx.com/blog/deploying-microservices/

@@ -1,0 +1,43 @@
+https://medium.com/flutter-community/creating-a-flutter-widget-from-scratch-a9c01c47c630
+progress_bar.dart>
+	import 'package:flutter/foundation.dart';
+	import 'package:flutter/widgets.dart';
+
+	class ProgressBar extends LeafRenderObjectWidget {
+	  const ProgressBar({
+		Key? key,
+		required this.barColor,
+		required this.thumbColor,
+		this.thumbSize = 20.0,
+	  }) : super(key: key);
+	  
+	  final Color barColor;
+	  final Color thumbColor;
+	  final double thumbSize;
+
+	  @override
+	  RenderProgressBar createRenderObject(BuildContext context) {
+		return RenderProgressBar(
+		  barColor: barColor,
+		  thumbColor: thumbColor,
+		  thumbSize: thumbSize,
+		);
+	  }
+
+	  @override
+	  void updateRenderObject(
+		  BuildContext context, RenderProgressBar renderObject) {
+		renderObject
+		  ..barColor = barColor
+		  ..thumbColor = thumbColor
+		  ..thumbSize = thumbSize;
+	  }
+
+	  @override
+	  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+		super.debugFillProperties(properties);
+		properties.add(ColorProperty('barColor', barColor));
+		properties.add(ColorProperty('thumbColor', thumbColor));
+		properties.add(DoubleProperty('thumbSize', thumbSize));
+	  }
+	}

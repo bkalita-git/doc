@@ -1,0 +1,285 @@
+class BipulData extends InheritedWidget{
+  final VideoPlayerController myVideoController;
+  BipulData({Key? key, required this.myVideoController, required Widget child})
+    : super(key:key,child: child);
+
+  static BipulData of(BuildContext context){
+    final BipulData? result = context.dependOnInheritedWidgetOfExactType<BipulData>();
+    assert(result!=null, 'no BipulData found in context');
+    return result!;
+  }
+  
+  @override 
+  bool updateShouldNotify(BipulData old)=> myVideoController != old.myVideoController;
+}
+
+
+
+
+class BipulPainter extends CustomPainter{
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final myPaint = Paint()..style = PaintingStyle.stroke..strokeWidth=20..color=Colors.red;
+    canvas.drawCircle(Offset(75,75), 50, myPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    throw UnimplementedError();
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class RenderTint extends RenderProxyBox{
+	Color  _color;
+	RenderTint({Color color = Colors.transparent, RenderBox? child}):assert(color!=null),_color=color,super(child);
+	
+	Color get color => _color;
+	
+	set color(Color color){
+		assert(color!=null);
+		if(_color==color) return;
+		_color = color;
+		markNeedsPaint();
+		markNeedsSemanticsUpdate();
+	}
+	
+	@override
+	void paint(PaintingContext context, Offset offset){
+		if(child!=null){
+			context.paintChild(child!, offset);
+		}
+		context.canvas.drawColor(color, BlendMode.srcOver);	
+	}
+	
+	@override
+	void debugFillProperties(DiagnosticPropertiesBuilder properties){
+		super.debugFillProperties(properties);
+		properties.add(ColorProperty('color', color));
+	}
+}
+
+
+class BipulWidget extends SingleChildRenderObjectWidget{
+	final Color color;
+	const BipulWidget({Key? key,required this.color, required Widget child}):assert(color!=null),super(key:key, child: child);
+	
+	@override
+	RenderTint createRenderObject(BuildContext context){
+		return RenderTint(color: color);
+	}
+	
+	@override
+	void updateRenderObject(BuildContext  context, RenderTint renderObject){
+		renderObject
+			..color  = color;
+	}
+	
+	@override
+	void debugFillProperties(DiagnosticPropertiesBuilder properties){
+		super.debugFillProperties(properties);
+		properties.add(ColorProperty('color',color));
+	}
+}
+
+--------------------------------------------------------Using ContainerRenderObjectMixin------------------------------------------------------------------------
+class RenderBipulMultiWidget  extends RenderBox with ContainerRenderObjectMixin{
+  
+}
+class BipulMultiWidget extends MultiChildRenderObjectWidget{
+
+}
+
+mixin Sugar on Tea{
+  void  addsugar(){
+    print("adding sugar");
+    drink();
+  }
+}
+
+class Tea{
+  void drink(){
+    print("drinking");
+  }
+  void makeTea(){
+    print("making tea");
+  }
+}
+
+class Breakfast extends Tea with Sugar{
+  Breakfast(){
+    print("Preparing Breakfast");
+    makeTea();
+    addsugar();
+  }
+}
+
+a class can't have  func/var that is not implemented unless it is abstract.
+An abstarct class can have function/variable's declaration and extending it we can define those declaration. 
+extends does not mean import that class. 
+using super keyword, you can acess the intermediate superclass's data.
+a superclass var can only be accessed from subclass using an instance of that class. so, there's a default one called "super". or inside a function without super.
+but superclass function can be accessed without  super.
+
+mixin is a abstract class with more features;
+dart can't use multiple inheritense but extend and using multiple mixin is possible
+a mixin with "on ClassName" keyword means it has a method but it must be defined in the "ClassName" class and someone who use that mixin must extend that "ClassName" first.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+give contraints
+return size
+set positions
+
+WIDGET
+	a1.DiagnosticableTree:
+		Widget
+		DiagnosticableTreeMixin
+	a2.Widget:
+		RenderObjectWidget
+		ProxyWidget
+	a3.RenderObjectWidget:
+		LeafRenderObjectWidget
+		SingleChildRenderObjectWidget
+		MultiChildRenderObjectWidget
+	a4.ProxyWidget:
+		ParentDataWidget
+	a5.LeafRenderObjectWidget
+	a6.SingleChildRenderObjectWidget
+	a7.MultiChildRenderObjectWidget
+	a8.ParentDataWidget				<T0~ParentData>
+	
+RENDEROBJECT	
+	c9.AbstractNode
+		RenderObject
+   a10.HitTestTarget:
+		RenderObject
+   a11.RenderObject:
+		RenderBox
+		RenderSliver
+		RenderView
+		RenderAbstractViewPort
+		RenderObjectWithChildMixin
+		ContainerParentDataMixin
+   a12.RenderBox:
+		RenderViewPortBase
+   a13.RenderSliver
+   c14.RenderView
+   a15.RenderAbstractViewPort:
+		RenderBox
+   a16.RenderViewPortBase:
+		RenderViewPort
+   c17.RenderViewPort	
+   
+PARENT_DATA
+   c18.ParentData
+		SliverPhysicalParentData
+		BoxParentData
+   c19.SliverPhysicalParentData
+		SliverPhysicalContainerParentData
+   c20.BoxParentData
+		ContainerBoxParentData
+   c21.SliverPhysicalContainerParentData
+   a21.ContainerBoxParentData		<T0~RenderObject>
+
+	
+MIXIN
+	1.Diagnosticable:
+		DiagnosticableTree
+	2.DiagnosticableTreeMixin:
+		RenderObject
+	3.ContainerParentDataMixin:		  <T0~RenderObject>
+		BoxParentData
+		SliverPhysicalParentData
+	4.ContainerRenderObjectMixin	  <T0~RenderBox,T1~ContainerBoxParentData<T0>>
+		RenderBox
+	5.RenderObjectWithChildMixin	  <T0~RenderObject>
+		RenderObject
+	6.RenderBoxContainerDefaultsMixin <T0~RenderBox,T1~ContainerBoxParentData<T0>>
+		RenderBox
+
+a7 <-> a12 + (4,6) <- a21
+
+a8<-a21 
+
+
+1.  setup parent data
+some widget are just to change parent data, not renderObject required  for  them
+2.  in custom RenderBox
+		set layout   for each child
+		set position for each child
+
+
+ParentData:
+	Some render objects wish to store data on their children, such as the children's input parameters to the parent's layout algorithm or the children's position relative to other children.built
+
+
+MultiChildRenderObjectWidget accepted the children->MultiChildRenderObjectElement(this)[own by RenderObjectWidget]>RenderObjectElement(children packed in a widget)->Element
+
+
+
+Element has inflateWidget()>updateChild()>inflateWidget()>newChild.mount()>widget.createRenderObject(this);;
+ComponenetElement>mount()>_firtBuild()>rebuild()>performRebuild()>build()
+
+we are trying to find the relation between
+	MultiChildRenderObjectWidget sends all children to Element
+	ContainerRenderObjectMixin knows about the children too!! How?
+
+
+1. RednderObjectElement has @mount()[own by Element]>@attachRenderObject()[own by Element]>insertRenderObjectChild()>insertChildRenderObject()[SingleChildRenderObjectElement]>get child[RenderObjectWithChildMixin]>adoptChild(child)[own by RenderObject class]>setupParentData(child); 
+
+2. ContainerRenderObjectMixin has addAll(children)foreach child>add()>insert()>adoptChild(child)[own by RenderObject class]>setupParentData(child); 
+
+
+3. >inflateWidget()[at Element]>@mount()[at RenderObjectElement  own by Element]>@attachRenderObject()[at RenderObjectElement own by Element]>@insertRenderObjectChild()[at MultiChildRenderObjectElement own by RenderObjectElement]>insert()[ContainerRenderObjectMixin]>@adoptChild()[at RenderObject own by AbstractNode]>setupParentData()[RenderObject];
+
+
+4.>@mount()[at MultiChildRenderObjectElement own by Element]>@inflateWidget()[at MultiChildRenderObjectElement own by Element]>
+
+5. MultiChildRenderObjectWidget has @createElement() which returns MultiChildRenderObjectElement(children) which has mount and inflate 
+
+but who will call the createElement?
+
+
+
+mixin: widgetsbinding--- The glue between the widgets layer and the Flutter engine.
+
+1.WidgetsFlutterBinding.ensureInitialized()
+
+
+
+mixin:
+	GestureBinding, SchedulerBinding, ServicesBinding, PaintingBinding, SemanticsBinding, RendererBinding, WidgetsBinding:
+		with class BindingBase
+class:
+	abstract BindingBase
+		class WidgetsFlutterBinding
+		
+_____________________________________________________________________________________________________________________________________
+| Widget					  |		Element					    |	Object	  |	Mixin		                   |  ParentData		 |
++-----------------------------+---------------------------------+-------------+--------------------------------+---------------------+
+  MultiChildRenderObjectWidget	MultiChildRenderObjectElement		RenderBox   ContainerRenderObjectMixin,		ContainerBoxParentData
+																				RenderBoxContainerDefaultsMixin	
+							
+  ParentDataWidget              ParentDataElement          			x			x			                    ParentData
++------------------------------------------------------------------------------------------------------------------------------------+
+  

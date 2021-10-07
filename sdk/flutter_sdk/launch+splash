@@ -1,0 +1,116 @@
+A. Launch Screen: While App initialize
+B. Splash Screen: while Flutter initialize
+
+
+A.a. Launch Screen+ A.b. Normal
+
+
+///////////////////////////////////////////////////////////Launch Screen+Normal Screen\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  values/style.xml:
+    Launh Screen
+	Launch Theme 			: <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar"> 
+		Launch Background		: <item name="android:windowBackground">@drawable/launch_background</item>
+		
+		
+		
+	Normal Screen		
+		Normal Theme		: <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+			Normal Background	: <item name="android:windowBackground">@drawable/normal_background</item>
+
+
+   Manifest:
+     Launch Screen
+   	<activity
+	    android:name=".MyActivity"
+	    android:theme="@style/LaunchTheme">
+	Normal Screen
+		<meta-data
+			android:name="io.flutter.embedding.android.NormalTheme"
+			android:resource="@style/NormalTheme"
+		/>
+*****************************************************************************************************************************************
+	
+	
+
+
+///////////////////////////////////////////////////////////Flutter Splash Screen\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+Drawable
+   FlutterActivity
+	A Drawable splash screen can be configured for a FlutterActivity, FlutterFragment, or FlutterView
+	To display a splash screen with the same visual as a launch screen, reference the same @drawable/launch_background in the
+	io.flutter.embedding.android.SplashScreenDrawable meta-data
+	inside flutter activity
+	<meta-data
+	    android:name="io.flutter.embedding.android.SplashScreenDrawable"
+	    android:resource="@drawable/my_splash"
+    	/>
+   
+   FlutterFragment
+   	make a subclass of FlutterFragment and override provideSplashScreen()
+   	public class MyFlutterFragment extends FlutterFragment {
+	    @Override
+	    protected SplashScreen provideSplashScreen() {
+		// Load the splash Drawable.
+		Drawable splash = getResources().getDrawable(R.drawable.my_splash);
+
+		// Construct a DrawableSplashScreen with the loaded splash
+		// Drawable and return it.
+		return new DrawableSplashScreen(splash);
+	    }
+	}
+
+Custom
+	1. Implement a custom splash View
+		First, define the custom View that should be displayed as the splash screen. This View could display anything, from a simple solid 
+		color to an animation.
+	2. Implement the SplashScreen interface
+		A. NO VISUAL STATE + NO TRANSITION ANIMATION
+			public class SimpleSplashScreen implements SplashScreen {
+			    @Override
+			    @Nullable
+			    public View createSplashView(
+			      @NonNull Context context,
+			      @Nullable Bundle savedInstanceState
+			    ) {
+				// Return a new MySplashView without saving a reference, because it
+				// has no state that needs to be tracked or controlled.
+				return new MySplashView(context);
+			    }
+
+			    @Override
+			    public void transitionToFlutter(@NonNull Runnable onTransitionComplete) {
+				// Immediately invoke onTransitionComplete because this SplashScreen
+				// doesn't display a transition animation.
+				//
+				// Every SplashScreen *MUST* invoke onTransitionComplete at some point
+				// for the splash system to work correctly.
+				onTransitionComplete.run();
+			    }
+			}
+		B. Sophisticated
+			the custom SplashScreen keeps a reference to its custom View and instructs the custom View to transition away, passing the
+			onTransitionComplete callback to the custom View to invoke.
+			public class SplashScreenWithTransition implements SplashScreen {
+			    private MySplashView mySplashView;
+
+			    @Override
+			    @Nullable
+			    public View createSplashView(
+			      @NonNull Context context,
+			      @Nullable Bundle savedInstanceState
+			    ) {
+				// A reference to the MySplashView is retained so that it can be told
+				// to transition away at the appropriate time.
+				mySplashView = new MySplashView(context);
+				return mySplashView;
+			    }
+
+			    @Override
+			    public void transitionToFlutter(@NonNull Runnable onTransitionComplete) {
+				// Instruct MySplashView to animate away in whatever manner it wants.
+				// The onTransitionComplete Runnable is passed to the MySplashView
+				// to be invoked when the transition animation is complete.
+				mySplashView.animateAway(onTransitionComplete);
+			    }
+			}

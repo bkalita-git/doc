@@ -1,0 +1,12 @@
+DOCKER CONTAINERIZATION
+	docker  file:
+		a script of instructios that define how to build a specific docker image
+	docker Image/snapshot/template:
+		immutable file that contains the source code, libraries, dependencies, tools and other files needed for an application to run
+	docker Container
+		use docker image to construct a run-time environment and run that application
+		
+	If one Docker image relies on a Windows kernel and another relies on a Linux kernel, you cannot run those two images on the same OS. 
+	When you install Linux Docker on Windows, you're actually setting up a Linux VM in Hyper-V.  
+	so, using hosting base OS it is possible to run a linux application on windows.
+

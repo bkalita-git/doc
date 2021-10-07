@@ -1,0 +1,8 @@
+Inside our App.js we write something like this on render, this is jsx
+
+
+<View>
+	<Button title="click me" onPress={this.onButtonPress.bind(this)}/>
+	<Text>{this.state.TextHolder}</Text>
+</View>
+

@@ -1,0 +1,46 @@
+Character Set 	Hex Byte(s)
+CESU-8 	eda0bdedb2a9
+GB18030 	9439da33
+UTF-16 	feffd83ddca9
+UTF-16BE 	d83ddca9
+UTF-16LE 	3dd8a9dc
+UTF-32 	0001f4a9
+UTF-32BE 	0001f4a9
+UTF-32LE 	a9f40100
+UTF-7 	2b3244336371512d
+UTF-7-OPTIONAL 	2b3244336371512d
+UTF-8 	f09f92a9
+x-UTF-16LE-BOM 	fffe3dd8a9dc
+X-UTF-32BE-BOM 	0000feff0001f4a9
+X-UTF-32LE-BOM 	fffe0000a9f40100
+
+fc-list ':charset=3131'
+fc-list ':lang=hi'
+
+all characters of all scripts
+Glyphs uses the hexadecimal UTF-16 convention
+Unicode has seventeen planes of 65,536 characters each
+the Basic Multilingual Plane (BMP or Plane 0) ranging from U+0000 to U+FFFF and the Supplementary Multilingual Plane (SMP or Plane 1) from U+10000 to U+1FFFF
+Planes are subdivided in many character blocks, usually comprising a script, e.g. Tamil from U+0B80 to U+0BFF or something funny like Emoticons (starting at U+1F600)
+ 
+Not all (17×65,536=) 1,114,112 code points of Unicode are currently in use. At the time of writing, the latest Unicode standard was version 11.0.0 from June 2018 with 137,374 characters. Some parts of Unicode are intentionally left free for private use. Unicode knows three such Private Use Areas (PUA), the most important one ranging from U+E000 to U+F8FF.
+
+Typeface vs font vs glyph
+Unicode Script
+ Some scripts support one and only one writing system and language
+ For example, the Vietnamese writing system is supported by the Latin scripts
+ A writing system may also cover more than one script, for example the Japanese writing system makes use of the Han, Hiragana and Katakana scripts. 
+ 
+ https://en.wikipedia.org/wiki/Script_(Unicode)
+ 
+ example of scripts:
+ 	Devanagari(Nagari)
+ 	Latin
+ 	Limbu
+ 	Bengali(Bangla):
+ 		Alphabets: Assamese, Bengali, Tirhuta
+ 		Unicode Blocks: The Bengali block is U+0980–U+09FF and  Tirhuta block is U+11480–U+114DF
+ 		characters: 96
+ 		
+ 	Tamil
+ 	Korean (alias for Hangul + Han)

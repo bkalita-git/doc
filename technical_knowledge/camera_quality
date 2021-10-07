@@ -1,0 +1,48 @@
+#LARGER SENSOR, LARGER COLLECTION OF LIGHT
+sensor: 
+	TYPES:
+		ACTIVE-PIXEL SENSOR(CMOS):
+			CMOS back-illuminated sensor
+		FOVEN X3 SENSOR, 
+		CHARGE-COUPLED DEVICE(CCD), 
+		LIVE MOST
+	PHOTO RESOLUTION 
+	VIDEO RESOLUTION @ FPS
+	COLOR DEPTH
+	SENSOR SIZE
+	PIXEL SIZE
+	PIXEL TYPE:
+		ISOCELL
+		BSI
+	UNIT CELL SIZE
+	CHROMA
+	SINGLE-FRAME-HDR
+	SENSITIVITY
+	SATURATION SIGNAL
+	OUTPUT
+	SUBPIXEL LAYOUT
+	
+FACTS:
+	LARGER SENSOR IS BETTER AT COLLECTING MUCH INFORMATION @smartphone sensor size are small
+	LARGER PIXEL SIZE IS BETTER TARGET FOR PHOTON HITS @smartphone pizel size are tiny, so if miss a photon capture that will be a black pixel. 
+	so Boosting image sensitivity (ISO) will make higher chance of capturing photon but then more noice will be captured.
+	the statistical distribution of photons starts to matter.
+	As light passes though an aperture, it spreads out — it blurs.APERTURE is the hole for passing light, then light falls at the lens
+	the wider aperture the less blurring
+	sensor pixel size(eg 48Mp) may not be useful if dont have a proper lens, so  maybe smartphone company marketing strategy
+	So smartphone does software tricks 
+	HIGHER ISO MAKE NOISE, so CAPTURING MULTIPLE PHOTOS AND TAKING AVERAGE WILL IMPROVE THE NOISE
+	
+	CAMERA SOFTWARE TRICKS:
+		HDR
+		SMART HDR : exposure steps are counted by AI chip
+		google's night sight mode: how fast to set the exposure based on the camera holder motion and lighting and shoots many images like pro capture 
+		and holds in a circular buffer and based on exposure length and selected some images using AI and then creates the single image.
+		PRO CAPTURE: SHOOT MANY IMAGES and stacks on ram BEFORE COMPLETION OF SHUTTER BUTTON so that you can't miss a shot
+		digital darkroom = raw image+processing, capture raw image and edit in photoshop
+		google best shot
+		
+	#WHY HIGHER MEGA PIXEL? EVEN MAXIMUM DISPLAY IS 4K or 3840 x 2160 = 8294400 or ~8.3MP
+
+REFERENCES:
+	1.[Image Sensor Product]	https://en.wikipedia.org/wiki/Category:Image_sensor_products
