@@ -1,0 +1,29 @@
+server based:
+	SSL/TLS:
+		TLS is new.
+		1. server sends the public key to clients
+		2. client encrypts/encodes a private key using the server's public key and then send it
+		3. server knows the client's private key and sends data by both porties using the client's private key
+application based
+		1. session in cookies is not restful
+		2. JWT, JSON Web Token
+		
+
+
+JWT:
+	Authentication:
+		1. client send user_id and password in authorization header.
+		2. server verifies password and id and build a JWT string with user_id,usage_time and encode/encrypt with server secretkey and call it's a token.
+		3. sends the token to client in payload.
+	Authorization:
+		1. each time client send something, it sends the token too.
+		2. server can verify the token using its secret key.
+		
+
+from flask import jsonify,request,make_response
+import jwt
+import datetime
+
+token = jwt.encode({'user':'user_name','exp':datetime.datetime.utcnow()+datetime.timedelta(minutes=30)},app.config["SECRET_KEY"])
+return jsonify({'token':token.decode('utf-8')}), STATUS_CODE
+jwt.decode(token,app.config["SECRET_KEY"])

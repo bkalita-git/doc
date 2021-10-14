@@ -1,0 +1,89 @@
+CGI: Web server generates some common ENVIRONMENT VARIABLES(CGI) and forks the other script(php, python) as a process.
+WSGI: Web server call/forks a function by passing Environ and Start_responses.
+
+Flask's default WSGI server is one from Werkzeug library. So, run any server which invokes the WSGI application function.
+
+/home/common/flask_project_1/venv/lib/python3.9/site-packages/werkzeug/serving.py
+
+class WSGIRequestHandler(BaseHTTPRequestHandler):
+	...
+	def make_environ(self) -> "WSGIEnvironment":
+		...
+		environ: "WSGIEnvironment" = {
+            "wsgi.version": (1, 0),
+            "wsgi.url_scheme": url_scheme,
+            "wsgi.input": self.rfile,
+            "wsgi.errors": sys.stderr,
+            "wsgi.multithread": self.server.multithread,
+            "wsgi.multiprocess": self.server.multiprocess,
+            "wsgi.run_once": False,
+            "werkzeug.server.shutdown": shutdown_server,
+            "werkzeug.socket": self.connection,
+            "SERVER_SOFTWARE": self.server_version,
+            "REQUEST_METHOD": self.command,
+            "SCRIPT_NAME": "",
+            "PATH_INFO": _wsgi_encoding_dance(path_info),
+            "QUERY_STRING": _wsgi_encoding_dance(request_url.query),
+            # Non-standard, added by mod_wsgi, uWSGI
+            "REQUEST_URI": _wsgi_encoding_dance(self.path),
+            # Non-standard, added by gunicorn
+            "RAW_URI": _wsgi_encoding_dance(self.path),
+            "REMOTE_ADDR": self.address_string(),
+            "REMOTE_PORT": self.port_integer(),
+            "SERVER_NAME": self.server.server_address[0],
+            "SERVER_PORT": str(self.server.server_address[1]),
+            "SERVER_PROTOCOL": self.request_version,
+        }
+        ...
+	...
+	def run_wsgi(self) -> None:
+		...
+		def start_response(status, headers, exc_info=None):  # type: ignore
+			...
+		...
+		def execute(app: "WSGIApplication") -> None:
+			application_iter = app(environ, start_response)
+			...
+
+
+
+**Everything is in the BaseServer class in /lib/python3.9/socketserver.py
+**request_handler_class = WSGIRequestHandler #it's refering to the class WSGIRequestHandler(BaseHTTPRequestHandler(StreamRequestHandler(BaseRequestHandler)))
+
+
+#this is the magic, our application and the sever combined.
+**srv = make_server(...,application,request_handler_class) 
+#returns object of BaseWSGIServer(HTTPServer(TCPServer(BaseServer)))
+
+
+**srv.serve_forever()
+
+recap, the default werkzeug server:
+->app.run()						  #cld frm app.py   				  this method is defined in Flask class       		   in flask/app.py
+->run_simple()				      #cld frm run() 					  this method defined 					    		   in werkzeug/serving.py
+->inner()						  #cld frm run_simple()				  this method defined in run_simple method			   in werkzeug/serving.py
+->make_server()					  #cld frm inner()					  this method defined 								   in werkzeug/serving.py
+->serve_forever()				  #cld frm inner()					  this method defined in BaseServer class  			   in lib/python3.9/sockerserver.py
+->_handle_request_noblock()		  #cld frm serve_forever  		 	  this method defined in BaseServer class  			   in lib/python3.9/sockerserver.py
+->process_request()				  #cld frm _handle_request_noblock()  this method defined in BaseServer class  			   in lib/python3.9/sockerserver.py
+->finish_request()				  #cld frm process_request()		  this method defined in BaseServer class  			   in lib/python3.9/sockerserver.py
+->RequestHandlerClass()			  #cld frm finish_request()			  this class  defined in BaseRequestHandler class  	   in lib/python3.9/sockerserver.py
+->handle()						  #cld frm constr. BaseRequestHandler this method defined in BaseHTTPRequestHandler class  in lib/python3.9/http/server.py
+->handle_one_request()			  #cld frm handle()					  this method defined in WSGIRequestHandler class 	   in werkzeug/serving.py
+->run_wsgi()					  #cld frm handle_one_request()		  this method defined in WSGIRequestHandler class 	   in werkzeug/serving.py
+->execute()						  #cld frm run_wsgi()				  this method defined in run_wsgi method			   in werkzeug/serving.py
+->app(environ,start_response)	  #cld frm execute()				  this __call_defined in Flask class				   in flask/app.py
+->wsgi_app(environ,start_response)#cld frm _call_ in Flask class	  this method defined in Flask class 				   in flask/app.py
+
+here, app = Flask(__name__)
+	  and Flask has a __call__(self,environ,start_response) method, so
+	  app(environ,start_response) is possible.
+	  this defines that Flask() is a wsgi application. and other server can now call this function as well. and this Flask class is the whole framework.in production mode we have to just provide the app object to the wsgi module of the server.
+	  that means the logic of default werkzeug, which is [app.run()->run_simple()->inner()->make_server()->serve_forever()->_handle_request_noblock()->process_request()->finish_request()->RequestHandlerClass()->handle()->handle_one_request()->run_wsgi()->execute()-] will be replaced by the production wsgi module+server.
+	  
+	  look at TCPServer get_request() in socketserver.py for receiving the request data using socket, the raw request is then broken into CGI Environ by WSGI module.
+	  
+	  
+	  ****WSGI module is a wrapper around the server. the request come to server but since wsgi is a wrapper around the server it reads the request and sets environ and call the app(environ,start_response).
+	  in werkzeug, WSGIRequestHandler and BaseWSGIServer inherits the core python server classes, like BaseRequestHandler and BaseServer.
+	  and I can say, werkzeug BaseWSGIServer is the entry point.****

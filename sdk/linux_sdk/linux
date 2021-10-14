@@ -23,5 +23,24 @@ Sockets:
 		1. send and receive
 		2. bind and listen
 		linux installation:
-
-
+		
+display:
+	$ ls -l folder  									    #list folder/file owner
+	$ cat /etc/passwd 										#all local users in format account:password:UID:GID:GECOS:directory:shell
+	$ cat /etc/group  										#all groups
+	$ groups user_name 										#all groups of user_name
+change:
+	$ sudo chown user_name_of_new_owner file/folder_loc		#change owner of the file/folder
+add:
+	$ gpasswd -a user_name group_name 						# add to group
+	$ gpasswd -d user_name group_name 						# delete from group
+create
+	$ adduser -m user_name									#create new user
+	$ passwd user_name										#create password for user_name user
+	$ groupadd group_name 									#create new group
+Access levels and roles
+	#for example i can't execute a database command from a normal user.
+	#also '$ passwd postgres' does not let me because I am a 'bipul' user and it does not have the permission. but I can do the same thing from root user.
+#REFERENCES
+1. https://wiki.archlinux.org/title/users_and_groups
+1. https://wiki.archlinux.org/title/ArchWiki:Access_levels_and_roles

@@ -1,0 +1,79 @@
+POSTGRESQL
+arch linux setup:
+	1. this creates a postgres user in system
+		$pacman -S postgresql
+	2. login to postgres user 
+		$su -l postgres
+	3. initialized database cluster by giving the location where database should be stored
+		$initdb -D /var/lib/postgres/data
+	4. add a new database user 
+		$createuser --interactive
+	5. create database
+		$createdb my_database_name
+		
+		
+
+Object Relational Mapper, can access/use relational 
+
+$pip install flask-sqlalchemy
+
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+app = Flask(...
+
+
+#we need the database file inside our project directory
+#config.py
+	...
+	SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db' 
+				or
+	SQLALCHEMY_DATABASE_URI = 'postgresql://user_name:password@ip/database_name' #user_name, password and database_name should already be created
+	...
+
+db = SQLAlchemy(app)
+#represents database as classes, can be in different file
+#each class is a table in database
+
+class User(db.Model):
+	#columns_for_table
+	id = db.Column(db.Integer,primary_key=True)
+	username=db.Column(db.String(20),unique=True,nullable=False)
+	email=db.Column(db.String(20),unique=True,nullable=False)
+	image_file=db.Column(db.String(20),nullable=False, default='default.jpg')
+	password=db.Column(db.String(60),nullable=False)
+	
+	post = db.relationship('Post',backref='author',lazy=True) #addding another hidden column author to Post
+	
+	#this is used by print function, so what this object return when print
+	def __repr__(self):
+		return f"User('{self.username}','{self.email}','{self.image_file}')"
+
+
+class Post(db.Model):
+	id=db.Column(db.Integer,primary_key=True)
+	title=db.Column(db.String(100),nullable=False)
+	date_posted=db.Column(db.DateTime,nullable=false,default=datetime.utcnow) #not passing  utcnow() because we need to send the function
+	content = db.Column(db.Text,nullable=False)
+	user_id = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False) #see lower case u,since real table will be made with lower case
+	def __repr__(self):
+		return f"User('{self.title}','{self.date_posted}')"
+		
+
+**Now table should be created before runing the flask app	
+		
+#command line
+$python
+>>> from  app_name import db #where db variable is
+>>> db.create_all() #site.db file will be created
+>>> from app_name import User,Post
+>>> user_1=User(username='Corey',email='C@demo.com',password="hashed_string_pass")
+>>> db.session.add(user_1)
+>>> db.session.commit()
+>>> User.query.all() #all data
+>>> User.query.first()
+>>> User.query.filter_by(username='Corey').all()
+>>> user = User.query.filter_by(username='Corey').first()
+>>> user.id
+>>> user = User.query.get(1) #1  is id
+>>> db.drop_all() #all rows deleted we need db.create_all() after
+

@@ -1,0 +1,96 @@
+UNDERSTANDING Names and Object, NO VARIABLES
+	literals have addresses too.
+	>>>id(323)
+	139998696512656
+	>>>id(323)
+	139998696512656
+
+	x = 323
+	>>> id(323)
+	139998696512816
+	>>> id(x)
+	139998696348688
+
+
+	>>> x = x-1
+	>>> id(x)
+	139998696512816
+	the address of x is changed. it's not a variable, it's a name.
+
+
+	x = 323 as follows:
+
+		Create a PyObject
+		Set the typecode to integer for the PyObject
+		Set the value to 323 for the PyObject
+		Create a name called x
+		Point x to the new PyObject
+		Increase the refcount of the PyObject by 1
+
+	so, Type, Value and ReferenceCount.
+	**a name is only references to the address of the object.
+	**x points to the memory address of 323 object
+	**id(x) will display the address of 323
+
+
+	Varaiables are passed by reference in Python, Bydefault.
+	>>>from os import sys
+	>>>sys.getrefcount(x)
+	2
+	the output is 2 because it creates another reference to name x.
+
+	y = 9
+	y1 = y
+	y2 = y
+
+	the id of y,y1,y2 will be same as the address of 9. called **interning.
+	>>>y1 = y.copy() will make a different copy of 9
+	>>> y==y1 tels if content are same, y is y1 tells if they are referencing to same object
+
+
+	>>>sys.getsizeof(x) in bytes
+
+UNDERSTANDING PACKAGE AND MODULE
+	Modules are scripts, like the normal python file which is a main module. we can import function, names from a module. like, 
+	>>>import module_name
+	>>>from module import func as function
+	if __name__ == "__main__":
+		import sys
+		fib(int(sys.argv[1]))
+	Inside Package there are modules, and __init__.py, __init__.py for importing modules, as >>>from .ModuleA import something, see the dot(.)
+
+BUILTIN PACKAGES/STANDARD LIBRARY IN PYTHON
+	https://docs.python.org/3/library/
+
+TYPE ANNOTATION
+	def get(name:str)->str: #return type is expected to be a string (->str)
+		return "string"
+		
+DECORATOR
+	def decorator(f):
+		def new_fun():
+			return f()+" hi"
+		return new_fun
+	
+	@decorator #similar to f = decorator(f); f() #decorator is a function which takes a function and return a modified function
+	def f():
+		string = "I want to change"
+		return string
+
+ENCODING DECODING BASE64
+	string-->ascii_byte-->base64_byte--->base64_string (encode)
+	
+	base64_string->base64_byte->ascii_byte->string	   (decode)
+	import base64
+	string = "hi"
+	byte_in_ascii = string.encode("ascii")
+	byte_in_base64 = base64.b64encode(byte_in_ascii)
+	string_in_base64 = byte_in_base64.decode("ascii")
+	
+	byte_in_base64 = string_in_base64.encode("ascii")
+	byte_in_ascii = base64.b64decode(byte_in_base64)
+	string = byte_in_ascii.decode("ascii")
+
+	
+#REFERENCES
+1. https://www.javatpoint.com/pointer-in-python

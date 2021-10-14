@@ -1,0 +1,19 @@
+#it can be blueprints vs flask_restful, flask_restful follows the REST architecture and quick to build
+#instead of we are registering Blueprint object, here we register a class which contains functions for every method
+from flask import flask
+import flask_restful import Api, Resource
+
+app = Flask(__name__)
+api = Api(app)
+
+class HelloWorld(Resource):
+	def get(self, name,test): #when sends a get request
+		return {"data":name}
+	def post(self):
+		return {"data":"posted"}
+	def put(self):
+		return ...
+
+api.add_resource(HelloWorld, "/helloworld/<string:name>/<int:test>") #similar to add blueprints, can add variable rules
+
+app.run()

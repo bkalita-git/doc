@@ -1,0 +1,114 @@
+the simplest flask:
+
+	from flask import Flask
+	app = Flask(__name__)
+	@app.route("/")
+	def default():
+		return "Hello"
+		
+	if __name__ == "main":
+		app.run()
+		 or
+	$export FLASK_APP = app #app.py or export FLASK_APP = app_name #the directory where __init__.py is 
+	$export FLASK_ENV=development
+	$flask run
+
+file structures:
+
+	/app
+		/venv/
+		/app_name/
+			__init__.py
+			models.py
+			/blueprints/
+				login.py #as Blueprint
+				   or
+			    login.py #as flask_restful 
+			/static/
+			/template/
+		/test/
+		config.py
+		setup.py
+		MANIFEST.in
+		
+
+__init__.py	
+	from flask import Flask
+	from flask_sqlalchemy import SQLAlchemy
+	from .blueprints.login import second
+	from flask_restful import Api
+	db = SQLAlchemy()
+	def create_app(): #create_app is the application factory function
+		#configure the app based on config.py
+		app = Flask(__name__)
+		if app.config['ENV'] == "production":
+			app.config.from_object("config.ProductionConfig")	#we don't have to import the config.py
+		elif app.config["ENV"] == "testing":
+			app.config.from_object("config.TestingConfig")
+		else
+			app.config.from_object("config.DevelopmentConfig")
+		db.init_app(app)
+		api = Api(app)
+		app.register_blueprint(second,url_prefix="/login")
+						or
+		api.add_resource(second,"/login")
+		from models import User, Post  #when import something it runs the whole models.py file and db is already initialized
+		return app
+
+models.py
+	from appname import db
+	class User(db.Model):
+		...
+		...
+setup.py
+	from setuptools import find_packages, setup
+	setup(
+		name='app_name',
+		version='1.0.0',
+		packages=find_packages(),
+		include_package_data=True,
+		zip_safe=False,
+		install_requires=[
+		    'flask',
+		],
+	)
+
+MANIFEST.in
+	include app_name/schema.sql
+	graft app_name/static
+	graft app_name/templates
+	global-exclude *.pyc
+
+config.py
+	class Config(object):
+		DEBUG = False
+		Testing = False
+	class ProductionConfig(Config):
+		pass
+	class DevelopmentConfig(Config):
+		DEBUG=True
+	class TestingConfig(config):
+		Testing = True
+
+
+/blueprints/login.py
+	from flask import Blueprint
+	second = Blueprint("second",__name__)
+	@second.route("/")
+	def execute():
+		return "loggedin"
+			or
+	#as flask_restful
+	from flask_restful import Resource
+	class second(Resource):
+		def get(self):
+			return "loggedin"
+		...
+
+
+
+$export FLASK_ENV=development
+$export FLASK_APP=app_name
+$flask run
+
+using Blueprints and Config
