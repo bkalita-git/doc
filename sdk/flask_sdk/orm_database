@@ -1,22 +1,36 @@
 POSTGRESQL
 arch linux setup:
 	1. this creates a postgres user in system
-		$pacman -S postgresql
+		$ pacman -S postgresql
 	2. login to postgres user 
-		$su -l postgres
+		$ su -l postgres
 	3. initialized database cluster by giving the location where database should be stored
-		$initdb -D /var/lib/postgres/data
+		$ initdb -D /var/lib/postgres/data
 	4. add a new database user 
 		$createuser --interactive
-	5. create database
-		$createdb my_database_name
-		
-		
+	5. create database 
+		$ createdb my_database_name -O newly_created_user
+	6. loginto the database 
+		$ psql -U newly_created_user -d my_database_name
+	7.  add password to the user, after login to the database 
+		=>ALTER USER newly_created_user WITH ENCRYPTED PASSWORD 'password';
+		sudo nano /var/lib/postgres/data/postgresql.conf --> change trust to md5 in fist local
+		sudo nano /var/lib/postgres/data/pg_hba.conf     --> password_encryption = md5
+		sudo systemctl restart postgresql
+
+
+#Remember, We don't want to login to the newly_created_user(since we did not give database creation priviliedge to that user so no system user will be created which can execute commands like "createdb" etc.) instead we will loginto the database using the newly_created_user and password if there is.
+like this $ psql -U flask_test -d TESTSB
+#PostgreSQL database user names are logically separate from user names of the operating system in which the server runs
+#there need be no connection between database user names and OS user names.
+#for exampple, the system user 'postgres' and the database user 'postgres' have no connection physically even though their password may same.
+#that's why we can't do $ su -l database_user_name. because they are stored in table too.
+
 
 Object Relational Mapper, can access/use relational 
 
-$pip install flask-sqlalchemy
-
+$ pip install flask-sqlalchemy
+$ pip install psycopg2 #python postgresql database adapter
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 app = Flask(...
@@ -64,7 +78,12 @@ class Post(db.Model):
 #command line
 $python
 >>> from  app_name import db #where db variable is
+				or 
+>>> import app; from app import db 
 >>> db.create_all() #site.db file will be created
+			or
+>>> with app.app_context():
+...     db.create_all()
 >>> from app_name import User,Post
 >>> user_1=User(username='Corey',email='C@demo.com',password="hashed_string_pass")
 >>> db.session.add(user_1)
@@ -77,3 +96,6 @@ $python
 >>> user = User.query.get(1) #1  is id
 >>> db.drop_all() #all rows deleted we need db.create_all() after
 
+#REFERENCES
+1.https://www.postgresql.org/docs/9.1/client-authentication.html
+2.https://wiki.archlinux.org/title/PostgreSQL#Require_password_for_login

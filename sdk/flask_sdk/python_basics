@@ -58,6 +58,8 @@ UNDERSTANDING PACKAGE AND MODULE
 		import sys
 		fib(int(sys.argv[1]))
 	Inside Package there are modules, and __init__.py, __init__.py for importing modules, as >>>from .ModuleA import something, see the dot(.)
+	
+	when you import a package, only variables/functions/classes in the __init__.py file of that package are directly visible, not sub-packages or modules. 
 
 BUILTIN PACKAGES/STANDARD LIBRARY IN PYTHON
 	https://docs.python.org/3/library/
@@ -90,7 +92,11 @@ ENCODING DECODING BASE64
 	byte_in_base64 = string_in_base64.encode("ascii")
 	byte_in_ascii = base64.b64decode(byte_in_base64)
 	string = byte_in_ascii.decode("ascii")
-
+	
+	
+*args vs **kwargs:
+	kwargs['key_name']
+	args[0]
 	
 #REFERENCES
 1. https://www.javatpoint.com/pointer-in-python

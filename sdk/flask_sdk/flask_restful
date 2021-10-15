@@ -17,3 +17,6 @@ class HelloWorld(Resource):
 api.add_resource(HelloWorld, "/helloworld/<string:name>/<int:test>") #similar to add blueprints, can add variable rules
 
 app.run()
+
+#REFERENCES
+1. https://flask-restful.readthedocs.io/en/latest/api.html

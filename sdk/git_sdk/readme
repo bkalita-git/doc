@@ -1,0 +1,21 @@
+1. $HOME/.ssh/config
+	#hastetough
+	Host github.com-hastetough
+	HostName github.com
+	User git
+	AddKeysToAgent yes
+	IdentityFile ~/.ssh/id_rsa_hastetough
+	
+	#bkalita-git
+	Host github.com-bkalita-git
+	HostName github.com
+	User git
+	AddKeysToAgent yes
+	IdentityFile ~/.ssh/id_rsa_bkalita-git
+
+2. ls $HOME/.ssh/
+	/home/bipul/.ssh/id_rsa_bkalita-git		->private key
+	/home/bipul/.ssh/id_rsa_bkalita-git.pub ->in github
+	
+	/home/bipul/.ssh/id_rsa_hastetough		->private key
+	/home/bipul/.ssh/id_rsa_hastetough.pub  ->in github

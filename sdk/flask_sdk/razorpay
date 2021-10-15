@@ -1,0 +1,36 @@
+$ pip install razorpay
+
+razorpay>enable_test_mode>settings>api>generate
+
+
+from flask import render_template
+import razorpay
+
+client = razorpay.Client(auth=("YOUR_ID", "YOUR_SECRET"))
+data = { "amount": 100, "currency": "INR", "receipt": "order_rcptid_11" }
+payment = client.order.create(data=data)
+return render_template("pay.html",payment=payment)
+
+
+#after pay.html checkout this will be returned in payload as POST data
+params_dict = {
+  "razorpay_payment_id": "pay_29QQoUBi66xm2f",
+  "razorpay_order_id": "order_9A33XWu170gUtm",
+  "razorpay_signature": "9ef4dffbfd84f1318f6739a3ce19f9d85851857ae648f114332d8401e0949a3d"
+}
+client.utility.verify_payment_signature(params_dict)
+			or 
+generated_signature = hmac_sha256(order_id + "|" + razorpay_payment_id, secret); #order_id in pay.html //order_id=payment['id']
+if (generated_signature == razorpay_signature) {
+payment is successful
+}
+
+
+
+1. user fills details in app.html and they proceed to /pay.html
+2. in server creates the order and serve the page pay.html
+3. verify after payment is successful in server,
+
+#REFERENCES
+1. https://razorpay.com/docs/payment-gateway/server-integration/python/
+2. https://razorpay.com/docs/payment-gateway/callback-url/
