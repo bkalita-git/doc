@@ -1,6 +1,6 @@
 #we will be using 
-	Commication Api Architecture: RESTful
-	Commication protocol: HTTP
+	Communication Api Architecture: RESTful
+	Communication protocol: HTTP
 	container: docker
 	server: nginx
 	paas: aws
