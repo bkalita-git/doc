@@ -9,7 +9,7 @@ the simplest flask:
 	if __name__ == "main":
 		app.run()
 		 or
-	$export FLASK_APP = app #app.py or export FLASK_APP = app_name #the directory where __init__.py is 
+	$export FLASK_APP=app #app.py or export FLASK_APP = app_name #the directory where __init__.py is 
 	$export FLASK_ENV=development
 	$flask run
 
@@ -25,12 +25,31 @@ file structures:
 				   or
 			    login.py #as flask_restful 
 			/static/
-			/template/
+			/templates/
 		/test/
 		config.py
 		setup.py
 		MANIFEST.in
-		
+
+new file structures: updated(17/11/2021) as SQLAlchemy and FLASK_APP will work separately
+	/app
+		/venv/
+		/app_name/
+			db.py
+			models.py
+			__init__.py
+			/blueprints/
+				login.py #as Blueprint
+				   or
+			    login.py #as flask_restful 
+			/static/
+			/templates/
+		/test/
+		config.py
+		setup.py
+		MANIFEST.in
+
+
 
 __init__.py	
 	from flask import Flask

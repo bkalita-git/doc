@@ -1,0 +1,150 @@
+#how much request can handle by the server and processed by the flask app
+
+	by ApacheBench Tool, it's already installed with Apache server
+	$ ab -n 10 -c 5 http://localhost:5000/ #10 request from 5 different clients
+	put some time.sleep(0.25) in code
+
+	By default, 
+	options.setdefault("threaded", True) this line in App class of flask, before making the WSGI server, i.e. run_simple() and
+	it returns a ThreadedWSGIServer instead of BaseWSGIServer
+
+
+#TASKS:
+	1. IO Bound task(waiting for input/output to be completed not really using the cpu much)
+	2. CPU bound task(multiprocessing for multiple processor)
+
+ASYNC:
+	the heart is [yield coroutine_obj] and coroutine_obj also contains yield. coroutine and generator object are almost same. both have .send() and .throw() method
+	
+	#coroutine under coroutine is what makes async
+	______________________________________________________________________________________________________________________
+	
+	#So,we are feeding the whole program in eventloop
+	#whole program? yes, coroutine_obj_1 is the whole program. we will do it as, >>> asyncio.run(coroutine_obj_1)
+	
+	main_event_loop(coroutine_obj_1):
+		list_tasks = [(coroutine_obj_1,None)]
+		while list_tasks:
+			queue, list_tasks = list_tasks, []
+			for task, data in queue:
+				data = task.send(data)
+				if returns data:
+					print data
+				else:
+					if data an object:
+						list_tasks.append(data) #data is here coroutine_obj_2
+					list_tasks.append(task)		#task is parent task, here, coroutine_obj_1
+				
+	coroutine_obj_1:
+		#coroutine_obj_2 is child coroutine
+		yield coroutine_obj_2 [pause and return coroutine_obj_2 and in main_event_loop: list_tasks.append(coroutine_obj_2)]
+		print
+		
+	coroutine_obj_2:
+		yield 1 [pause and return 1]
+		print
+	_______________________________________________________________________________________________________________________
+
+	NON-BLOCKING CODE/COROUTINE
+		contains code that is waiting for a resource/results which is preparing by external process/controller
+		so, meanwhile that NON-BLOCKING code can give the execution control to the current thread to execute other code by pause its execution 
+		and resume/comeback to its execution when resource is ready.
+		for ex: asyncio.sleep() is NON-BLOCKING CODE/COROUTINE
+		COROUTINE are implemented using yeild, so it's a specialized version of python generator functions.
+		**when a COROUTINE is hit (await coroutine_call()) 
+		  then it returns a coroutine object and submit to the current event loop
+		  and yield from the function(function contains await coroutine_call()) from where it was called. (TO WHERE? to the eventloop)
+		  meanwhile the event loop that checks the result of the COROUTINE
+		  and when result is ready it continues the execution of the COROUTINE by pushing the result. (HOW? using .send(result))
+		  the same concept is in generator, 
+		  but instead of event loop we manually call the generator to continue from next step 
+		  i.e. next(generator) or push the result by generator.send(val).**
+	  
+	  	
+	  GENERATOR BASED COROUTINE:
+	  	using decorator, @asyncio.coroutine and yield from
+	  	removed in python 3.10
+	  NATIVE COROUTINE:
+	  	async wait
+	  
+	  both are similar  
+	
+	COROUTINE-OBJECT
+		object which is awaitable. can be
+			1. another coroutine
+			2. object of class defining an .__await__() method which returns an iterator
+		calling a async function willl return a COROUTINE OBJECT.
+		await ketword adds that object to the eventloop
+	FUTURE-OBJECT
+		the create_task(COROUTINE-OBJECT) method returns FUTURE-OBJECT
+	#selector, loop, event
+	
+	import asyncio
+	import selectors
+	
+	#Uses the most efficient selector available for the given platform. 
+	#It is also possible to manually configure the exact selector implementation to be used:
+	
+	selector = selectors.SelectSelector() 
+	loop = asyncio.SelectorEventLoop(selector)
+	asyncio.set_event_loop(loop)
+
+	#await is similar to yield from
+	
+	#a function which is asynchronous is called coroutine. 
+		1. function using async keyword.
+		2. using @asyncio.coroutine as decorator
+
+	there are few ways to call a coroutine
+		1. using yield from keyword  ex: yield from load_file("file_name.txt")
+		2. using 	  await keyword  ex: await ping_server(ip)
+	
+	calling them returns a coroutine object which is passed to the eventloop. check if coroutine object returned, asyncio.iscoroutine(obj)
+
+#FLASK ASYNC IN VIEW FUNCTION:
+	That's why ASGI is better, asgi_app which means when we run the application a single event loop will be used for every request instead of a new event loop per request.
+	But async can be used if it's not a view function
+	
+	
+#THREADING
+	Threads have some overhead for creating and destroying
+	Threading Module:
+		#doing thinsg asynchronously
+		start = time.pref_counter()
+		
+		import threading
+		
+		t1 = threading.Thread(target=function1)
+		t2 = threading.Thread(target=function2)
+		t1.start()
+		t2.start()
+
+	Concurent Module:	
+		#another implementation
+		
+		import concurrent.futures
+		
+		with concurrent.futures.ThreadPoolExecutor() as executor:
+			f1 = executor.submit(do_something, 1)
+			f2 = executor.submit(do_something, 1)
+			print(f1.result())
+			print(f2.result())
+
+Multiprocessing: 
+	import multiprocessing
+	
+	p1 = multiprocessing.Process(target=func)
+	p2 = multiprocessing.Process(target=func) 
+	p1.start()
+	p2.start()
+
+ASYNC VS THREADING VS MULTIPROCESSING:
+	ASYNC is one threaded. if the code downloads an image from internet, meanwhile the program can do other things.
+	threads run in the same memory space, while processes have separate memory.
+	Threading: execution of tasks not exactly happen at the same time.
+	Multiprocessing: tasks are submitted at the same time.
+
+#REFERENCES
+	1. https://github.com/AndreLouisCaron/a-tale-of-event-loops
+	2. https://docs.python.org/3/library/asyncio-eventloop.html
+	3. https://geekyhumans.com/create-asynchronous-api-in-python-and-flask/

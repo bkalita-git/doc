@@ -1,0 +1,28 @@
+for same request, return the cache data instead of processing since it consumes time.
+
+#-------install--------#
+pip install flask-cache
+
+
+#--------config--------#
+app.config['CACHE_TYPE'] = 'simple'; # can be redis too
+
+
+#--------import--------#
+from flask_caching import Cache
+
+#---------Usage--------#
+cache = Cache()
+cache.init_app(flask_app)
+
+
+#--------Decorator-----#
+@cache.cached(timeout=10) #until 10 sec this is cached
+def fun():
+	randnum = randint(1,100)
+	return {randnum} #cached
+#you can use the decorator with prefix param before any function
+
+
+#REFERENCES
+1. https://flask-caching.readthedocs.io/en/latest/

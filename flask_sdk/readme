@@ -1,14 +1,23 @@
 #we will be using 
-Commication Api Architecture: RESTful
-Commication protocol: HTTP
-container: docker
-server: nginx
-paas: aws
-framework: Flask
-template engine: jinja
-DB :Flask-SQLAlchemy
-wsgi-toolkit: werkzeug
-Python Concepts in Flask: Decorator, Template Engine, module and package application
+	Commication Api Architecture: RESTful
+	Commication protocol: HTTP
+	container: docker
+	server: nginx
+	paas: aws
+	framework: Flask
+	template engine: jinja
+	DB :Flask-SQLAlchemy
+	wsgi-toolkit: werkzeug
+	Python Concepts in Flask: Decorator, Template Engine, module and package application
+
+	#pip packages
+		flask
+		flask_sqlalchemy
+		flask_restful
+		PyJWT
+		razorpay
+	
+	app structure: Package (not module)
 
 1. Make local python environment inside a project folder
 	$ mkdir flask_project_1

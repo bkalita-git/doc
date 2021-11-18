@@ -1,0 +1,29 @@
+application_code>library_code>operating_system_code>processor
+
+master:
+	#memory
+		different structure behave differently.
+		class/structure/data_types they all have memory but are different because of their memory allocation behaviour.
+		memory management unit in interpreter/compiler
+	#uniqueness
+		in building blocks of language:
+			->python, everything can be derived from metaclass
+			->golang, variable can have method
+		
+	#features		
+		async
+		multithread
+	framework:
+		directory env
+		directory structure
+		config file
+			application level_config
+			build level_config
+	
+	database with orm:
+		learn it
+advanced:
+	runtime
+
+REFERENCES:
+	1. https://scoutapm.com/blog/python-memory-management

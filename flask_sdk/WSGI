@@ -1,5 +1,6 @@
 CGI: Web server generates some common ENVIRONMENT VARIABLES(CGI) and forks the other script(php, python) as a process.
-WSGI: Web server call/forks a function by passing Environ and Start_responses.
+WSGI: Web server call/forks a function(this flask app for eg) by passing Environ and Start_responses.
+Preforking: Workers are in memory instances of python interpreter and all dependencies required to run them. i.e. the WSGI module must have loaded several instances of our app so new request to the wsgi server will be fedup to those instances without need of loading of application. gunicorn is based of pre fork model.
 
 Flask's default WSGI server is one from Werkzeug library. So, run any server which invokes the WSGI application function.
 
@@ -84,6 +85,6 @@ here, app = Flask(__name__)
 	  look at TCPServer get_request() in socketserver.py for receiving the request data using socket, the raw request is then broken into CGI Environ by WSGI module.
 	  
 	  
-	  ****WSGI module is a wrapper around the server. the request come to server but since wsgi is a wrapper around the server it reads the request and sets environ and call the app(environ,start_response).
+	  ****WSGI module is a wrapper around the server. the request come to server but since wsgi is a wrapper around the server it reads the request and sets environ and call the app(environ,start_response).****
 	  in werkzeug, WSGIRequestHandler and BaseWSGIServer inherits the core python server classes, like BaseRequestHandler and BaseServer.
 	  and I can say, werkzeug BaseWSGIServer is the entry point.****
