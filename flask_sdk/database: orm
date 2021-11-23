@@ -1,6 +1,6 @@
 POSTGRESQL
 arch linux setup:
-	1. this creates a postgres user in system
+	1. this creates a 'postgres' user in system
 		$ pacman -S postgresql
 	2. login to postgres user 
 		$ su -l postgres
@@ -18,13 +18,51 @@ arch linux setup:
 		sudo nano /var/lib/postgres/data/pg_hba.conf     --> password_encryption = md5
 		sudo systemctl restart postgresql
 
-
-#Remember, We don't want to login to the newly_created_user(since we did not give database creation priviliedge to that user so no system user will be created which can execute commands like "createdb" etc.) instead we will loginto the database using the newly_created_user and password if there is.
+i. PostgreSQL database user names are logically separate from user names of the operating system in which the server runs
+i. there need be no connection between database user names and OS user names.
+i. for exampple, the system user 'postgres' and the database user 'postgres' have no connection physically even though their password may same.
+i. that's why we can't do $ su -l database_user_name. because they are stored in table too.
+i. Remember, We don't want to login to the newly_created_user(since we did not give database creation priviliedge to that user so no system user will be created which can execute commands like "createdb" etc.) instead we will loginto the database using the newly_created_user and password if there is.
 like this $ psql -U flask_test -d TESTSB
-#PostgreSQL database user names are logically separate from user names of the operating system in which the server runs
-#there need be no connection between database user names and OS user names.
-#for exampple, the system user 'postgres' and the database user 'postgres' have no connection physically even though their password may same.
-#that's why we can't do $ su -l database_user_name. because they are stored in table too.
+
+
+TRANSACTION:
+	A transaction contain many smaller tasks. transaction follows ACID property. 
+	ATOMICITY: A transaction is either complete or not complete, It can't be partially completed.
+	CONSISTENCY:
+	ISOLATION: Different transaction can be happening simultaneously
+	DURABILTY: Guarantee of data being stored once commit.
+	
+	a transaction can be ROLLBACK or COMMITED
+	
+	=> BEGIN;
+	=> INSERT/UPDATE QUERY;
+	=> COMMIT/ROLLBACK;
+	
+	
+NORMALIZATION:
+	No composite data in a column. table should not include frequent data. they should be broken into new table. because using relational algebra we can generate as many table we want.
+
+INDEXING:
+	when declaring 'PRIMARY KEY', it automatically  creates an index for the column, index helps to retrieve data quickly. indexig uses B+ data structure.
+	we can creare an index manually by-
+		=> CREATE INDEX index_name ON table_name(col_name);
+
+RETRIEVING DATA:
+	SELECT [*,COUNT(*),LENGTH(*),col_name, col_name AS new_col, count(DISTINCT col_name)]  
+	FROM [table_name1,table_name2...] 
+	JOIN [table...] ON [..id=..id] JOIN ... 
+	WHERE [..id=..id, id.. LIKE/NOT LIKE ..id]
+	GROUP BY [col_name/col_poition] HAVING [condition]
+	ORDER BY [col_name/col_poition] ASC/DESC  #i. use col_poition for efficiency
+	LIMIT [10/10,20]
+	
+lly,
+	UPDATE, DELETE, INSERT
+
+EXPLAIN:
+	=> EXPLAIN QUERY;
+
 
 
 Object Relational Mapper, can access/use relational 
@@ -174,16 +212,47 @@ Session.commit()
 Base.metadata.bind = engine
 Base.metadata.create_all()
 --------------------------------------------------------------------
+#Indexes used to retrieve data faster(primary_key)
+#use logging (echo=True)to see what sql queries are producing to know performance
+#concepts of transactions, join, sub-queries
 
-State of an Object
-1. transient	: not in session also no database identity
-2. pending		: when Session.add(transient_instance) it becones pending, but not commit	 
-3. persistent	: flush the pending object. or query the database for existing instance
-4. deleted		: instance deleted within a flush but no commit, when rolled back a deleted object moves to the persistent
-5. detached		: the deleted object is committed. but no  session with it. a deleted object can't be in pending state.
+#State of base_declarative Object
+	'''  
+	from sqlalchemy.orm import base_declarative
+	Base = base_declarative()
+	class User(Base):
+		...
+	
+	base_declarative_object = User(id=...)
+	'''
+		
+	1. transient	: not in session also no database identity
+	2. pending		: when Session.add(transient_instance) it becones pending, but not commit	 
+	3. persistent	: flush the pending object. or query the database for existing instance
+	4. deleted		: instance deleted within a flush but no commit, when rolled back a deleted object moves to the persistent
+	5. detached		: the deleted object is committed. but no  session with it. a deleted object can't be in pending state. or a previously persistent object is
+					  no longer attached to a session.
 
-@objects/instance of base_declaratives are tracked by orm.
-@s1 = Session(), s2 = Session() both s1 and s2 commit will work for the same object iff Session is a scoped_session.
+	@objects/instance of base_declaratives are tracked by orm.
+	for the same base_declarative_object you can't assign(session1.add(b_d_o), session2.add(b_d_o)) it to different session but it is possible if the session is scoped_session.
+	after commiting a session all the transactions inside the session expires, but a session.rollback() will undo the commit
+
+#identity map
+	
+#sessionmaker Session
+	'''
+	from sqlalchemy.orm import sessionmaker
+	Session = sessionmaker(bind=engine)
+	session1 = Session()
+	
+	session1.close()
+	'''
+#scoped_session Session
+	'''
+	from sqlalchemy.orm import sessionmaker,scoped_session
+	ScopedSession = scoped_session(sessionmaker(bind=engine))
+	session1 = ScopedSession()
+	'''
 --------------------------------------------------------------------	
 #REFERENCES
 1.https://www.postgresql.org/docs/9.1/client-authentication.html

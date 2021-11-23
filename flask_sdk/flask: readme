@@ -6,13 +6,13 @@
 	paas: aws
 	framework: Flask
 	template engine: jinja
-	DB :Flask-SQLAlchemy
+	DB :sqlalchemy #Flask-SQLAlchemy
 	wsgi-toolkit: werkzeug
 	Python Concepts in Flask: Decorator, Template Engine, module and package application
 
 	#pip packages
 		flask
-		flask_sqlalchemy
+		sqlalchemy   #flask_sqlalchemy
 		flask_restful
 		PyJWT
 		razorpay
