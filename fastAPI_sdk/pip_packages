@@ -1,0 +1,26 @@
+pip install fastapi #depends on data parsing "pydantic" and Async framework "starlette"
+
+pip install "uvicorn[standard]" #ASGI server
+
+pip install PyJWT
+
+pip install python-multipart
+
+pip install sqlalchemy
+
+pip install psycopg2
+
+uvicorn main:app --reload #run the ASGI app in hot reload
+
+#differences Flask and FastAPI:
+	the config.py in flask we can do app.config.from_object("config.Development"),
+	here in fastapi we can use BaseSettings from pydantic
+	-method_decorators in flask_restful and dependencyinjection in fastAPI
+	-/upload/ and /upload not same in flaskapi by default
+	-flask is simple, fastapi has HTTPAuthorizationCredentials, HTTPException etc.
+	- curl --request POST 'http://localhost:8000/token' -d "username=bipul&password=password"
+	- curl --request POST 'http://localhost:8000/upload/' --form 'file=@test.csv'
+	- in fastapi use typehints so starlette will send those info in those route functions
+
+#REFERENCES
+ 1.https://testdriven.io/blog/moving-from-flask-to-fastapi/

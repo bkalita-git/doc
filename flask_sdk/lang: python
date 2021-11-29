@@ -264,6 +264,14 @@
 	kwargs['key_name']
 	args[0]
 
+#3 dots (...) or ellipises
+	... is a token having the singleton value Ellipsis, similar to how None is a singleton value
+	as a placeholder for not yet written, can be used in variable length of arguments.
+
+#<function signature> specifies the input arguments to the function
+
+#Optional[int] from typing module is, Union[int,None], ie. either int or None
+
 #with statement
 	 It allows you to ensure that a resource is "cleaned up" when the code that uses it finishes running, even if exceptions are thrown. It provides 'syntactic sugar' for try/finally blocks.
   with open('output.txt', 'w') as f: #automatically close the file after writing. 

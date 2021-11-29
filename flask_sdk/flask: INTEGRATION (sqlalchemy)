@@ -1,0 +1,306 @@
+-----------------------------
+1. Relational Database Basics
+	1.1. Installation
+	1.2. Transaction
+	1.3. Normalization
+	1.4. Indexing
+	1.5. Relational Queries
+2. sqlalchemy
+	2.1. Installation
+	2.2. Architecture
+	2.3. sqlalchemy LEVEL 1
+	2.4. sqlalchemy LEVEL 2
+	2.5. sqlalchemy LEVEL 3
+	2.6. sqlalchemy LEVEL 4
+------------------------------
+
+1. Relational Database Basics
+	1.1. Installation
+		POSTGRESQL
+		arch linux setup:
+			1. this creates a 'postgres' user in system
+				$ pacman -S postgresql
+			2. login to postgres user 
+				$ su -l postgres
+			3. initialized database cluster by giving the location where database should be stored
+				$ initdb -D /var/lib/postgres/data
+			4. add a new database user 
+				$createuser --interactive
+			5. create database 
+				$ createdb my_database_name -O newly_created_user
+			6. loginto the database 
+				$ psql -U newly_created_user -d my_database_name
+			7.  add password to the user, after login to the database 
+				=>ALTER USER newly_created_user WITH ENCRYPTED PASSWORD 'password';
+				sudo nano /var/lib/postgres/data/postgresql.conf --> change trust to md5 in fist local
+				sudo nano /var/lib/postgres/data/pg_hba.conf     --> password_encryption = md5
+				sudo systemctl restart postgresql
+
+		i. PostgreSQL database user names are logically separate from user names of the operating system in which the server runs
+		i. there need be no connection between database user names and OS user names.
+		i. for exampple, the system user 'postgres' and the database user 'postgres' have no connection physically even though their password may same.
+		i. that's why we can't do $ su -l database_user_name. because they are stored in table too.
+		i. Remember, We don't want to login to the newly_created_user(since we did not give database creation priviliedge to that user so no system user will be created which can execute commands like "createdb" etc.) instead we will loginto the database using the newly_created_user and password if there is.like this $ psql -U flask_test -d TESTSB
+
+
+	1.2. Transaction
+		A transaction contain many smaller tasks. transaction follows ACID property. 
+		ATOMICITY: A transaction is either complete or not complete, It can't be partially completed.
+		CONSISTENCY:
+		ISOLATION: Different transaction can be happening simultaneously
+		DURABILTY: Guarantee of data being stored once commit.
+		
+		a transaction can be ROLLBACK or COMMITED
+		
+		=> BEGIN;
+		=> INSERT/UPDATE QUERY;
+		=> COMMIT/ROLLBACK;		
+	
+	
+	1.3. Normalization
+		No composite data in a column. table should not include frequent data. they should be broken into new table. because using relational algebra we can generate as many table we want.
+
+	1.4. Indexing
+		when declaring 'PRIMARY KEY', it automatically  creates an index for the column, index helps to retrieve data quickly. indexig uses B+ data structure.
+		we can creare an index manually by-
+		=> CREATE INDEX index_name ON table_name(col_name);
+
+	1.5. Relational Queries:
+		SELECT [*,COUNT(*),LENGTH(*),col_name, col_name AS new_col, count(DISTINCT col_name)]  
+		FROM [table_name1,table_name2...] 
+		JOIN [table...] ON [..id=..id] JOIN ... 
+		WHERE [..id=..id, id.. LIKE/NOT LIKE ..id]
+		GROUP BY [col_name/col_poition] HAVING [condition]
+		ORDER BY [col_name/col_poition] ASC/DESC  #i. use col_poition for efficiency
+		LIMIT [10/10,20]
+		
+		lly,
+			UPDATE, DELETE, INSERT
+
+		EXPLAIN:
+			=> EXPLAIN QUERY;
+
+
+2. sqlalchemy
+	2.1. Installation
+		$ pip install sqlalchemy
+		$ pip install psycopg2
+	2.2. Architecture
+		There are two popular style of ORM(Object Relational Mapper), Active Record and Data Mapper,  Sqlalchemy is based on Data Mapper style.
+		Active record is like  object.attribute="value" object.save()
+		And Data Mapper style which includes Session()
+		
+		sqlalchemy is a stack having 3 different level of packages. the last level talks to the database.
+		TOP: sqlalchemy ORM
+		2nd: sqlalchemy core : schema/type, sqlalchemy expression language, Engine(Connection Pooling, Dialect)
+		LOW: 3rd party libraries/python core: DBAPI(psycopg2/mysql client/etc)
+		
+		Engine: Factory for database connection which is maintained by a connection pool.
+		Dialect: Interprets generic SQL and Database Commands in terms of a specific DBAPI and database backend.
+		connect pool: Holds a collection of database connections in memory for fast re-use
+		SQL Expression Language: Allows SQL statement to be written using python expression
+		Schema/Types: Uses python object to represents Table, Column Datatypes.
+		We can communicate with the database by choosing any level from above. It's just sqlalchemy ORM will lot be easier.
+		
+		But, The workflow of sqlalchemy ORM can be understood by 4 LEVELS.
+		(LOW)LEVEL 1: Engine, Connection, Transaction
+			 LEVEL 2: Table Metadata, Reflection, DDL
+			 LEVEL 3: SQL Expression
+		(TOP)LEVEL 4: ORM
+	2.3. sqlalchemy LEVEL 1
+		Engine, Connection, Transaction
+		
+		'''
+		#Engine 
+		from sqlalchemy import create_engine
+		#in latest version there is future_create_engine
+		engine = create_engine(SQLALCHEMY_DATABASE_URI)
+		print(engine.dialect)
+		print(engine.pool)
+		
+		#Connection
+		connection = engine.connect()
+		stmt = sqlalchemy.text("SELECT * FROM TABLE_NAME")
+		result = connection.execute(stmt)
+		row = result.fetchone()
+		connection.close() #can be result.close()
+		
+		#Transaction
+		trans = connection.begin()
+		trans.commit() # can be trans.rollback() and savepoint with rollback
+		'''
+	2.4. sqlalchemy LEVEL 2
+		Table Metadata, Reflection, DDL
+		'''
+		#Table Metadata
+		form sqlalchemy import MetaData,Table,Column,Select
+		metadata = MetaData()
+		user_table = Table("user",metadata,Column("id",Integer,primary_key=True))
+		with engine.begin() as conn:
+			metadata.create_all() #or user_table.create(conn)
+		print(user_table.name)
+		
+		#Reflection
+		metadata.reflect(conn)
+		reflected_user = Table("user",metadata)
+		print(metadata.table.key())
+		'''
+	2.5. sqlalchemy LEVEL 3
+		SQL Expression
+		'''
+		expr1 = user_table.c.username == 'x'
+		#expr.left, expr.right, expr.operator, expr.compile()
+		expr2 = Select([user_table.c.username],...).where(....)
+		connection.execute(expr2)
+		'''
+	2.6. sqlalchemy LEVEL 4
+		ORM
+		In this level we will be working with flask most of the time.
+		here,
+		-python class and Table(of LEVEL 2) is mapped, this can be done explicitly too using mapper()
+		-a Session which is a co-ordination layer.
+		-Two pattern: Unit of work and Identity map
+
+		#Indexes used to retrieve data faster(primary_key)
+		#use logging (echo=True)to see what sql queries are producing to know performance
+		#concepts of transactions, join, sub-queries
+
+		#State of declarative_base Object
+			'''  
+			from sqlalchemy.orm import base_declarative
+			Base = declarative_base()
+			class User(Base):
+				...
+			
+			declarative_base_object = User(id=...)
+			'''
+				
+			1. transient	: not in session also no database identity
+			2. pending		: when Session.add(transient_instance) it becones pending, but not commit	 
+			3. persistent	: flush the pending object. or query the database for existing instance
+			4. deleted		: instance deleted within a flush but no commit, when rolled back a deleted object moves to the persistent
+			5. detached		: the deleted object is committed. but no  session with it. a deleted object can't be in pending state. 
+							  or a previously persistent object is no longer attached to a session.
+
+			@objects/instance of declarative_base are tracked by orm.
+			for the same declarative_base_object you can't assign(session1.add(b_d_o), session2.add(b_d_o)) it to different session 
+			but it is possible if the session is scoped_session.
+			
+			Base.metadata.bind = engine
+			Base.metadata.create_all()
+
+		#identity map
+			
+		#sessionmaker Session
+			'''
+			from sqlalchemy.orm import sessionmaker
+			Session = sessionmaker(bind=engine)
+			session1 = Session()
+			
+			session1.close()
+			'''
+			
+	
+		#scoped_session Session
+			'''
+			from sqlalchemy.orm import sessionmaker,scoped_session
+			ScopedSession = scoped_session(sessionmaker(bind=engine))
+			session1 = ScopedSession()
+			'''	
+	
+		#Session vs Flush
+		Flush only do insert,  update, delete 
+		Session does flush, commit the data, expire objects.
+		
+		>>>session.query().filter_by().first()
+		A communication to database using engine is not happened until .first() occurs
+
+		>>>row_obj = session.query().filter_by().first()
+		>>>row_obj.col_name = 'new_value'
+		when a object is modified then it becomes dirty. session.dirty holds those object.
+		
+		>>>session.commit()
+		when a session is committed then all the objects are expired, this behaviour is automatic. 
+		>>>row_obj.col_name
+		now, row_obj becomes expired but accessing it will execute a database query because after last commit who knows who changed that row.
+		
+		>>>session.rollback()
+		rollback all the changes, i.e. set those objects in transient states.
+		
+		>>>session.query().filter(#holds binary expression, ie. *args)
+		>>>session.query().filter_by(#*kwargs)
+		
+		>>>session.add_all([obj1, obj2])
+		
+		#Relations
+		'''
+		from sqlalchemy.orm import relationship
+		class User(Base):
+			__tablename__ = 'user'
+			id = Column(Integer, primary_key=True)
+			name = Column(String)
+			addresses = relationship("Address",back_populates="user") #a "user" field in Address class
+			
+		class Address(Base):
+			__tablename__ = 'address'
+			id = Column(Integer, primary_key=True)
+			location = Column(String)
+			user = relationship("User",back_populates="addresses")	#a "addresses" field in User class
+		
+		#now we can do this, and helpful
+		user1 = User(name="bob")
+		user1.addresses = [Address(location="washington"),Address(location="guwahati")]
+		
+		
+		#back_populates vs backref
+		'''
+		
+		
+
+	
+	#project/db.py
+	from sqlalchemy import create_engine
+	engine = create_engine('postgresql://flask_test:password@localhost/TESTSB')
+
+	from sqlalchemy.orm import scoped_session, sessionmaker
+	Session = scoped_session(sessionmaker(bind=engine))
+
+
+	#project/app/__init__.py
+	@app.teardown_appcontext
+	def cleanup(resp_or_exc):
+		Session.remove()
+
+
+	#project/app/blueprints/Message/__init__.py
+	from .db import Session
+	from .models import Message
+	from flask_restful import Resource
+	class Message(Resource):
+		def get():
+			values = Session.query(Message).all()
+			return ""
+
+
+	#project/app/models.py
+	from sqlalchemy.ext.declarative import declarative_base
+	from sqlalchemy import Column,Integer,String
+	Base=declarative_base()
+	class Message(Base):
+		__tablename__ = 'message'
+		id = Column(Integer,primary_key=True)
+		message = Column(String)
+		
+		def __repr__(self):
+			return f"{self.message}"
+	
+	#creating tables from models
+	from app import db
+	from app import models
+
+
+#REFERENCES
+1.https://www.postgresql.org/docs/9.1/client-authentication.html
+2.https://wiki.archlinux.org/title/PostgreSQL#Require_password_for_login
+3.https://www.pythoncentral.io/understanding-python-sqlalchemy-session/
+4.https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html
