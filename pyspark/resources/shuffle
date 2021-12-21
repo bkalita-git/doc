@@ -1,0 +1,36 @@
+rdd inner join
+>>> rdd1 = sc.parallelize([(1,(2,3),(1,(3,4)))])
+>>> rdd2 = sc.parallelize([(1,(45,657),(1,(78,64)))])
+
+>>> rdd1.join(rdd2).collect()
+[(1, ((2, 3), (45, 657))), (1, ((2, 3), (78, 64))), (1, ((3, 4), (45, 657))), (1, ((3, 4), (78, 64)))]
+
+>>> rdd1.cogroup(rdd2).collect()
+[(1, (<pyspark.resultiterable.ResultIterable object at 0x7f6f8a57a940>, <pyspark.resultiterable.ResultIterable object at 0x7f6f8a570a30>))]
+
+>>> rdd1.cogroup(rdd2).collect()[0][1][0]
+<pyspark.resultiterable.ResultIterable object at 0x7f6f8a5867f0>
+>>> list(rdd1.cogroup(rdd2).collect()[0][1][0])
+[(2, 3), (3, 4)]
+
+unfortunately there is no RDD partitioner supported by pyspark.
+>>>df = df.repartition(numPartitions, "Country")
+>>>df.repartitionByRange(numPartitions, 'unique_id')
+
+"in DataFrame we don’t control the partitioner for DataFrames or Datasets, so you can’t manually avoid shuffles as you did with core Spark joins"
+The partitionBy () will write files to disk for each memory partition and partition column.
+
+
+>>>df.groupBy() #1 group where all the elements in that group
+
+just remember that groupBy will group everything based on a key, now aggregate function means applying a function to each group.
+We can join on multiple columns included in a list in DF.
+
+union() operation does not removes duplicates elements either in rdd or in DF also no shuffle. apply distinct() on top of it.
+https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html
+
+
+1. MapExchange(e1:T1_k0,T2_k2)->ReduceExchange(e1:T1_K0,T2_K0)
+2. sort-merge-join [sort is needed because even though same key of 2 DF in same executor but rows are not sorted so can't merge]
+						or 
+2. shuffle-hash-join[if no sort is done then one extra executor must join ] (shuffle the partitions and other executor will do the join)

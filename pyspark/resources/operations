@@ -1,0 +1,138 @@
+RDD:
+	 Transformation: RDD->RDD
+	 	1. rdd.map(lambda x:(x,1)) #here x is one element of rdd and making a tuple element from it.
+	 	2. rdd.flatMap(lambda x:[x,x+2]) #here x is one element of rdd and making 2 new elements from it in the new rdd. even if we use () instead [] still it act as a [] in output
+		3. rdd.filter(lambda x: x==2)
+		4. rdd.sample()
+		5. rdd.mapValues(lambda val: val+2 ), here val is element[1] where element[0] is a key but result will be (element[0],element[1]), it preserve partiton scheme, anything that can change the key will not preserve the partition scheme.
+		6. rdd.mapPartitions(f) #apply the function to each partition and get a rdd, lambda x: yield len(list(x)) will get length of each partition, or sum(x),where x will be the iterator/each partition
+		7. rdd.mapPartitionWithIndex() #works on a partition at a time  with its index, def(index,partition): yield index,sum(partition)
+	    8. rdd.countByKey()
+	    9. rdd.cache()
+	   10. rdd.persist(storage_level)
+	   11. rdd.unpersist()
+	   12. rdd.union()
+
+	 Shuffle: RDD->RDD but shuffle needed
+		1. rdd.reduceByKey(lambda x,y:x+y) considers the first element[0] as key and input a function to do similar operation in element[1] by grouping the key then shuffle then do again,output will be (key,only_one_value_per_key)
+		2. rdd.groupBy(lambda x:x[0]) takes a function  to tell the key where input is the whole element lambda x:x[0] or lambda x:x
+		3. rdd.groupByKey(f) consider as the fist element[0] as key and shuffle all of them to output. output, input will be (key,group_of_values_as_one_unit)
+		5. rdd.sortByKey()
+		6. rdd.join(rdd) #innerJoin,leftJoin,rightJoin
+		7. rdd.distinct()
+		8. rdd.sortBy(lambda x:x[key],ascending=True)
+		9. rdd.cogroup(rdd)
+		4. rdd.repartion(n) #newly partition of rdd and output is a rdd of n partition
+	   11. rdd.partitionBy(partitioner_scheme) 
+	   12. rdd.coalesce(partitionNum) #transfer elements from  small partition to other partition even if the partitionNum is high then it wont affect
+		
+	 Action: RDD->PYTHON OBJECT
+	 	1. rdd.reduce(f) takes a function lambda x,y:x+y where x and y are two differet element(whole) from rdd  output is as one element.
+	 	2. rdd.collect() #collect all elements from rdd
+	 	3. rdd.take(n) #collect n elements from rdd
+	 	4. rdd.count() #number of elements in rdd
+	 	5. rdd.first() #first element from rdd
+	 	6. save and write operation 
+	 	7. rdd.top(2)
+	 	8. rdd.toDF(*col_name_in_list)
+
+
+
+
+ 	JOIN OPERATION AS SEPERATELY:
+		A. on PairRDD : element should be in format (T,U), where T is the key and the U  can be "(elements,..)" or "element1,element2,..." but element1 will be consider as value and element2 will not come in result, otherwise error.
+		- inner join 
+			rdd0.join(rdd1)
+		- leftOuterJoin
+			rdd0.leftOuterJoin(rdd1)
+		- rightOuterJoin
+			rdd0.rightOuterJoin(rdd1)
+		B. on any elements in RDD
+		- Cartesian join
+			rdd0.cartesian(rdd1)
+
+	UNION OPERATION AS SEPERATELY:
+
+	AGGREGATION OPERATION AS SEPERATELY:
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SQL:
+ i. We can apply Aggregate function to each group or to a dataFrame. for dataframe import from pyspark.sql.function or make a udf.
+ i. Horizontal operartion,use  df["col_name"] instead of "col_name"
+ i. on join on no condition then it will act as cross join
+ DataFrame:
+ 	Transformation:
+ 		1. df.select(col_object)
+ 		2. df.withColumn('new_col_name',col_object*2)	
+		3. df.filter(col_object == 3)
+		4. df.createDataFrame(RDD,schema=schema)
+		5. groupBy(col_object) #results in , distinct_element_of_row_in_col_object, group_of_elements_in_each_distinct_col_object, we can apply aggregate fun to each group them
+		 . df.select(df[0].alias(""))
+		 . df.fillna(value) #value should matched with schematype otherwise nothing happened
+		 . df.na.fill(value)
+		 . df.replace(value,new_Value) or [val,val],[new_val,new_val] or {"val":"new_val"}
+		 . df.sort(col2,col3) #sort in partition level
+		 . df.orderBy() #sort in whole
+		 . df.withColumn
+		 . df.withColumnRenamed("","")
+		 . df.union #narrow
+		 . df.unionAll #narrow
+		 . df.dropDuplicates([columns,..])
+		 . df.join(df2, 'name', 'outer') #name can be list of columns or expression
+		 . df.cache() #memory only == persist with memory
+ 		 . df.unpersist() #remove from storage
+ 		 . df.persist(StorageLevel.MEMORY_ONLY) #if does not fit then recomputed left,can use serialization option, import from pyspark
+ 		 . pivot
+ 		 . df.agg({"col_name":"sum"}) #apply agg to each group, df.agg == df.groupBy().agg,  if no col is specified then applies to every col.
+ 	Action:
+ 		1. df.show() #top 20 rows
+ 		2. df.head(2) #first 2 row object
+ 		3. df.read.load()
+ 		 . spark.rdd.getNumPartitions()
+ 		 . df.count()
+ 		 . df.sample(withReplacement=False,fraction=0.1,seed=int_optional) #fraction here is 10%, withReplacement True means duplicate elemenets may generate, and seed is the random number generator seed so use same number if you want same elements everytime.
+	Shuffle:
+		. df.groupBy() #see aggregate operartions #no show() here since output is groupData
+		. df.distinct() #distinct elements
+		. df.coalesce(numPartitions)
+		. df.partitionBy() #will write files to disk for each memory partition and partition column.
+		. df.repartition(numPartitions, COL) #hash partition, COL can be a single or List of columns and numPartitions can be a column or integer. it says that minimum 200 partition will be created if not defined in numPartitions. if some can be empty .
+		. df.repartitionByRange(numPartitions, 'unique_id')
+
+ SQL:
+ 	1. df.createOrReplaceTempView("a_new_table_name")
+ 	2. spark.sql("SELECT * FROM people") #for nested where row1.row2.row3, use escape character if column name have space
+ 	3. save as table
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# Internal Setting of JOIN operartion: https://www.linkedin.com/pulse/spark-sql-3-common-joins-explained-ram-ghadiyaram/
+	hash join:
+
+	BroadCast hash join:
+		when 1 of the dataframe is small enough to fit in the memory. it is broadcasted over to all the executors where the larger dataset resides and hash join is performed. So, No shuffling
+		can be configured to set the Maximum size in bytes for a dataframe to be broadcasted. spark.sql.autoBroadcastJoinThreshold, default is 10485760 (10mb) and -1 to disable it.
+
+	Shuffle hash join (shuffle and join), here each join row data will be gathered and bring to one executor from different partition of each table.
+		if no broadcast happens and sor-merge- is disabled or 
+		Shuffle phase:
+			where the data from the join tables are partitioned based on the join key.
+			if two tables have same keys, they end up in the same partition so the data required for join is available in the same partition.
+		Hash Join Phase:
+			The data on each partition performs a classic single node hash join algorithm.	which needs creation of hash table and expensive.
+		only work when spark.sql.join.preferSortMergeJoin is set to false By default sort merge join is preferred over shuffle hash join.
+		
+	Sort Merge Join: (hashShuffleParitions -> applySort -> sortedPartitions->applyMergeonPartition) and both table are very large, here the final join will act as one to one
+		the default join strategy if the matching join keys are sortable and not eligible for broadcast join or shuffle hash join.
+		Shuffle Phase:
+			The 2 large tables are repartitioned as per the join keys across the partitions in the cluster
+		Sort Phase: Sort the data within each partition parallelly.
+		Merge Phase: Join 2 sorted+partition data.
+	Working with Skewed data:
+
+	
+
+AT LAST SEE ALL OPERATION AND SEE OPTIMIZATION AND SEE SESSION VS CONTEXT CONFIGURATION.

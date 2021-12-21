@@ -1,0 +1,30 @@
+serialization, marshalling, flattening, pickling
+
+Serialization: JSON is a "text serialization" format, it outputs unicode, most of the time encoded to utf-8
+pickle: is a binary serialization format. can be used to serialize almost any python objects.
+marshalling: Marshal Serializer also serializes objects and faster than pickle but it supports fewer datatypes.
+Java Object Serialization: convert java object to byte not class
+kryo serialization: 
+
+
+
+What gets serialized in spark.
+ 1. the function being passed to rdd.map(function) itself need to be serialized since "function" itself an object.
+ 2. if references to other objects are made within the "function" then those objects need to be serialized too.
+
+
+rdd = spark.read.format("csv")...load()
+ 1. the csv is read only by DRIVER-JVM
+ 2. Partition are serialzed and sent to Executor-JVM.
+rdd.map(function)
+ 1. here, "function" is serialized by PythonDriver(not JVM-DRIVER)
+ 2. rdd_partition is serialized by EXECUTOR-JVM
+ 
+ 
+ The thing under UI is simply wholeStageCodegen, not an Action.
+
+#References:
+1. https://medium.com/onzo-tech/serialization-challenges-with-spark-and-scala-a2287cd51c54
+2. https://stackoverflow.com/questions/42096854/how-does-apache-spark-send-functions-to-other-machines-under-the-hood/51115271
+3. https://stackoverflow.com/questions/61816236/does-pyspark-code-run-in-jvm-or-python-subprocess
+4. https://training.databricks.com/visualapi.pdf

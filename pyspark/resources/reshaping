@@ -1,0 +1,10 @@
+pivot
+
+df.groupBy(cols).pivot(col).sum(col)
+
+when we apply pivot to one column then where will C number of column created, where C is the different category in that Column.
+
+so result will be-
+
+|group_by_col | C0 | C1 | C2 |   now, grid[0][0] will be a agg function to that group of elemenets, now we can apply aggregation function to that  group, sum(a_col)
+

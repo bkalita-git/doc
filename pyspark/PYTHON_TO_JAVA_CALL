@@ -1,0 +1,224 @@
+python to java:
+	the JVM must be running first
+java   to python
+
+
+1. JVM only Made for JAVA which support JAVA BYTE CODE.
+2. many languages including Scala is designated to compiled down to JAVA BYTE CODE.
+3. py4j is a library for python and also for java which can communicate with JVM.
+3. spark is written in Scala and so runs on JVM.
+4. spark has scala API and with pyspark which uses py4j can communicate with the scala API?
+
+
+
+cp /usr/share/py4j/py4j0.10.9.3.jar .
+
+
+example of py4j
+
+0. sudo pip install py4j 
+
+1. examples/Stack.java
+	package examples;
+	import java.util.LinkedList;
+	import java.util.List;
+
+	public class Stack {
+		private List<String> internalList = new LinkedList<String>();
+
+		public void push(String element) {
+		    internalList.add(0, element);
+		}
+
+		public String pop() {
+		    return internalList.remove(0);
+		}
+
+		public List<String> getInternalList() {
+		    return internalList;
+		}
+
+		public void pushAll(List<String> elements) {
+		    for (String element : elements) {
+		        this.push(element);
+		    }
+		}
+	}
+
+
+2. examples/StackEntryPoint.java
+	package examples;
+
+	import py4j.GatewayServer;
+
+	public class StackEntryPoint {
+
+		private Stack stack;
+
+		public StackEntryPoint() {
+		  stack = new Stack();
+		  stack.push("Initial Item");
+		}
+
+		public Stack getStack() {
+		    return stack;
+		}
+
+		public static void main(String[] args) {
+		    GatewayServer gatewayServer = new GatewayServer(new StackEntryPoint());
+		    gatewayServer.start();
+		    System.out.println("Gateway Server Started");
+		}
+
+	}
+3. javac -cp py4j0.10.9.3.jar Stack.java StackEntryPoint.java
+4. cd ..
+5. java -cp .:examples/py4j0.10.9.3.jar examples.StackEntryPoint  #here the jvm must run before python
+   output will be GatewayServer running..
+   
+6. client.py 
+   from py4j.java_gateway import JavaGateway
+   gateway = JavaGateway()
+   stack = gateway.entry_point.getStack()
+   stack.push("First %s" % ('item'))
+   stack.pop()
+
+i. Abobe example needs jvm to run before python, but let's do it from python 
+	#python code
+	from py4j.java_gateway import JavaGateway 
+	gg = JavaGateway.launch_gateway(classpath="/path/my_jar.jar") #Note that my_jar.jar does not have to start a gateway.
+
+	myclass_instance = gg.jvm.my_class_package_name.MyClass()
+	result = myclass_instance.my_method()
+
+i. What is we want the other way, like python will  be actiing as the gatewayServer and jvm will communicate
+
+Spark entry :
+
+	#VIEW 1
+	1. In the driver program, pyspark.SparkContext executes spark-submit in a subprocess (yes, that spark-submit) in to initialise a local Spark JVM process.
+	2. Before executing spark-submit, a temporary file is created and it's name is exported as an environment variable:
+	3. Subsequently, spark-submit instantiates a PythonGatewayServer to initialise a Py4J server and write the Py4J server connection details to this file:
+	4. The Python driver can then read the contents of the file to establish a Py4J gateway to enable communication between the Python driver and the local Spark JVM process:
+	
+	
+	#VIEW 2
+	- To create SparkContext, first SparkConf should be made. The SparkConf has a configuration parameter that our Spark driver application will pass to SparkContext
+	- It allows your Spark Application to access Spark Cluster with the help of Resource Manager. The resource manager can be one of these three- Spark Standalone,  YARN, Apache Mesos.
+	- Once the SparkContext is created, it can be used to create RDDs, broadcast variable, and accumulator, ingress Spark service and run jobs.
+	
+	#VIEW 3
+	there will be running jvm in executors and in that executors there should be python clones too to do the operations.
+	understanding the communication between spark-driver and spark-executor
+
+	#VIEW 4
+	- When you launch a PySpark job, it starts as a Python process, which then spawns a JVM instance[subprocess.popen(spark-submit)] and runs some PySpark specific code in it. 
+	- It then instantiates a Spark session in that JVM, which becomes the driver program that Spark sees. 
+	- That driver program connects to the Spark master or spawns an in-proc one, depending on how the session is configured.
+
+	#VIEW 5
+	-  the fundamental idea is that Spark is going to have to work a lot harder converting information from something that Spark and the JVM can understand to Python and back again.
+	- driver-jvm-process and driver-python-process[initiator] uses py4j for communication
+	- executor-jvm-process and executor-spawned-python-process uses pipe for communication [Use subprocess.Popen to start the Java process and establish pipes to communicate with it. or vice]
+	- One of the bigger challenges is that even once the data has been copied from the Python worker to the JVM, it isn’t in a form the JVM can easily parse
+	- spark-submit which is in venv/bin/ is a bash file which executes another bash script pyspark/bin/spark-class with param org.apache.spark.deploy.SparkSubmit
+	  and which executes finally "java ..-cp.... org.apache.spark.deploy.SparkSubmit" which is a jvm
+	  more precisely  it does this 
+	  java -cp pyspark/conf:pyspark/jars/*
+	  	   -Xmx1g org.apache.spark.deploy.SparkSubmit #it's a class
+	  	   --name PySparkShell pyspark-shell #uses pyspark-shell because SparkSubmit is requested to prepareSubmitEnvironment for .py scripts or pyspark
+  	   
+  	   for "$ spark-submit --master local[1] test.py  "
+  	   	  java -cp pyspark/conf:pyspark/jars/*
+	  	   -Xmx1g org.apache.spark.deploy.SparkSubmit #it's a class
+	  	   --master local[1]
+	  	   test.py #uses our python file
+   
+   #VIEW 6
+   easy view
+   using sparkSession sparkConf is passed to sparkContext till [this in python side] now it executes spark-submit as subprocess and the result is a JVM[with a javaSparkContext object] which has a gatewayServer used by the py4j library for comminicating with it using the sparkSession[since this process will give necessary connections to python sparkSession object.] Now, here the both JVM and the pythonScript a driver program but actually pythonscript is to communicate with the jvm which is the actual driver. also in this process the jvm process will connect to clusters since we already provide sparkConf from python side. Now, the driver-jvm will interact with the application master(which is the container inside that this driver jvm runs and this application master can be from yarn or from spark)
+   so, basically python scripts are mapped with the driver-jvm.
+   Python API calls on the SparkContext object are then translated into Java API calls to the JavaSparkContext,  JavaSparkContext that communicates with the Spark executors across the cluster
+  """ yes, it is becoming easier now, that everything needs to be mapped here from python to spark if we want to comminicate with spark-core functionality and this mapping is provided by the pyspark library of python, and internally the communication after mapping is done either with socket(py4j) or with pipe(subprocess) """
+   python_objects<------------>spark-core-functtion
+   sparkContext<-------------->javaSparkContext
+   PythonRDDObject<----------->spark-core-RDD 
+   
+   #VIEW 7
+   Driver is a Java process. This is the process where the main() method of our Scala, Java, Python program runs. It executes the user code and creates a SparkSession or SparkContext and the SparkSession is responsible to create DataFrame, DataSet, RDD, execute SQL, perform Transformation & Action, etc.
+   if we use the “spark-submit” command, this will in-turn launch the Driver[jvm] which will execute the main() method of our code.(test.py, we can see in task manager), SO, in command-mode, first jvm runs and then the python script runs. and from that pythonscript whatever necessary SparkContext will be created in the jvm. i.e. both jvm and python script will be communicating if and only if we use sparkContext.
+   so, there are tree way we can do it 
+   1. $ python our_pyspark_file.py #inside that file write configuration and sparkContext/sparkSession
+   2. $ spark-submit our_pyspark_file.py --master local[0]
+   3. $ pyspark #this will create session for us.
+   conclusion is: We can run a jvm without a sparkContext using spark-submit command. if we put time.sleep(20) seconds the jvm will be running. only sparkcontext can do the magic of performing spark job.
+   
+   #VIEW 8
+   for more info read python/pyspark/rdd.py 
+   Anything, which involves passing the data through python code, runs outside the JVM. that means let's say
+   def add(x,y):
+   	return x+y 
+   the above is a python function, now if we do the following down, 
+    rdd.reduce(add)
+   those rdd data must be serialized and executor jvm will spawn one or more python process for that. so, that those  serialized data could be processed by the python fuction and this communication happens using pipe. then those results from many python processes then sent back to their jvm and then the jvm sent those to driver for final reduction. Now, when one executor jvm spawns a new python subprocess, but at begining while making the subprocess the python process does not have the function it's like python process does not know what to do and it's just waiting to execute something. But, the driver already serialized the bytecode that has to be executed by each spark task and pickles it together with some additional data. so, what byte code? it's our python function. Now, executor can send both serialized RDD and python bytecode to the python process that it created.
+   Now, this is time consuming task because each partition is being serialized and then serialized back to jvm. Now, instead if we put lambda function then it does not happen. but why the above function did not convert to jvm ?because the add operations above can take many type so it's polimorphic so the function need to see the data so if they are integers they can perform simple addition operations, for that python function need the data so jvm executor must serialized the data.
+   
+   #VIEW 9
+   rdd.map(lambda x:x).collect() #it had 4 partitions.
+   it ran 5 python.pyspark daemon process.
+   after some times 4 of them killed automatically.
+   so, those python daemon are just because i have 4 cpu cores, also i ran it locally.
+   
+   Now, 
+   rdd = sc.parallelize([1,2,3,4,5,6,7,8],2) # 2 partitions
+   rdd.collect()
+   now, this time 3 python.pyspark daemon will be created. 1 for driver jvm and 2 for 2 tasks.
+   but, if we exceed the number of partitions greater than cores(in my system I have 4 cores), then the number of tasks will increased but max of 4 python daemon
+   will be created since I have 4 cores.
+   
+   So, the python driver code sc.parallelize([1,2,3,4,5,6,7,8],2) will  be executed by the driverJVM which triggers 2 tasks[each task has it's operation and partitioned-data] and send to 2 executors-jvms. but there should be an action then this will happen.
+   so, pythondriver [sc.parallelize([1,2,3,4,5,6,7,8],2)] --->driverJVM
+   	   driverJVM--->serialized(keep([1,2,3,4]))--->jvmexecutor[0]
+   	   driverJVM--->serialized(keep([5,6,7,8]))--->jvmexecutor[1]
+   this line sc.parallelize([1,2,3,4,5,6,7,8],2).collect() does not spwans python daemon in executor jvm but 
+   sc.parallelize([1,2,3,4,5,6,7,8],2).map(lambda x:(x,1)).collect() spawns python daemon in each executor jvm because it is involved with python function.
+   
+   Now, if we have 2 partition on data, then if we do, rdd.count() it spwans 3 python daemon as to compute count on 2 executor and then final one on driver.
+   see https://www.linkedin.com/pulse/pyspark-zhiqiang-tang/
+   
+   " To support Python, Spark provides Python API to interactive between Python and Java by using Py4j. In Driver, Python process calls Java method via Py4j to instantiate a Spark context for Python, and create RDDs and actions. Driver serializes code and sends to Executer. Executer deserializes code and executes Java code. However, Executer is not able to execute Python code, thereby each task has its own Python worker running outside JVM. Every Executer has a Pyspark Daemon process. Daemon receives requests from Executer and fork Python worker for each task. Python worker uses socket to receive data from the task and return the executed results of Python user defined functions and lambda functions to the task. In the end, Python process in driver receives the results from the Spark context in JVM."
+   
+   #VIEW 10
+   understanding spark gui
+   yes, everything is lazy and not executed until an action triggers. but sparkSession/sparkContext is not lazy. the GUI of spark shows exact time when the sparkSession/driver and executors  were created in the event timelime. then it shows the next action(notlazy) operation.
+   "In local mode: since the driver and executos works in the same JVM so it does not show executor."
+   "driver" is in [Executor  Driver] and "executor" in "excutor  1 added" Category and "collect" is in [Job category]. 
+   we can see the DAG by selecting the "collect" job.
+   the DAG is comprises of Stages.
+   each Stages have number of tasks. which relates to number of partitions of the data.
+   job id and stage id and task id everything starts indexing from 0
+   
+   job_id = 0: stage_id=0 : tasks_ids=0,1,2,3
+   job_id = 1: stage_id=1 : tasks_ids=4,5,6,7	stage_id=2 : tasks_ids=8,9,10,11
+   
+   We can see " ParallelCollectionRDD[0] readRDDFromFile at PythonRDD.scala:274 " like this in DAG , what does it mean?
+   answer: well the [0] is the identifier of rdd.  if we do rdd.id() it will display 0.
+   >>> rdd_0 = sc.parallelize(data) #this rdd_0.id will show 	   <bound method RDD.id of ParallelCollectionRDD[0] at readRDDFromFile at PythonRDD.scala:274>
+   >>> rdd_1 = rdd_0.map(lambda x:(x,1)) # this rdd_1.id will show <bound method PipelinedRDD.id of PythonRDD[1] at RDD at PythonRDD.scala:53>
+   
+   i. the number of tasks is related to the number of partitions. if we did rdd_0 = sc.parallelize(data,8) then there would be 8 tasks.
+   Now, each task has or can have these values-
+   SCHEDULER DELAY:
+   TASK DESERIALIZATION TIME: Those RDD java partition objects when shuffle(transfering from jvm to jvm) needs to be serialized and then deserialized.
+   							  3 types: JavaSerialization(default for DF and RDD) and KryoSerialization(for DF and RDD) and Encoders(only for Dataset)
+   RESULT SERIALIZATION TIME:
+   EXECUTION COMPUTING TIME :
+   SHUFFLE READ	TIME:
+   SHUFFLE WRITE TIME:
+   GETTING RESULT TIME:
+   
+
+   
+#References	
+ 1. https://stackoverflow.com/questions/61816236/does-pyspark-code-run-in-jvm-or-python-subprocess
+ 2. https://dlab.epfl.ch/2017-09-30-what-i-learned-from-processing-big-data-with-spark/

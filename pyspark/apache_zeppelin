@@ -1,0 +1,35 @@
+Why Zeppelin: Simply we can use a notebook like databricks have. The idea is to connect Zeppelin with our pyspark directory.
+for the bellow steps to work properly make sure you installed pyspark in the venv.
+i.e. $python3.7 -m venv venv
+	 $pip install pyspark 
+****NotE:due to some bug in zeppelin use python3.7, since issues with python3.9/8
+
+step1: Download it and extract it anywhre you like, from https://zeppelin.apache.org/download.html
+step2: Configure zeppelin (like changing port..bla bla bla) because default is 8080 but you may have other service in that.
+	   $cd zeppelin-0.10.0-bin-all
+	   $cp conf/zeppelin-env.sh.template conf/zeppelin-env.sh
+	   $nano conf/zeppelin-env.sh #add the bellow line at bottom
+	   export ZEPPELIN_PORT=8180
+
+step3: start the zeppelin service by $./bin/zeppelin-daemon.sh start #we can use "stop" and "restart"
+
+step4: >Then navigate browser to http://localhost:8180/#/interpreter
+	   >scroll to "spark" section and click "edit" icon
+	   >change this "PYSPARK_PYTHON" and  "PYSPARK_DRIVER_PYTHON" values to /home/common/pyspark_zeppelin_python3.7/venv/bin/python and save it.
+	   >Again, scroll to "python" section and edit
+	   >change "zeppelin.python" value to /home/common/pyspark_zeppelin_python3.7/venv/bin/python and save and restart.
+
+step5: >go to homepage of http://localhost:8180/#/
+	   >create new note
+	   >put this in a tab and run, change delimiter and csv file and path
+'''
+%spark.pyspark
+df1 = spark.read.format("csv").option("header",True).option("inferSchema",True).option("delimiter","\t").option("path","/home/common/pyspark_zeppelin_python3.7/marketing_campaign.csv").load()
+df1.registerTempTable("table")
+'''
+
+	  >in another tab run bellow and there you can visualize it like databricks.
+'''
+%sql
+select * from table
+'''

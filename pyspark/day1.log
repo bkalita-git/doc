@@ -1,0 +1,17 @@
+import gc
+gc.get_referrers(obj)
+
+sc.setJobGroup("my job group id","test")
+
+ s1._jsparkSession.sessionUUID()
+ 
+ s1.getActiveSession()._jsparkSession.sessionUUID()
+ 
+#day2
+apache livy
+apache zeppelin
+running history server
+mkdir /tmp/spark-events
+run the application first and then run the history server
+. venv/lib/python3.9/site-packages/pyspark/sbin/start-history-server.sh
+http://archlinux:18080/

@@ -1,0 +1,80 @@
+node-1:[NamedNode][ResourceManager][container1: [ApplicationMaster:[DRIVER]]] 
+node-2:[DataNode] [NodeManager]	   [container1: [EXECUTOR]]					 [container2: [EXECUTOR]]	[container3: [EXECUTOR]]
+node-3:[DataNode] [NodeManager]	   [container1: [EXECUTOR]]					 [container2: [EXECUTOR]]	[container3: [EXECUTOR]]
+node-4:[DataNode] [NodeManager]	   [container1: [EXECUTOR]]					 [container2: [EXECUTOR]]	[container3: [EXECUTOR]]
+
+#CLUSTER:
+	- bunch of virtual machines and one of them is MASTER and others are SLAVE.
+	- setup hostname in all machine
+	- make accessible all SLAVE by ssh from MASTER
+	- MASTER act as a cluster manager and the entry point of the whole cluster for example k8s://223.24.344.34:443.
+	- to make a node MASTER and others SLAVE, there should be packages installed in all the nodes. 
+	- for example, install (SPARK/hadoop) in all machine and configure  config file in one node to make it MASTER and others SLAVE then in MASTER start the cluster service. like wise, that's how kubernetes and other cluster works.
+	- we can access the cluster using the entry point.
+	- we can submit a job in the cluster(SLAVES will execute) using the entry point but to execute the job the necessary environment should be present in all the nodes.
+	- we can store files in cluster(hdfs) and mount locally as a single drive.
+	- we can install packages in a cluster, for example install spark in existing hadoop cluster.
+	- we say "big data platform" where the above setup are already there
+
+
+	a hadoop cluster:
+		consists:
+			: a distributed file system called hdfs
+			: mapreduce module
+			: a resource manager called yarn (newly introduced module)
+			
+		- the cluster filesystem should be formated as hdfs from MASTER and start the hdfs service.
+		- MASTER: one machine in the cluster is designated as to run 2 daemon:  NameNode and ResourceManager(yarn).
+			:The NameNode is the centerpiece of an HDFS file system. It keeps the directory tree of all files in the file system
+		- SLAVES/WORKERS: The rest of the machines in the cluster in which each run 2 daemon: DataNode and NodeManager.
+			:The DataNode has no knowledge about HDFS files. It stores each block of HDFS data in a separate file in its local file system
+		
+		- so, we can read a file from the hadoop cluster because of the NameNode other wise there are just block of data distributed in the worker nodes.
+
+
+the initial realese of hadoop was system for creating and executing mapreduce application.
+back then hadoop had only 2 components: mapreduce and hdfs
+but what others want that instead of mapreduce some wants other execution engine on top of hdfs.
+and then YARN made. So, yarn provides api's for requesting and working with hadoop cluster resources. And also asking scheduling for tasks of execution engine can be requested to YARN by the execution engine.
+
+so, In Hadoop there is one "Name Node"
+YARN has two daemons:
+	1. One Resource Manager per cluster
+	2. One Node Manager per data Node[per pc] [slave service]: responsible for launching and monitoring containers. A container is a linux control group which is a linux kernel features that allows us to allocate CPU, MEMORY, DISKIO, NETWORK BANDWIDTH to a user process.
+	
+
+spark on yarn
+1. Submitted a job to yarn then it goes to Resource Manager
+2. Resource Manager will find one NodeManager and ask it to launch one container which is the first container and called Application Master.
+   Driver runs inside the AM container[Cluster Mode]
+3. Application Master, /driver[in case of cluster] then asks necessary resources to ResourceManager for more containers.And YARN will allocate them (remember there will be one NodeManager also for each node[one node can have multiple containers])
+4. Application Master reaches out to all NodeManagers to launch the containers and execute the tasks[in client mode]. The tasks directly reports back its status and progress to driver. Once all tASKS are complete then all the containers including Application Master will  perform necessary cleanup and terminate.
+
+spark on local mode, one jvm will contain driver and also executor.all we can do is to increase threads. local[n]
+SparkSession is like a datastructures where the driver maintains all the information including the executor locations and their status.
+
+
+
+let's discuss the yarn on a hadoop cluster:
+LEVEL 0: hadoop Daemon: NameNode[only one in the cluster], Data Node[one in each machine of the cluster]
+LEVEL 1: Yarn Daemon:   ResourceManager[only one in the cluster], NodeManager[one in each machine of the cluster]
+LEVEL 2: Containers:    Application Master Container[only one in the whole cluster launched by NodeManager by ResourceManager], Executors Container[Many in each machine]
+
+
+tasks = number_of_partition
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+LEAVE: for Hadoop Daemon + OS = left 1 core for each Node
+LEAVE: for Hadoop Daemon + OS = left 1 GB for each Node
+
+TOTAL_NUM_EXECUTOR = (num_nodes * (new_num_cores_per_Node/num_concurrent_task_per_executor)) #consider num_concurrent_task_per_executor=5
+NUM_MEM_EACH_EXECUTOR = left_mem_each_Node/num_concurrent_task_per_executor
+
+LEAVE: for APPLICATIONMASTER left 1 executor from total
+
+calculated_memory_overhead_per_executor = max(384,0.07*NUM_MEM_EACH_EXECUTOR)
+
+NEW_NUM_MEM_EACH_EXECUTOR = NUM_MEM_EACH_EXECUTOR - calculated_memory_overhead_per_executor
+LEAVE: for APPLICATIONMASTER left NUM_MEM_EACH_EXECUTOR [will be left automatically]
+---------------------------------------------------------------------------------------------------------------------------------

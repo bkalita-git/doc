@@ -1,0 +1,55 @@
+PC Era:
+	1960: John McCarthy, come up with concept of timesharing and enabling organization to simultaneously use an expensive mainframe.
+		: Charles W. Bachman designed the Integrated DataWarehouse System(IDS)
+		: IBM followed the IDS and made Information Management System(IMS), it was Hierarchical model.
+		: the network model was realesed at the conference on data systems languages (CODASYL)
+		: SABRE system that was used by IBM was a commercial success.
+		: Cloud Computing Idea was invented by J.C.R Licklider
+	1963: The Defense Advanced Research Project Agency in the year 1963, funded $2 million for a project which included developing a technology that allows a computer to be used by two or more persons simultaneously. Here giant computers were used, where reels of magnetic tape for memory and a forerunner, currently named “cloud computing” were taken into consideration. It acted as a cloud giving access to max 3 peoples to connect.
+	
+	1965: The US Government plans the world’s first data center to store 742 million tax returns and 175 million sets of fingerprints on magnetic tape.
+	1969: The idea of an “Intergalactic Computer Network” or “Galactic Network” (a computer networking concept similar to today’s Internet) was introduced by J.C.R. Licklider, who was responsible for enabling the development of ARPANET (Advanced Research Projects Agency Network).
+	1970: Using virtualization software like VMware. It become possible to run more than one Operating System simultaneously in an isolated environment. It was possible to run a completely different Computer (virtual machine) inside a different Operating System.
+		: E.F. Codd released a paper and coined the term "relational database"
+		: Interactive Graphics and Retrieval System(INGRES)by Michael Stonebreaker and Eugene Wong at the university of California, it uses query language called QUEL
+		: IBM then released "System R" a RBMS which uses SQL.
+		: 1976 a new database model called "Entity relationship" was proposed by P.Chen.
+	1980: Emeregence of Object Oriented Database Management System.
+	1990: Creation of WWW
+		: By the 1990’s, few telecommunication giants started offering VPN (Virtual private network) services at affordable costs
+web 1.0 1994-2000:
+		: cloud metaphor was started.
+		: 1995 creation of MYSQL which was open source.
+		: 1998 term NOSQL(Not Only Structured Query Language) was coined.
+		: 1999 The arrival of Salesforce.com in 1999 pioneered the concept of delivering enterprise applications via simple website. The services firm covered the way for both specialist and mainstream software firms to deliver applications over the Internet.
+web 2.0 2000-2010:
+		: 2003 The first public release of Xen, which creates a Virtual Machine Monitor (VMM) also known as a hypervisor, a software system that allows the execution of multiple virtual guest operating systems simultaneously on a single machine
+		: 2004 google MapReduce
+		: 2005 Roger Mougalas from O'Reilly Media coined the term BIG DATA for the first time. Also a year that apache Hadoop was created by Yahoo built on top of Google's MapReduce.
+		: 2006 amazon created AWS
+		: 2007 RabbitMQ by Pivotal Software
+		: 2008 Microsoft released its cloud computing service named Microsoft Azure.
+		: 2008 Google and introduced its beta version of search engine.
+		: 28 march 2008 Apache HBASE started
+		: 11 feb 2009 MongoDB 
+		: 1 jun 2009 APache sqoop started
+web 3.0 2010-2020:
+		: oct 2010, James Dixon, founder and former CTO of pentaho came up with the term "Data Lake"
+		: oct 1/, 2010, Apache Hive by Facebook.
+		: jan 2011, Apache Kafka by Linkedin
+		: may 2011, Apache Flink
+		: 2012 Google compute engine released.
+		: july 2012, Snowflake Inc. was founded.
+		: 2013, apache spark back then built by Databricks at UC Berkeley
+		: nov 18 2014 Apache flume started
+web 4.0 2020-2030:
+
+An ETL tool(extract, transform, load).
+	Apache-SQOOP:
+		can bring data from any sql store. and can dump to hdfs/hive-table/HBASE-table or do in reverse.
+		need primary_key by default
+		no string column if no primary_key
+	Direct java driver in spark
+
+
+

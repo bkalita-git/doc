@@ -1,0 +1,47 @@
+spark MLIB is on top of RDD API of spark.
+we have MLIB connector in pyspark.
+
+Graph:
+	Density graph:
+		normal value
+		log value
+
+DataPipeline:
+	RealTime DataPipeline
+	Bathch DataPipeline
+	Lambda Architecture
+	ETL:small portion of DataPipeline
+	
+DataLake:
+	s3
+	google cloud storage
+
+Is SQL important for DataEngineer?
+yes, almost 1 hour Question will be on SQL, and specially Window function.
+
+What is more important, Hadoop or Hive?
+Hive is more,since metadata store and execution engine. also execution will be replaced by spark. also more companies moving to s3, cloud than hdfs. So, Spark is recomended.
+
+SO, DataEngineer Question, atleast should know about DSA and average level coding Question. Be descent in one programming language. learn SQL. Data Modeling. Explore Cloud.
+
+is Hive going to be dead because of spark SQl.
+Yes, spark is taking over. Apache Iceberg Metastore is good than hive.
+
+Bi engineers is different from DataEngineers.
+
+Good resource for Datamodeling.
+
+Career growth in DataEngineer
+Senior DataEngineer: DataEngineer Manager, Product Manager, techlead, So, the more you experience, the more you will be towards to product manager. Your opinion could change.
+
+Kafka vs SparkStreaming vs RabbitmQ vs Apache Flink. StreamProcessing will be in demand and stands out from the crowd.
+Top is kafka with (Flink or sparkStreaming). flink is good.
+
+Snowflake vs golang for parallel processing.
+Snowflake is awesome. 
+
+
+
+
+
+

@@ -1,0 +1,481 @@
+we are writing a single program and giving single data but logically they are single but actually are partitioned and we can run parallel execution.
+the thing is more than one partition can be executed by a single node
+
+	
+
+#SPARK:
+	- Spark does not have its system to organize files in a distributed way(the file system). For this reason, programmers install Spark on top of Hadoop so that Spark's advanced analytics applications can make use of the data stored using the Hadoop Distributed File System(HDFS)
+	- we can tell the computer where the spark driver program and what program should be executed and where and how many exucutors will be deployed.
+	- or, we can run spark as interactive shell which can be localmode or in cluster mode.
+	- spark supports multiple input sources, from file://, hdfs:/, rdbms, neo4j,mongodb...etc
+
+
+setup:
+	- locally:
+		- spark is dependent on java runtime environment eg (openjdk-11-jre)
+		- download spark library from apache spark or As of v2.2, executing pip install pyspark will install Spark and also python api for spark
+		which also installs py4j
+		- Spark runs on Java 8/11 https://spark.apache.org/docs/latest/
+		- use 'archlinux-java' command to set the default java environment version
+		-Py4J enables Python programs running in a Python interpreter to dynamically access Java objects in a Java Virtual Machine. ... Py4J also enables Java programs to call back Python objects. 
+		
+	- as on standalone spark cluster:
+		1. create 3 virtual machine having 3 different hostname[one will be act as master and other 2 will be slave] the master is the cluster manager.
+		2. install openjdk11,scala  in all those 3
+		3. install openssh server and client in master vm and connect to all slaves using ssh
+		4. in all 3 vm install apache spark by download[this is prebuild spark on top hadoop] and extract and move to /usr/local/spark in each machine also set env path
+		5. in master vm edit /usr/local/spark/conf/spark-env.sh.template as copying as spark-env.sh
+			export SPARK_MASTER_HOST='<MASTER-IP>'export JAVA_HOME=<Path_of_JAVA_installation>
+
+		   also edit  /usr/local/spark/conf/slaves and add host name as
+		   		pd-master
+		   		pd-slave01
+		   		pd-slave02
+   		6. then . /usr/local/spark/sbin/start-all.sh and to stop  ./sbin/stop-all.sh use $jps command to check services in master node and http://<MASTER-IP>:8080/ to  know about the cluster.
+	
+	- as on existing hadoop cluster:
+		just use yarn to install spark.
+
+#HOW TO LAUNCH SPARK PROGRAM
+	1. Interactive: the interactive shell which runs the driver in same local machine from where the shell is started and options for the location of executors.
+	2. job-Submit : many options for this, where to put the driver program and where are the executors.
+
+
+
+#RUN TIME SPARK
+	Don't execute anything until a action comes, which is lazy(not eager)
+	driver app-master executors
+	
+	spark-shell[driver[session]] -> yarn[starts [application master] and the master will ask yarn for further containers]-> allocates containers[application master starts executors in each containers and executors directly communicate with driver]
+	
+	spark-submit -> yarn[starts [application master and driver resides in this application master] and the driver will ask yarn for further containers]-> allocates containers[driver starts executors in each containers and executors directly communicate with driver]
+	
+	how spark breaks down our application into parallel smaller tasks.
+		- spark datastructures:RDD, DataFrames, DataSets	
+		- both DataFrames and DataSets are ultimately compiled down to RDD
+		RDD: 
+			- RESILIENT[recover from a failure], 
+			- PARTITIONED[breaks RDD into smaller chunks of Data], 
+			- DISTRIBUTED [distriute partitions across cluster], 
+			- IMMUTABLE COLLECTION
+			- Created using load data from a source or by transformatons of another RDD, RDD has a default partition number.
+			- SO, RDD is not physically Single entity, it's made up of partitions and those partitions are stored in different RAM of different WORKERS.
+			- SO, if we give a text file to load in spark it creates a RDD  means the text file is splitted(partition) in the cluster. now we can run a same operation on every workers.
+			- transformaton operation on RDD are lazy.
+			- actions(eager) operation to RDD pushes result to the driver 
+			- shuffle operation(implicit) which does like cross product to make new partition.
+			- number of tasks is depend on executors and partition
+			
+		
+	
+		
+i. Apache Hadoop is a collection of open-source software utilities that facilitates using a network of many computers to solve problems involving massive amounts of data and computation. 
+i. If we have Apache Spark installed on the machine we don't need to install the pyspark library into our development environment.
+i. pyspark: python api for apache spark
+i. it is HADOOP MAPREDUCE VS SPARK
+
+
+
+
+
+SPARK DRIVER:
+	- THE driver is the process that runs the user code that creates RDD/DataFrames/DataSets
+	- Performs transformatons and actions
+	- Converts user program to task
+	- scheduling task on the executor
+
+SPARK CLUSTER MANAGER
+	- spark relies on cluster manager to launch executors
+	- resources are allocated by cluster manager for execution of tasks
+	- pluggable components in spark
+	- Dynamically adjust resources used by a spark application, based on the workload
+
+SPARK EXECUTORS:
+	- runs the tasks that makes up the application and returns the result to the driver
+	- provide in-memory storage for RDDs that are cached by the user
+
+TUNINNG EXECUTORS:
+	
+-----------------------------------------------------------------------------
+spark execution model:
+	1. create DAG of RDDs to represent computation
+	2. create logical execution plan for DAG
+	3. Schedule and execute individual tasks
+STEP 1: CREATE RDDs
+STEP 2: CREATE EXECUTION PLAN
+	split into "stages", ie, if the result is independent of other data then wen can pileline it to one.
+STAGES
+	STAGE 1	-> operation: HadoopRDD -> map()  Data[4] : hdfs:/names/0.gz, hdfs:/names/1.gz, hdfs:/names/2.gz, hdfs:/names/3.gz
+		TASK 0: data 1 on operation
+		TASK 1: data 2 on operation
+		TASK 2: data 3 on operation
+		TASK 3: data 4 on operation
+		
+		EXECUTIONS SCHEDULING TASKS:
+			[single core machines]
+			MACHINE 1: TASK 0|TASK 3
+			MACHINE 2:  TASK 1 
+			MACHINE 3:   TASK 2
+	STAGE 2 -> operation: groupBy() -> mapValues() -> collect() 
+		groupBy needs shuffle: rearrange all the data
+		we are repartioning data from the 4 tasks to an other set of 4 tasks, it's like cross product
+		- if the data is already partitioned by the hash key then we don't need shuffle
+		- shuffle is pull based , ie-
+		end of stage 1, each task partitioned its own data into 4 files then start the 2nd stage, and the 1st partition of to the left of 2nd stage will read
+		the first file from each disk partition of stage 1
+--------------------------------------------------------------------------------
+
+#WORKING WITH SPARK
+	Spark Session and Spark Context(sc):
+		right now, multiple session can be there with one application context 
+	1. at RDD level
+		#this is our driver program
+		#here below each element is a number but it can be anything, a row(in case of DataFrame it is Row() object), a tuple, a dictionary, etc
+		nums = [0,1,2,3,4,5,6,7,8,9,10]
+		#tell the cluster to distribute the data by creating RDD from it
+		nums_rdd = sc.parallelize(nums)
+		#now, since data in different machines splitted so we can collect them in driver but driver should have memory to hold
+		nums_rdd.collect()
+		#but we can get a sample(only 5 elements from the data) instead of collect whole
+		nums_rdd.take(5)
+		#lets apply a function to every element of RDD which returns a new RDD
+		squared_nums_rdd = nums_rdd.map(lambda x: x**2)
+		#lets make each element to tuple containing (num,len(num))
+		pairs_rdd = nums_rdd.map(lambda x: (x,length(str(x))))
+		#lets filter the length with even number
+		even_digit_pairs_rdd = pairs_rdd.filter(lambda x: (x[0]%2) == 0)
+		#lets group by digit length and calculate avg, must have element as(key,value)
+		grouped_rdd = even_digit_pairs_rdd.groupByKey()
+		list_grouped_rdd = grouped_rdd.map(lambda x: (x[0],list(x[1])))
+		avg_grouped_rdd = list_grouped_rdd.map(lambda x:(x[0], sum(x[1])/len(x[1])))
+		#lets do reduceByKey, it first do groupBy operation per machine, no shuffle then apply the labda to value,(not involving key) and then shuffle and groupby and then apply the lambda function, this is similar to python reduce.
+		grouped_rdd = even_digit_pairs_rdd.reduceByKey(lambda x,y:x+y)
+		
+	2. at DataFrame level
+		#load a csv into a dataframe, internally it already made rdd hence splitted the data,
+		we can explicitly give the schema using .schema(schemaName)
+		df = spark.read.format('csv').option('header',True),option('inferSchema',True).load()
+		
+		#print the schema using df.printSchema()
+		
+		df.select(*).limit(5)
+		
+		#where condition
+		df.where(df.Age>34 & df.col == 1).limit(5)
+		
+		#aggregate function
+		df.agg({'Col_name':'avg'})
+		
+		#Aggregate per group
+		df.groupBy('Col_name').agg({'Col_name':'avg'}).orderBy('Col_name',ascending=False)
+		df.where(df.col_name>43).agg({'Col_name':'avg'})
+		
+		#make a new column
+		from pyspark.sql.types import IntegerType
+		from pyspark.sql.functions import udf #to convert user defined function to spark fun
+		def round_float_down(x):
+			return int(x)
+		round_float_down_udf = udf(round_float_down,IntegerType())
+		df.select('Another_col',round_float_down_udf('Col_name').alias('renamed_result_col'))
+	
+		#to use sql
+		df.createOrReplaceTempView("Table_name")
+		spark.sql('select * from Table_name')
+		
+	3. at DataSet level
+--------------------------------------------------------------------------------
+	from pyspark.sql import Row
+	row1 = Row(name="bipul",Age=26) #named argument
+	data = [row1]
+	
+	spark.sparkContext.parallelize(data) #rdd
+				or
+	spark.createDataFrame(data)			 #dataFrame
+				or
+	new_col = ["person_name","person_age"]
+	spark.createDataFrame(data).toDF(*new_col)
+	
+	#nested row inside row
+	row2 = Row(addr="pathsala",ph=7086267788)
+	row1 = Row(name="bipul",age=26,prop=row2)
+	data = [row1]
+	spark.createDataFrame(data)
+	
+	#rdd can have unstructured data since no schema
+	#dataframe element data type should match otherwise fail
+	
+	#make a schema and also set nullable
+	from pyspark.sql.types import *
+	schema = StructType([
+		StructField("name",StringType(),True) #nullable
+		StructField("age",IntegerType(),False)
+	])
+	row1 = Row(name="bipul",Age=26) #named argument
+	data = [row1]
+	spark.createDataFrame(data,schema)
+	
+	#validate againts schema
+	
+	
+	#change schema of perticular column
+	#add a casting col_name to the df and drop the old one.
+	df.withColumn("new_col_name", df["old_col"].cast(DateType()),False).drop("old_col") #here nullable is False
+	
+	#we just can't change the schema or anything because it's immutable, better to read with predefined schema
+	
+	# write same as read, just save instead of load  and write instead of read
+	#but the output is in several parts. since partition numbers are 4 and we can read it back the whole directory
+	df.drop("prop").write.format("csv").option("header",True).option("path","out.csv").save()
+	
+	from pyspark.sql.functions import spark_partition_id
+	df.withColumn("partition_id",spark_partition_id()).groupBy("partition_id").count().show()
+--------------------------------------------------------------------------------
+#SPARK DATAFRAME
+	i. A DataFrame is a data structure that organizes data into a 2-dimensional table of rows and columns,
+	i. Spark DataFrames are inherently unordered and do not support random access. no array like access(There is no concept of a built-in index as there is in pandas). Each row is treated as an independent collection of structured data, and that is what allows for distributed parallel processing.
+	i. the null is placed instead if there is nothing in csv except delimiter
+	i. it escape double quote and take the content inside it from csv value but not with single quote, .option("quote", "\"") .option("escape", "\"")
+	#more generic to  read as DataFrame, <class 'pyspark.sql.dataframe.DataFrame'>
+	>>>spark.read.format('csv').option("header","true").option("inderSchema","true").option("delimiter","\t").option("path","marketing_campaign.csv").load()
+	#count columns
+	>>>len(df.columns)
+	#count rows
+	>>>df.count() 
+	#display columns
+	>>>df.columns
+	#display column data [as dataframe]
+	>>>df.select('col_name').show()
+	#current number of partition
+	>>>df.rdd.getNumPartitions()
+	#create a dataframe from list 
+	>>>spark.createDataFrame([["time","ok"]],["c0","c1"])
+	#add a column in pyspark dataframe
+	
+	#sometimes a big dataframe can be inside of a column, so to flatten it out(extract)
+	>>>df.select("root_col.*")
+
+#QUESTION:
+	1. What is the difference between RDD and DataFrame in spark.
+	A: Dataframe is a RDD of Row Objects each representing a record. It has a schema, we can perform sql query on them. While RDD is collection of elements partitioned across the nodes of the cluster and can be operated parallel
+	
+	2. Difference between structured and unstructured data
+	A: - Structured Data is stored in row and column
+	   - A log file with different types of messages is Unstructured data, 
+	   - A  RDBMS data is an  structured data. A audio file is an unstructured data. 
+	   - an image file containing bytes is unstructured data. 
+	   - while json,csv is semi-structured data, i.e. various hierarchies like csv data also.
+	   
+   3. How many executors you want how many ram in each? EXECUTOR TUNING
+   A: --num-executors[workers to exe tasks] --executor-cores[assigned] --executor-memory[ram is assigned]
+   	- leave aside one core per node for worker daemon process
+   	- HDFS throughput
+   	- for yarn aplication master allocate some resource like 1 gb mem and 1 executor
+   	-  full memory requested to yarn per executor(i.e. --executor-memory) = actual-spark-executor-memory + spark.yarn.executor.memoryOverhead
+   	-  spark.yarn.executor.memoryOverhead = Max(384MB, 7% of actual-spark.executor-memory)
+    - we can select one core for one executor or one executor per node(each node have many cores).
+    - --executor-cores 5 means that each executor can run a maximum of five tasks at the same time.
+    - Number of cores doesn't describe physical cores but a number of running threads. It means that nothing really strange happens if the number is higher than a number of available cores. 
+   
+   4. What is Spark Context and Spark Session? and what is the sparkSession configurations?
+   A: before spark 2.0 it was Spark Context was the entry point of spark application but from 2.0 it is now Spark Session. before spark context, hive context, sql context and now all those are encapsulated in spark session. now we have multiple spark session and each spark session would have thier own set of configurations, table, view and other properties and all spark session will point to the same spark context within a spark application. so, the advantage is same spark context but different spark configurations using session.
+   	sparksession.sparkContext is the context of the session
+   	
+   5. Upon Program finished if does partitioned data (RDD) stays?
+   
+   6. Repartition and Coalesce
+   	  - Coalesce to only decrease the number of partition on the dataset, newDF = df.coalesce(2), so 2 new partition by moving data from other partition without shuffling. so is faster than repartion. but it results unequal size partition so spark process will be slow.
+   	  - Repartition to do both. df.repartion(2)
+  
+   7. What is DAG learn it in depth.
+   	 - Directed acycling graph, vertices are RDD and edges are operations. 
+   	 - At high level, when any action is called on the RDD, Spark creates the DAG and submits it to the DAG scheduler. 
+   	 - the dag is submitted to dag scheduler upon actions call (say show()). now it will be splitted into stages and make tasks are submitted to workers.
+   	 
+   8. map vs flatMap
+   	- Both are transformaton operation on rdd
+   	- map is one-to-one and flatMap is one-to-many
+   	- with flatMap for one row can produce 0,1 or more rows
+   	- rdd.map(lambda x: x.toUpperCase())
+   	- rdd.flatMap(lambda x: [x,x**2]), it increased the number of Row 
+   	
+   
+   10. Persistence vs Broadcast
+   	- 
+   11. What does resilient mean in RDD
+   A: 
+   
+   12. can more that one partition used by same executor?
+   
+   13. Optimization:
+   		configuration level:
+   		code level:
+   14. to whom partition is assigned? and how many partition is needed for an RDD.
+   A: A partition is assigned to a core and a core is registered with one execututor.   
+   
+   15. What is catalyst Optimizer:
+   A: If we use DataFrame and Datasets then spark internally optimize our code to create RDD execution plan which is faster.
+   that optimizer is called "Catalyst Optimizer"
+	   1. our sql query or DataFrame query to spark is in form of "Unresolved Logical Plan",out of that spark builds a Tree(operation).
+	   2. step 1 goes to Analysis process.
+	   3. Logical Plan is created.
+	   4. Do Logical Plan Optimization.
+	   5. those optimized Logical Plan is converted to Multiple Physical Plans. [like what type of join will be used, is it broadcast or Hash Join?...]
+	   6. Cost Model of each physical plan and picks up the best and generate RDD output
+   in RDD it's the user job to do  manual optimization but using DataFrame/DataSet/SQL spark internally do this.
+   
+   16. What is Tungsten Execution:
+   A: It was a project. which tried to solve 
+    1. JVM Bottleneck 
+   	2. Use of Cpu Cache
+    3. Java Code Generation[Catalyst]
+   
+
+   
+   18. All bottleneck of spark
+   A. 
+   	CPU BOTTLENECK:
+   		Shuffle, serialization, Hashing
+	Memory Bottleneck:
+		JVM Bottleneck:
+			1. Overhead of the inherent memory consumption.
+			2. Overhead of Garbage Collection.
+	I/O Bottleneck:
+		
+	Network Bottleneck:
+	
+   19. cache vs persist 
+   A. cache and persist can be performs in dataframe also in rdd	
+
+   19.JobScheduling
+   A. https://spark.apache.org/docs/latest/job-scheduling.html
+   	Every time a action is made, a spark job is submitted. or more than one job can be for a single action.
+   	partitioning can be roundrobin,hashpartitioning. 
+   	df.explain()
+   	  spark-submit --help
+   	  "There are a few options available in spark-submit that are specific to the cluster manager that is being used".
+   	  --num-executors NUM is only available in yarn and kubernetes, default is 2
+   	  --executor-cores NUM is only standalone, YARN and Kubernetes only, not in local, default 1
+   	  --executor-memory MEM (1000M or 1G) will work in any , default 1G
+  	  --total-executor-cores NUM  Total cores for all executors. for Spark standalone, Mesos and Kubernetes only.
+  	  --driver-memory MEM default 1G works anywhere
+  	  --driver-cores NUM #default 1 #yarn only
+
+   20. does rdd.map(lambda x:(x,1)) needs python daemon?
+   A. Yes, since it's a python lambda function.
+   
+   21. UDF(user defined function) and why it decrease performance.
+   A. it's a feature of SPARK SQL module to define new Columnbased function that extends the vocabulary of spark SQL's  DSL for transforming datasets. Since, Catalyst optimizer can not optimize the UDF.
+   
+   '''python udf in pyspark, pickled bytes data transfering from python worker to jvm
+   from pyspark.sql.functions import udf
+   from pyspark.sql.types import IntegerType
+   def plusOne(col):
+   	return col+1
+   plusOne = udf(plusOne,IntegerType())	#default is StringType, we can use lambda also. 
+   df.select('customer_id',plusOne("last_name").alias("last_name"))
+   '''
+   
+   '''pandas udf in pyspark, in spark2.3 integrating spark with apache arrow, Arrow format data transfer, ans so pandas UDF can use vectorized execution on the python side supported by NumPy or SciPy. this is better than vanilla python udf.
+   '''
+   
+   '''scala udf in pyspark is more performant than python udf still catalyst wont optimize but there no need of python daemon now, jvm can understand it.
+   1. define function in class in scala file and make a jar
+   2. in spark-submit or pyspark use --jars .....jar
+   
+   from pyspark.sql.functions import udf
+   from pyspark.sql.types import IntegerType
+   
+   func = spark.udf.registerJavaFunction("plusOne","class_name_of_scala_udf",IntegerType())
+   df.select('customer_id',plusOne("last_name").alias("last_name"))
+   '''
+   
+   '''So, there is also spark-functions, which are optimized by catalyst and also run in jvm,so no need of python daemon
+   from pyspark.sql.functions import lit,concat
+   '''	  
+   
+   So, spark-native-function>Scala UDF>explode with bucketed source>Pandas UDF>explode>Python UDF	
+   
+   22. Explain JVM and spark memory management and Configuration
+   A. 
+   i. on-heap and off-heap memory:
+   		Off-heap: out if 16gb ram we assigned 10gb to 1 executor and left 6 gb will be used by os, this is called off-heap memory.
+   		On-heap:10gb memory to executor which will be used by JVM, this is on-heap memory.
+   				10gb = Reserved-mem[appx 300mb for spark internal purpose]+user-mem[40% of left]+Unified-Mem(execution-mem[50% of 60%]+storage-mem[50% of 60%])[60% of left]
+		sometimes On-heap stores object in other format in Off-heap by serialization and access using deserialized.
+   i. Out of Memory Issues: either Driver will go out of memory or the executor.
+	   	  Driver Out of memory: Collect() operartion result is bigger than driver have
+	   	  						BroadCast join, Bigger file and small file join, when spark brings small files to driver and result is bigger 
+	   	  						
+		  Executor Out Of Memory: 
+		  		Yarn memory overhead: Off heap memory of executor which stores hash tables called inter strings. 10% total memory assigned to executor. should proportionally increase with executor memory.
+		  		High Concurrency: if every executor has many cores(concurrent tasks) so pick that number of partition and work on that. total memory of executor will be divided into cores.  now memory available to cores is less than partition it will work.
+		  		Big Partition: if one of executor is trying to handle big partition, it will uncompress and generate metadata. solution is to reduce partition size.
+   	
+   i. How many ways spark-config can be made.
+   	1. using sparkContext configuration in program 
+   		'''
+   		from pyspark import SparkConf,SparkContext
+   		conf = SparkConf().setAppName("test").setMaster("local[1]")
+   		sc = SparkContext(conf )
+   		'''
+	2. using sparkSession configuration in program 
+		spark = SparkSession \
+		.builder \
+		.appName("MyApp") \
+		.config("spark.driver.host", "localhost") \
+		.getOrCreate()
+	3. As properties in the conf/spark-defaults.conf 
+	4. using command-line param in spark-submit
+   i. if we have 2 cores then the max number of executors will be 2, even if we apply more executor in config. if 10 partition in 2 executor, each will  get 5 tasks/partition. each executor inside have the partition or partitions. in JVM Only 54% will get by for rdd memory. other will be used by jvm. with spark dynamic executor allocation it can kills idle executors. if out of 4 partitions no data in 1 partition then still the executor sits idle, so better do coalesce. 
+   after one action all the data of rdd in ram will be lost. so if we do next action then everything will be begining from first(new DAG). so, better we can cache an RDD. so, action on cache won't delete the cache. we can't run parallel pipeline, i.e. multiple DAG.
+   we can cache in RAM,HDD or in both RAM+HDD. this caching is valid until the end of the program(spark-context). rdd.cache(), df.cache()
+   whenever we something does shuffle, it it creates intermediate "shuffleRDD"
+   if one running executor crashes then driver starts another executor or give to other executor the crashes tasks wih data.
+   yarn will close executor if idles but if you don't stop the sparkContext then it will live.
+   coalesce will transfer the data from small partition to some other partition. data movement will be less than repartion.
+   dataframe was evolved from SchemaRDD. 
+   if we want to do query in a dataframe then we first have to register the dataframe as table.
+   and each row in a dataframe is Row object so, dataframe is not same as column. runtime exception in dataframe but in dataset give compiletime.
+   also while reading dataset can make encoding,like male to 0, female to 1.
+   named tuple can have max of 20 or 30 columns but using StructTpe we can have bigger schema.
+    Dataset, API is a new concept called an encoder, which is responsible for converting between JVM objects and tabular representation. The tabular representation is stored using Spark internal Tungsten binary format, allowing for operations on serialized data and improved memory utilization.
+   
+   i. No shuffle block can be greater than 2 GIGS
+   i. Skew in Data , solving using salting
+   i. Managing Parallelism, How to fight Cartesian join? Repartitioning,
+   i. RedecueByKey over GroupByKey, TreeReduce over Reduce, Use Complex/nested types.
+   i. 
+   Components of JVM memory Model:
+   	Heap: All primitive object and their references resides. Static Variables, Static Objects and references to classes.
+   	Stack: Local primitive Variables, method parameters reside.
+   	Method Area(perm gen) now replaced with metaspace: Compiled class files are stored.
+   	Native Memory: Other language specific codes resides, example socket connection. 
+   	PC Registers: information of next instruction 
+   	
+   	Garbage Collection:
+   		1. Marking: identifies objects not in use 
+   		2. Normal Deletion: Unused objects deleted.
+   		3. Deletion + Compacting: unused different/random memory grouped together so memory access will be faster.
+   		Types of Garbage Collection Technique:
+   		1. Serial GC: when we want to mark and delete in the old and young.(for no memory footprint)
+   		2. Parallel GC: spawn N number of threads for the youn generation and based on cpu cores and 1 thread for old generation. (throughput collection)
+   		3. Parallel old GC: Both young and old have N number of threads.
+   		4. Concurrent Mark Sweep: Mostly using concurrency.
+   		5. Garbage first(G1) GC: Parallel concurrent. 
+	
+	23. Debugging
+	A. 
+	
+	 . get the size of rdd
+	 . count how many elements/rows in each partitions
+	 . get all config in shell  >>sc._conf.getAll()
+	 . rdd.toDebugString()
+   	 . df.explain()
+   	   
+		
+#REFERENCES
+ 1. https://luminousmen.com/post/spark-anatomy-of-spark-application [Anatomy of Spark]
+ 2. https://spark.apache.org/docs/latest/submitting-applications.html [Mode of Launching Spark app]
+ 3.	https://www.edureka.co/community/54010/in-how-many-modes-apache-spark-can-run [Mode of Launching Spark app]
+ 4. http://datacamp-community-prod.s3.amazonaws.com/02213cb4-b391-4516-adcd-57243ced8eed [cheat sheet]
+ 5. https://towardsdatascience.com/basics-of-apache-spark-configuration-settings-ca4faff40d45 [configuration]

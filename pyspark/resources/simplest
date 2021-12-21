@@ -1,0 +1,25 @@
+
+$ spark-submit our_pyspark_file.py #this file has all the necessary configuration inside where to run
+	1. run spark-JVM as a process with GatewayServer #so python can communicate
+	2. run the our_python_file.py as seperate process
+	3. When the line "sSes=SparkSession.builder.appName("test").getOrCreate() " executed 
+	4. then creates sparkContext and internally py4j will call JVM to create and give javaSparkContext object.
+	5. JVM becomes the driver program and our "sSes" and "javaSparkContext" objects are mapped.
+	6. meanwhile in the DRIVER-JVM, it set ups executors based on configuration from our python program context configuration or from spark-submit command args.
+	
+$ python our_pyspark_file.py
+	1. run our_pyspark_file.py as a process 
+	2. When the line "sSes=SparkSession.builder.appName("test").getOrCreate() " executed then  run spark-JVM as a separate process with GatewayServer #so python can communicate with py4j(this in pyspark library)
+	3. then creates sparkContext and internally py4j will call JVM to create and give javaSparkContext object.
+	4. JVM becomes the driver program and our "sSes" and "javaSparkContext" objects are mapped.
+	5. meanwhile in the DRIVER-JVM, it set ups executors based on configuration from our python program context configuration.
+
+RULES:
+	both SPARK-JVM and the our_pyspark_file.py will be running in same machine. so, deploy mode cluster/client will be needed.
+	
+	
+$ pyspark #it always run the driver program in the same machine where this command is executed.
+
+#every JVM spawns Python-daemon iff the data needs to be processed in python.
+#driver program can run in worker nodes or master nodes.
+#executor is a container where JVM runs

@@ -1,0 +1,40 @@
+1. Understand your hardware
+   Core count & Speed
+   Local Disk Type, count, Size and Speed
+   Network Speed and Topology
+   Data Lake Properties (Rate limits) for example ,if we hit AWS S3 with 5000 cores at a single time it will say DOS.
+   Cost/Core/Hour
+
+2. Get a BaseLine
+   see Yarn CPU Utilization graph to know if cpu utilization is properly utilized.
+   
+3. Minimize Data Scans
+
+4. Partition
+	Input
+		- control-size
+		 spark.default.parallelism
+		 sparl.sql.files.maxPartitionBytes 
+	Shuffle
+		- control = count
+		 spark.sql.shuffle.partitions
+	Output
+		- control = size
+		 Coalesce(n) to shrink
+		 Repartition(n) to increase and/or balance(shuffle)
+		 df.write.option("maxRecordsPerFile",N)
+5. Data Serialization
+6. Memory Tuning
+7. Tuning Data Structures
+8. Serialized RDD storage 
+9. Garbage Collection Tuning
+10. Level of parallelism
+11. BroadCast Large Variables
+12. Data Locality.
+
+13. Use Dataframe/Dataset over RDD
+14. Use Coalesce() over Repartition()
+15. Use mapPartitions() over map()
+
+
+16. Use spark-core function 

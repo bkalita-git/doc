@@ -1,0 +1,86 @@
+Scan text
+WholeStageCodegen
+mapPartitionsInternal
+DeserializeToObject
+mapPartitions:
+
+
+
+
+FileScanRDD
+MapPartitionsRDD
+PairwiseRDD
+ParallelCollectionRDD
+PythonRDD
+ShuffledRDD
+SQLExecutionRDD
+
+
+Every RDD has an ID, for eg: PythonRDD[11],here 11 is and it's auto increment.
+An RDD is a class in Java? org.apache.spark.rdd.RDD<T> 
+
+
+df.explain() or rdd.toDebugString() will display the RDD execution plan againts a job. eg:
+on RDD: rdd.toDebugString() 
+	>>> rdd = sc.parallelize([2,3],2)
+	(2) ParallelCollectionRDD[10] at readRDDFromFile
+	>>> rdd.map(lambda x:x)
+	(2) PythonRDD[11] at RDD
+		ParallelCollectionRDD[10] at readRDDFromFile
+	>>> rdd.map(lambda x:(x,1)).map(lambda x:(x,2))
+	(2) PythonRDD[12] at RDD 
+		ParallelCollectionRDD[10] at readRDDFromFile
+	>>> rdd.map(lambda x:(x,1)).groupByKey().toDebugString()
+	(2) PythonRDD[32] at RDD
+		MapPartitionsRDD[31] at mapPartitions
+		ShuffledRDD[30] at partitionBy
+		(2) PairwiseRDD[29] at groupByKey 
+			PythonRDD[28] at groupByKey 
+			ParallelCollectionRDD[10] at readRDDFromFile
+	>>> spark.read.format("csv").option("delimiter","\t").option("path","marketing_campaign.csv").option("inferSchema",True).option("header",True).load()
+	(1) MapPartitionsRDD[72] at javaToPython 
+		MapPartitionsRDD[71] at javaToPython
+		SQLExecutionRDD[70] at javaToPython
+		MapPartitionsRDD[69] at javaToPython 
+		FileScanRDD[68] at javaToPython
+		
+	
+
+Breaking Down the line sc.parallelize([2,3,4,5],2)
+
+self._jvm #it is a java object call from python.
+
+self._jsc
+self._unbatched_serializer
+SparkContext._ensure_initialized() #this will run JVM inside SparkContext class in python.
+
+1. [2,3,4,5] will  write to a tempFile
+   from pyspark.java_gateway import launch_gateway #does nothing
+		> from py4j.java_gateway import java_import, JavaGateway, JavaObject, GatewayParameters #runs something
+   
+   numSlices=2
+   
+   
+   
+   self._jsc = self._jvms.JavaSparkContext(self._conf._jconf) 
+   
+   
+   serializer=PickleSerializer()
+   self._unbatched_serializer = serializer
+  
+   serializer = self._unbatched_serializer
+   serializer = pyspark.serializers.BatchedSerializer(self._unbatched_serializer, batch_size)
+   
+   serializer.dump_stream(c, tempFile) 
+   
+   
+   readRDDFromFile = self._jvm.PythonRDD.readRDDFromFile 
+.  jrdd = readRDDFromFile(self._jsc, tempFile.name, numSlices) 
+.  return RDD(jrdd, context, serializer) 
+
+References
+ 1. https://spark.apache.org/docs/1.2.1/api/java/org/apache/spark/rdd/RDD.html [java api for scala-spark-engine]
+ 2. https://spark.apache.org/docs/1.1.1/api/python/ [python api for scala-spark-engine]
+ 3. https://github.com/apache/spark/blob/master/python/pyspark/java_gateway.py [pyspark.java_gateway import launch_gateway]
+ 4. https://stackoverflow.com/questions/29788286/how-python-interact-with-jvm-inside-spark?rq=1
+ 5. https://cwiki.apache.org/confluence/display/SPARK/PySpark+Internals [spark internals after sourcecode]

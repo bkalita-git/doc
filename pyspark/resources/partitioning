@@ -1,0 +1,20 @@
+when something involved repartitioning then it needs number of new partition and a partitioner.
+Now, there is two option if the number of partition is not provided, these both option is a default setting in spark configuration.
+one is shuffle.partitions and other is default.parallelism. 
+default parallelism such as when doing sc.parallelize(), and shuffle.partitions happen when doing join for example.
+Now, there are 3 partitioner in spark. RoundRobinPartitioner, HashPartitioner and RangePartitioner.
+
+In a dataframe while repartioning, we must provide the number_of_partition or (one_column) or (multiple_column) or (number_of_partition,*column)
+if, only integer number is provided then it will select RoundRobinPartitioner which will evenly distribute elements in the partitions.
+if, one or more column is provided, then it will select HashPartitioner
+
+Now, for RangePartitioner in DataFrame, there is a method df.repartionByRange(cols)
+
+Now, can be there nested-partition? for example, p0 and p1 are partitioned by "Date" column, then p0_sp0,p0_sp1, p1_sp0,p2_sp1 are partitioned using "Day" column
+
+
+Now, what if we want to maintain nested directory structure of partitions(by multiple cols) in disk, then use partitionBy() **for dataframeWriter only.
+and repartion(),repartionByRange() are for memory only.
+
+Now, what if we do, repartion(4).partitionBy(), then in the final csv file in each sub directory will be divided into 4 csv file. so, partitionBy() writes single csv into each subdirectory, and repartion can be used top of that just to divide it again.
+with only single repartion(4,multiple_cols) will arrage by both column and then partition it in 4 csv files, no sub directory structure.

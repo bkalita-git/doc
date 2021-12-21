@@ -1,0 +1,116 @@
+TODAY: Gather Question
+
+	===? How will you allocate resources if I give you 1 TB data
+	number of partition:
+		1. atleast 2x partition per core
+		2. per partition size  max 128mb 
+		3. comminly between 100 and 10000 partition.
+		4. ensure tasks take atleast 100ms
+	===? cache vs persist vs unpersist[removes both cache and persist]
+	rdd.persist() or rdd.cache() both are lazy operation
+	
+	===?what driver do?
+
+	===?rdd vs dataset vs dataframe vs sql 
+
+
+	===?explain join in a broad way.
+	when one of the dataframe is smaller than than 10MB or the "size in broadcast config" then the small file is broadcast to all executors.
+	if the size if 50MB then by default goes to short merge join.
+	   
+	   
+	===?can you divide the rdd based on partition size? or how will you optimize the operation based on the way you partition.
+	when working with PairRDD, we can customize partitioning. Hash partitioning(default) and Range Partitioning.
+		example:
+		[9,96,240,400,401,800] #forget the values just for example, now let's say we want this in 4 partition
+		using hash partitioning:
+			p = key.hashcode() % number_of_partition
+			p = 9%4...
+			p0:[8,96,240,400,800]
+			p1:[401]
+			p2:[]
+			p3:[]
+			since the data is skewed.
+		using Range Paritioning:
+			Assumption: key's non-negative and 800 is the biggest key 
+			set of ranges:[1,200],[201,400],[401,600],[601,800]
+			p0:[8,96]
+			p1:[240,400]
+			p2:[401]
+			p3:[800]
+			data is evenly distributed now.
+		
+		How do we set a partitioning for our data?
+		1. partitionBy on an RDD with a specified partitioner
+			tunedPartitioner = RangePartitioner(8,pairs_RDD) #8 is the number of partition
+			partitionRDD=pairs.partitionBy(tunedPartitioner).persist() #otherwise  everytime will repartion.
+			
+			pair.partitionBy(HashPartitioner(100)).persist() #100 partition
+		2. Partitioning Data using transformation:
+			a. partitioner from parent RDD, map() and flatMap() for example does not propagate the parent partitioner to new newRDD. since, map  and flatMap can change the key so partitioner may no longer valid. so use mapValues() to propagate the partitioner.
+		2. make a RDD with specific partitioner 
+			
+	So, properly pre-partitioned and persist before join using a partitioner so each time join  happen it can use partitioner to shuffle.	
+		
+	===?why need serialization and deserialization, and does it happen between executors-jvm or just different nodes?
+
+
+	===?when shuffle, does it  mean shuffle between nodes or shuffle between JVM.
+	shuffle can happen when the resulting RDD depends on other elements from the same RDD or another RDD.
+	Lineage Graph: Computations on RDD are representing as lineage graph; A DAG representing the computations done on the RDD.
+	we can do rdd.toDebugString() to see the graph.
+	for example if one of the operation failed in the graph then it can traced back from where it came. Because RDD are immutable.
+	4 parts of RDD are: 
+	 1. Partitions.
+	 2. Dependencies: these are encoded(serialized) when data must move across the network.
+	 	By default, PySpark uses PickleSerializer to serialize python objects using Python's cPickleSerializer, which can serialize nearly any Python Object. MarshalSerializer support fewer datatypes but can be faster. from pysparl.serializers import MarshalSerializer then in SparkContext(serializer=MarshalSerializer())
+	 	by default 1024 objects per batch when serialize. Serialization is used whenever data has to be transmit over the network or persist/cache.
+	 	Now what happened to JavaSerializer and KyroSerializer
+	 	see this answer https://stackoverflow.com/questions/63158870/why-does-spark-need-to-serialize-data-in-an-rdd-for-each-task-it-runs
+	 	dependencies method on RDD returns a seuence of Dependency object. it is available in scala not in pyspark, but we can do 
+	 	deps = sc._jvm.org.apache.spark.api.java.JavaRDD.toRDD(rdd._jrdd).dependencies()
+	 	A. Narrow: Each partition of parent RDD is used by at most one partition of the child RDD. So, optimization like pipelining possible.(one to one)
+	 			 eg: pre partitioned JOIN
+	 			 Narrow dependency objects: OneToOneDependency, PruneDependency, RangeDependency
+	 	B. Wide: Each partition of the parent RDD may be depended on by multiple child partitions. (one to many)
+	 			 eg: groupByKey(), join(), itersection, distinct
+	 			 Wide Dependency objects: ShuffleDependency
+	 3. A function.
+	 4. Metadata:partitioning scheme and data placement.
+	
+	
+	===?how do you know what join the spark performs
+	use explain() method or in rdd use toDebugString()
+
+	===?what is intermediate shuffle rdd and what it's size and how it works
+	you never call a method shuffle().
+	sparkSession.conf.set("spark.sql.shuffle.partitions",2) ==== conf = SparkConf().set("spark.sql.shuffle.partitions",2)
+	SparkContext(conf)
+	spark.sql.shuffle.partitions configures the number of partitions that are used when shuffling data
+	spark.default.parallelism is the default number of partitions in RDDs returned by transformations like join, reduceByKey, and parallelize when not set explicitly by the user. Note that spark.default.parallelism seems to only be working for raw RDD and is ignored when working with dataframes.
+	Shuffle is pull based not push based, so stage1 will be waiting for stage 2. SO, let's say 4 partitions in 1st partition wants to shuffle with 4 partitions in stage2. so, each partition of stage 1 will perform hashkey partitioning and generates number of files per partition and those files will be stored in the disk(this is intermediate shuffle partition). so, if 1 partition generates 4 files then 4 partition will generates 16 files. After that each partition of stage2 will pull data from same file index from each stage1 partition. so, stage2 partition0: s0_p0_file0, s0_p1_file0, s0_p2_file0, s0_p3_file0 like that
+	
+	In the lastet version , Spark3.0 with Adaptive Query Execution , this feature of reducing the tasks is automated. http://blog.madhukaraphatak.com/spark-aqe-part-2/ so spark.conf.set('spark.sql.adaptive.enabled', 'false') will enable our default shuffling partition.
+	
+	===?what will happen if somehow the data can't fit in memory 
+	spil to disk
+	
+	===?what is partition vs rdd?
+	partition is immutable logical division of data. but rdd is physically divided into smaller chunks.what does that mean?
+	spark uses MapReduce API to partition the data.
+	
+	===?Explain on heap memory and off heap memory and when/where spark stores rdd?
+	First of all, Spark is a in-memory distributed execution engine, A container assigned by yarn or any other resource manager will be launched by yarn master Node. Now, inside that container A JVM will be launched by the driver-jvm. Now, the JVM is called an executor. Now memory assigned to the executor is on heap memory  and whatever left in that container is off heap memory.
+	inside on heap: reserverd memory(appx 300 MB) and user memory(40%) and unified memory(60%) 
+	and inisde unified memory there is STORAGE-MEMORY(50%) and EXECUTION-MEMORY(50%)
+	Now, when we parallelize data and do a action on it without caching it EXECUTOR-JVM don't need to store it anywhere so it will use a EXECUTION-MEMORY and show result to driver and GC will do it's job to clear.
+	If you cache or use BroadCast variable then it will go to STORAGE-MEMORY
+	but the user-memory is used to store the data in RDD conversion.
+	in off heap JVM can store objects and then use serialization.
+	
+	
+
+
+TODAY:
+	ALl operation.
+

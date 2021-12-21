@@ -1,0 +1,244 @@
+--------------------------------Spark Hierarchy--------------------------------------------------------------
+* Python does not have the support for the Dataset API. 
+read : https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html
+
+				  PySpark, Scala, Java, R	
+------------------------------------------------------------------------------Running JVM
+[{DataSet API/DataFrame API/SQL API}<-udf]SPARK SQL ENGINE[CATALYST OPTIMIZER->[RDD CODE]], SPARK STEAMING, MLIB, GRAPHX [library]
+						  RDD API
+						SPARK  CORE
+------------------------------------------------------------------------------	
+ APACHE MESOS, HADOOP YARN, SPARK SCHEDULER(local/cluster)   [cluster Resource manager]
+     STANDALONE NODE, HDFS, CLOUD, RBMS/NOSQL [STORAGE]
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+--------------------------------SparkContext getting the _jvm in context.py----------------------------------------
+pyspark.SparkContext()
+->SparkContext._ensure_initialized()
+	{
+	SparkContext._gateway = launch_gateway(conf) 
+	SparkContext._jvm = SparkContext._gateway.jvm 
+	}
+pyspark.java_gateway.launch_gateway()
+-> {
+	# Create a temporary directory where the gateway server should write the connection
+    # information.
+	fd, conn_info_file = tempfile.mkstemp(dir=conn_info_dir)
+    env = dict(os.environ)
+    env["_PYSPARK_DRIVER_CONN_INFO_PATH"] = conn_info_file
+    popen_kwargs['stdin'] = PIPE
+    popen_kwargs['env'] = env
+    # Launch the Java gateway.
+    proc = Popen(command, **popen_kwargs) #passes all conf to it including the temp file where JVM-DRIVER will write connection info to it.
+    
+    #here command =['/home/common/pyspark_project_1/venv/lib/python3.9/site-packages/pyspark/./bin/spark-submit', 'pyspark-shell']
+    #popen_kwargs['env']["_PYSPARK_DRIVER_CONN_INFO_PATH"] = /tmp/tmp_s31awsl/tmp3nff7mmi
+    
+    with open(conn_info_file, "rb") as info:
+        gateway_port = read_int(info) #from pyspark.serializers import read_int since info is a byte file
+        gateway_secret = UTF8Deserializer().loads(info)  #from pyspark.serializers import UTF8Deserializer
+    
+    #conn_info_file = b'\x00\x00\x9f\x9d\x00\x00\x00@d90d0a2a836d551dc59a1b9c9a52b9aad432361dd63cb6089c4878c45d017abd'
+      
+    # Connect to the gateway (or client server to pin the thread between JVM and Python) using the conn_info_file
+    if os.environ.get("PYSPARK_PIN_THREAD", "true").lower() == "true":
+		gateway = py4j.clientserver.ClientServer(
+		    java_parameters=JavaParameters(
+		        port=gateway_port,
+		        auth_token=gateway_secret,
+		        auto_convert=True),
+		    python_parameters=PythonParameters(
+		        port=0,
+		        eager_load=False))
+	else:
+		gateway = py4j.java_gateway.JavaGateway(
+		    gateway_parameters=GatewayParameters(
+		        port=gateway_port,
+		        auth_token=gateway_secret,
+		        auto_convert=True))
+		            
+    # Store a reference to the Popen object for use by the caller (e.g., in reading stdout/stderr)
+    gateway.proc = proc
+	# Import the classes used by PySpark
+	java_import(gateway.jvm, "org.apache.spark.SparkConf")
+	java_import(gateway.jvm, "org.apache.spark.api.java.*")
+	java_import(gateway.jvm, "org.apache.spark.api.python.*")
+	java_import(gateway.jvm, "org.apache.spark.ml.python.*")
+	java_import(gateway.jvm, "org.apache.spark.mllib.api.python.*")
+	java_import(gateway.jvm, "org.apache.spark.resource.*")
+	# TODO(davies): move into sql
+	java_import(gateway.jvm, "org.apache.spark.sql.*")
+	java_import(gateway.jvm, "org.apache.spark.sql.api.python.*")
+	java_import(gateway.jvm, "org.apache.spark.sql.hive.*")
+	java_import(gateway.jvm, "scala.Tuple2")
+	
+	return gateway	
+	}
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------PARALLELLIZE in context.py---------------------------------------------------------------------------------------------------------
+SparkContext.parallelize([2,3,4],3)
+-> 
+{
+numSlices = 3
+c = [2,3,4]
+_unbatched_serializer = PickleSerializer() #by default. pyspark.serializers import PickleSerializer
+serializer = BatchedSerializer(self._unbatched_serializer, batchSize) #pyspark.serializers import BatchedSerializer
+jrdd = self._serialize_to_jvm(c, serializer, reader_func, createRDDServer)
+return RDD(jrdd, self, serializer) #from pyspark.rdd import RDD, it uses jrdd_deserializer=AutoBatchedSerializer(PickleSerializer()) to deserialized data.
+#INSIDE IT CALLS _jvm.PythonRDD.collectAndServe(self._jrdd.rdd())in collect() method.
+}
+jrdd = self._serialize_to_jvm(c, serializer, reader_func, createRDDServer) #here our jrdd hold the RDD from Java Side after JVM created.
+->{
+
+	# with encryption, we open a server in java and send the data directly
+	chunked_out = ChunkedStream(sock_file, 8192)
+    serializer.dump_stream(data, chunked_out)
+    
+    # without encryption, we serialize to a file, and we read the file in java and
+    # parallelize from there.
+	serializer.dump_stream(c, tempFile)
+	
+	def reader_func(temp_filename):
+        return self._jvm.PythonRDD.readRDDFromFile(self._jsc, temp_filename, numSlices) #our _jvm from java side, and _jsc =_jvm.JavaSparkContext(jconf)
+	
+	return reader_func(tempFile.name) #we are callin PythonRDD.readRDDFromFile function to  read the file and hence parallelize. it returns the RDD from java side.
+  }
+
+conclusion: our Data [2,3,4] pickled to a file and telling JVM to read it and parallelize. the _jvm is everything. after getting this _jvm we can call any API on JAVA-DRIVER.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------rdd.map(f) in rdd.py-----------------------------------------------------------------------------------------------------------
+->return self.mapPartitionsWithIndex(func, preservesPartitioning=False) #1
+	-> return mapPartitionsWithIndex(func, preservesPartitioning=False) #2
+		-> return PipelinedRDD(self, f, preservesPartitioning) #here self will be a prev in the PipelinedRDD class. #3
+		
+class PipelinedRDD.__init__(self, prev, func, preservesPartitioning=False, isFromBarrier=False))->
+	self._prev_jrdd = prev._jrdd
+	prev_func = prev.func
+	def pipline_func(split,iterator):
+		return func(split, prev_func(split, iterator))
+	self.func = pipeline_func
+	
+	@property
+    def _jrdd(self):
+        if self._jrdd_val:
+            return self._jrdd_val
+        if self._bypass_serializer:
+            self._jrdd_deserializer = NoOpSerializer()
+
+        if self.ctx.profiler_collector:
+            profiler = self.ctx.profiler_collector.new_profiler(self.ctx)
+        else:
+            profiler = None
+
+        wrapped_func = _wrap_function(self.ctx, self.func, self._prev_jrdd_deserializer,
+                                      self._jrdd_deserializer, profiler)
+        python_rdd = self.ctx._jvm.PythonRDD(self._prev_jrdd.rdd(), wrapped_func,
+                                             self.preservesPartitioning, self.is_barrier)
+        self._jrdd_val = python_rdd.asJavaRDD()
+
+        if profiler:
+            self._id = self._jrdd_val.id()
+            self.ctx.profiler_collector.add_profiler(self._id, profiler)
+        return self._jrdd_val
+        
+        
+   
+def _prepare_for_python_RDD(sc, command):
+	#the command = (<function RDD.map.<locals>.func at 0x7fca9c185310>, None, BatchedSerializer(PickleSerializer(), 1), AutoBatchedSerializer(PickleSerializer()))
+	# the serialized command will be compressed by broadcast
+	ser = CloudPickleSerializer() #pyspark.serializers import CloudPickleSerializer
+	pickled_command = ser.dumps(command)
+	if len(pickled_command) > sc._jvm.PythonUtils.getBroadcastThreshold(sc._jsc):  # Default 1M
+	    # The broadcast will have same life cycle as created PythonRDD
+	    broadcast = sc.broadcast(pickled_command)
+	    pickled_command = ser.dumps(broadcast)
+	broadcast_vars = [x._jbroadcast for x in sc._pickled_broadcast_vars]
+	sc._pickled_broadcast_vars.clear()
+	return pickled_command, broadcast_vars, sc.environment, sc._python_includes
+
+def _wrap_function(sc, func, deserializer, serializer, profiler=None):
+	#fun here is our python lambda  func
+	assert deserializer, "deserializer should not be empty"
+	assert serializer, "serializer should not be empty"
+	command = (func, profiler, deserializer, serializer)
+	pickled_command, broadcast_vars, env, includes = _prepare_for_python_RDD(sc, command)
+	return sc._jvm.PythonFunction(bytearray(pickled_command), env, includes, sc.pythonExec,
+	                              sc.pythonVer, broadcast_vars, sc._javaAccumulator)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Recap the whole story:
+	1. get the gateway == [SparkContext._gateway = launch_gateway(conf)]
+	2. get the jvm 	   == [_jvm = SparkContext._gateway._gateway.jvm]
+	3. get the RDD     == [_jrdd = _jvm.PythonRDD.readRDDFromFile(self._jsc, temp_filename, numSlices)]
+	4. call func	   == [self.ctx._jvm.PythonRDD(self._prev_jrdd.rdd(), wrapped_func, self.preservesPartitioning, self.is_barrier) #call on _jvm]
+	
+	
+	3. if we call something in _jvm, it will act on Java-driver too.
+	4. we pickled data [] in python side and tell jvm to read it and JVM will parallelize them(by _jvm object) and return the java side rdd. 
+	5. using the java-side-rdd we can again call action from python side and will act on JVM.
+	6. using CloudPickleSerializer() our python function(lamda x:..) is serialized and sent to DRIVER-JVM but Broadcast is related here, so may be the driver BroadCast those since the PYSPARK tells to do so. 
+	7. some actions on JVM-DRIVER with _jvm, all this following methods are in JAVA not in python. 
+		a. sc._jvm.PythonFunction(bytearray(pickled_command), env, includes, sc.pythonExec, sc.pythonVer, broadcast_vars, sc._javaAccumulator)
+		b. sc._jvm.PythonUtils.getBroadcastThreshold(sc._jsc)
+		c. _jvm.JavaSparkContext(jconf)
+		d. _jvm.PythonRDD.collectAndServe(self._jrdd.rdd())
+		e. _jvm.PythonRDD.readRDDFromFile(self._jsc, temp_filename, numSlices)
+		f. _jvm.PythonRDD(self._prev_jrdd.rdd(), wrapped_func, self.preservesPartitioning, self.is_barrier)
+	8. actual pipelining happens inside the DRIVER-JVM.
+	9. in Python  PipelinedRDD inside rdd.py is called whenever a function is done on RDD.
+
+
+
+in PipelinedRDD we have a function i.e. our lambda, then we have previous _jrdd(for example, jrdd on which operation is performing, eg parallelcollectionrdd[])
+prev._jrdd = prev.prev._jrdd
+jrdd_deserializer=AutoBatchedSerializer(PickleSerializer())
+
+wrapped_func = _wrap_function(self.ctx, self.func, self._prev_jrdd_deserializer, self._jrdd_deserializer, profiler) #pythn side
+python_rdd   = self.ctx._jvm.PythonRDD(self._prev_jrdd.rdd(), wrapped_func, self.preservesPartitioning, self.is_barrier) #call on _jvm
+
+
+
+------------------------------------------------CALLING SPARK FROM PYTHON----------------------------------------------------
+https://github.com/apache/spark/tree/master/core/src/main/scala/org/apache/spark/rdd: these are internal to JVM, can't be accessible from python
+	class ShuffledRDD
+	class MapPartitionsRDD
+	class ParallelCollectionRDD
+https://github.com/apache/spark/tree/master/core/src/main/scala/org/apache/spark/api/python: These can be called with _jvm object.
+	class PythonRDD
+	class PairwiseRDD
+	class PythonFunction
+	
+https://github.com/apache/spark/tree/6a54348bae16d9ac8e8ebc2434b420ee2f7c264a/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources:
+	class FileScanRDD
+https://github.com/apache/spark/tree/6a54348bae16d9ac8e8ebc2434b420ee2f7c264a/sql/core/src/main/scala/org/apache/spark/sql/execution:
+	class SQLExecutionRDD
+
+pyspark.sql.readwriter.py
+	class DataFrameReader
+	class DataFrameWriter
+
+Session level:
+	spark._jsparkSession.sqlContext().read()
+	
+context level:
+	sc._jvm
+	sc._jsc
+	sc._javaAccumulator
+	sc._jvm.PythonUtils.getBroadcastThreshold()
+	_jvm.SparkSession()
+jvm level:	
+	_jvm.PythonFunction()
+	_jvm.PythonRDD()
+	_jvm.pairwiseRDD()
+	
+rdd level:
+	_jrdd.rdd()
+
+-----------------------------------------------------------------------------------------------------------------------------------

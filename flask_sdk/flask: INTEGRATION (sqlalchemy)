@@ -79,7 +79,17 @@
 
 		EXPLAIN:
 			=> EXPLAIN QUERY;
-
+		
+		JOIN:
+			T1: R1,R2
+			T2: R1,R2
+			in simple terms join is just concates rows
+			JOIN = R1,R2,R1,R2
+			CROSS JOIN : CROSS JOIN or select * from table1,table2
+			INNER JOIN : JOIN ON condition or INNER JOIN ON condition or SELECT * from table1,table2 WHERE condition (no condition if foreign key if join keyword)
+			LEFT OUTER JOIN: LEFT JOIN ON condition, LEFT OUTER JOIN ON condition [NULL VALUES WILL BE THERE IF NO MATCHING IN OTHER TABLE]
+			RIGHT OUTER JOIN: RIGHT JOIN ON condition, RIGHT OUTER JOIN ON condition [NULL VALUES WILL BE THERE IF NO MATCHING IN OTHER TABLE]
+			FULL OUTER JOIN: FULL JOIN ON condition, FULL OUTER JOIN ON condition [NULL VALUES WILL BE THERE IF NO MATCHING IN OTHER TABLE]
 
 2. sqlalchemy
 	2.1. Installation
