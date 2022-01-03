@@ -15,3 +15,5 @@ mkdir /tmp/spark-events
 run the application first and then run the history server
 . venv/lib/python3.9/site-packages/pyspark/sbin/start-history-server.sh
 http://archlinux:18080/
+
+https://www.python.org/dev/peps/pep-0008/

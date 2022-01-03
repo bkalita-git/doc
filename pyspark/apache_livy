@@ -1,0 +1,44 @@
+download apache livy from https://livy.incubator.apache.org/download/ and extract it.
+configure livy
+$cd apache-livy-0.7.1-incubating-bin
+$cp conf/livy-env.sh.template conf/livy-env.sh
+$nano conf/livy-env.sh
+export SPARK_HOME=/home/common/pyspark_zeppelin_python3.7/venv/lib/python3.7/site-packages/pyspark/
+
+$./bin/livy-server start #default port 8998 accessed through localhost:8998
+
+
+configuring livy in apache zeppelin in "livy" interpreter session
+change port if it's different otherwise it takes 8998
+
+flow
+zeppelin--->livy---->sparkcluster
+
+%livy.pyspark
+spark
+
+apache-livy-0.7.1 
+
+Livy 0.7.0 now requires Java 8, Scala 2.11 and Spark >= 2.2.0. With 0.7.0, JDBC/ODBC feature now becomes GA.
+
+spark 3.2.0 Support Scala 2.13
+
+Maybe scala 2.12.10? If so and your Spark binaries are built with scala 2.12 (Spark v3.0.0_2.12) the you need to rebuild Livy with Scala 2.12 as well (since it uses scala 2.11 which is binary incompatible with 2.12).
+
+
+
+How to rebuild apache Livy with scala 2.12:
+
+git clone https://github.com/apache/incubator-livy.git && \
+cd incubator-livy && \
+mvn clean package -B -V -e \
+        -Pspark-3.0 \
+        -Pthriftserver \
+        -DskipTests \
+        -DskipITs \
+        -Dmaven.javadoc.skip=true
+#read pom.xml
+
+
+
+https://index.scala-lang.org/cloudera/livy/livy-scala-api/0.3.0?target=_2.11#pyspark3

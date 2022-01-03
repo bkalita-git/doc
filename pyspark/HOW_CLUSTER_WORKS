@@ -3,7 +3,22 @@ node-2:[DataNode] [NodeManager]	   [container1: [EXECUTOR]]					 [container2: [E
 node-3:[DataNode] [NodeManager]	   [container1: [EXECUTOR]]					 [container2: [EXECUTOR]]	[container3: [EXECUTOR]]
 node-4:[DataNode] [NodeManager]	   [container1: [EXECUTOR]]					 [container2: [EXECUTOR]]	[container3: [EXECUTOR]]
 
-#CLUSTER:
+DEFINITION OF CLUSTER: A cluster is a group of virtual/physical machines where one machine is configured as MASTER and others are SLAVES and you/me start a script in MASTER which runs daemon processes in both MASTER and SLAVES. MASTER provides an URL to communicate to the cluster.
+
+DIFFERENT TYPEs OF CLUSTER:
+	Hadoop v1: HDFS and MAPREDUCE
+	Hadoop v2: v1 + Yarn
+	spark-standalone:
+	spark-standalone-ontopof-Hadoop v2:
+	
+	
+COMMUNICATION TO CLUSTER:
+	case-1-pyspark-job-submit-to-yarn-spark:
+		- we need a "spark-submit" binary/script in our local computer and that's all 
+		- The cluster must be running yarn daemon and each node should have pyspark library and spark-binary.
+		-  
+
+#GENERIC STEPS TO SETUP ANY CLUSTER:
 	- bunch of virtual machines and one of them is MASTER and others are SLAVE.
 	- setup hostname in all machine
 	- make accessible all SLAVE by ssh from MASTER
@@ -78,3 +93,6 @@ calculated_memory_overhead_per_executor = max(384,0.07*NUM_MEM_EACH_EXECUTOR)
 NEW_NUM_MEM_EACH_EXECUTOR = NUM_MEM_EACH_EXECUTOR - calculated_memory_overhead_per_executor
 LEAVE: for APPLICATIONMASTER left NUM_MEM_EACH_EXECUTOR [will be left automatically]
 ---------------------------------------------------------------------------------------------------------------------------------
+
+
+

@@ -3,6 +3,7 @@ for the bellow steps to work properly make sure you installed pyspark in the ven
 i.e. $python3.7 -m venv venv
 	 $pip install pyspark 
 ****NotE:due to some bug in zeppelin use python3.7, since issues with python3.9/8
+****NoteE: Don't export SPARK_HOME to /home/common/pyspark_zeppelin_python3.7/venv/lib/python3.7/site-packages/pyspark
 
 step1: Download it and extract it anywhre you like, from https://zeppelin.apache.org/download.html
 step2: Configure zeppelin (like changing port..bla bla bla) because default is 8080 but you may have other service in that.

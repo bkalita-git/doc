@@ -45,8 +45,8 @@ BOTH BEHIND NAT
 	PC 1. nc -p 33333 -u 35.236.133.171 44444
 	   AND BOOOOM it works on anywhere		
 			OR
-	PC 1. nc -p 12001 -u 130.211.253.177 23456
-	PC 2. nc -p 23456 -u 106.203.143.36  12001
+	PC 1. nc -p 12001 -u 49.37.34.248 23456
+	PC 2. nc -p 23456 -u 35.189.175.200 12001
 			OR
 			
 	iff ask stun

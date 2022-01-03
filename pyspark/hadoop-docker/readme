@@ -1,0 +1,21 @@
+single node 
+pseudo mode
+fully distributed mode
+
+
+network-name: hadoopnet
+hostname: nodemaster
+ 		  slave1
+ 		  
+
+./build.sh 
+./cluster.sh install
+./cluster.sh stop
+./cluster.sh start
+./cluster unintall
+
+
+hadoop
+scala
+spark-without-hadoop 
+

@@ -23,3 +23,9 @@ $ pyspark #it always run the driver program in the same machine where this comma
 #every JVM spawns Python-daemon iff the data needs to be processed in python.
 #driver program can run in worker nodes or master nodes.
 #executor is a container where JVM runs
+
+
+#driver needs pyspark package iff the driver executing pyspark application/script. but the spark package already contained pyspark library so no need to install it by extra.
+#only driver will have the spark-ui which runs at 4040 port by default.
+
+

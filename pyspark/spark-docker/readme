@@ -1,0 +1,44 @@
+#minimal SPARK-CLUSTER
+
+
+#ARCH LINUX DOCKER INSTALLATION
+sudo pacman -U https://archlinux.org/packages/community/x86_64/runc/download
+sudo pacman -U https://archlinux.org/packages/community/x86_64/containerd/download
+sudo pacman -U https://archlinux.org/packages/community/x86_64/docker/download
+
+#ARCH LINUX DOCKER-COMPOSE installation
+sudo pacman -S docker-compose
+
+#START DOCKER SERVICE
+$sudo systemctl start docker
+
+#always add your-user to docker group so root not required
+
+#files we need 
+0. bootstrap.sh #this will be copied to docker image and will be act as an ENTRYPOINT, so when docker-compose, that time it will run.
+1. Dockerfile #to create the image file. docker build . -t image_name
+2. docker-compose.yml #for docker-compose command
+
+#network inspection 
+docker network inspect spark-docker_cluster-network #here, cluster-network is defined in docker-compose.yml and spark-docker for the directory where Dockerfile is.
+
+
+#access
+spark-master-ui  archlinux:8081 or master-node-ip:8080
+spark-driver-ui  driver-machine-ip:4040
+
+#The technique
+echo '192.168.29.121 archlinux' > /etc/hosts #in each container.
+
+#doc
+docker image ls
+docker container ls
+docker network ls
+
+#do
+docker build . -t spark-base:latest
+docker-compose up
+docker-compose down
+
+REFERENCES
+1. https://towardsdatascience.com/diy-apache-spark-docker-bb4f11c10d24
