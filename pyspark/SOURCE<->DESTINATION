@@ -1,0 +1,8 @@
+streamData: simply data act as stream. It's live event listener. the readStream and writeStream both are event listener.
+ rules: 
+ 	R1. in streamDataframe you must have to provide the schema which can be a subset of the input source
+	R2. you can't perform collect() or show() directly, only readStream 
+ 1. automatic read/write csv when new csv placed inside a directory.	
+ 2. from/to socket
+ 3. from/to console
+ 4. 

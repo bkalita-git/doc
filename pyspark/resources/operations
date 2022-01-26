@@ -93,6 +93,7 @@ SQL:
  		 . spark.rdd.getNumPartitions()
  		 . df.count()
  		 . df.sample(withReplacement=False,fraction=0.1,seed=int_optional) #fraction here is 10%, withReplacement True means duplicate elemenets may generate, and seed is the random number generator seed so use same number if you want same elements everytime.
+		 . df.randomSplit([0.1,0.9],2), 10% and 90% and 2 is seed and output is an array[0] is first df and array[1] is second df
 	Shuffle:
 		. df.groupBy() #see aggregate operartions #no show() here since output is groupData
 		. df.distinct() #distinct elements

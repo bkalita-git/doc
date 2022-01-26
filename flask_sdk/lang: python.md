@@ -277,8 +277,105 @@
   with open('output.txt', 'w') as f: #automatically close the file after writing. 
  	f.write('Hi there!')
 	#If an exception occurs before the end of the block, it will close the file before the exception is caught by an outer exception handler.
-  
-#REFERENCES
+
+## Abstract class in python
+> normally in python if one function in base class is not reimplemented in derived class then while instantiating derived class object there would be no errors. What if we want to make that base class **abstarct**? Use **abc** module. 
+```
+from abc import ABCMeta, abstractmethod
+class Base(metaclass=ABCMeta):
+	@abstractmethod
+	def fun(self):
+		...
+
+Class Derived(Base):
+	#reimeplement fun here otherwise error.
+``` 
+## Calling as Classname.method() also as classObject.method()
+  * >using @classmethod
+	```
+	class Base:
+		@classmethod
+		def fun(cls):
+			#it's not self
+			print(cls.name)
+
+	Base.fun()
+	```
+  * >using @staticmethod
+  	```
+	class Base:
+		@staticsmethod
+		def fun():
+			#no param here
+			print("ok")
+
+	Base.fun()
+	```
+
+## Mixin
+> what if you want to inherit a base class and then add functionality which are written in another class? then those fuctionalities should be written in a class called Mixin. here below is an example
+```
+class Base():
+	def fun1(self):
+		...
+
+class Feature1Mixin():
+	def featureFun1(self):
+		...
+
+Class A(Base, FeatureMixin):
+	...
+
+#A().featureFun1() can be used.
+```
+
+## getter setter using @property
+```
+class User:
+	def __init__(self):
+		self.__name = ''
+	
+	@property
+	#it's become getter automatically
+	def name(self):
+		return self.__name
+	
+	@name.setter
+	def name(self,val):
+		self.__name=val
+	
+	@name.deleter
+	def name(self):
+		del self.__name
+u = User()
+u.name='bipul'
+print(u.name)
+del p.name
+print(p.name) #it will trow an error saying no attribute
+```
+
+## regex
+```
+import re
+str= 'There is a tech\nfsdf dfsf\nfdsfsdf. \n\n Ioooop\nLooop\n\n'
+pattern = re.compile('\w+\n\w+', re.S)
+re.sub(pattern, lambda match: match.group().replace('\n',''),str)
+
+output >>> ''There is a techfsdf dfsffdsfsdf. \n\n IoooopLooop\n\n''
+```
+
+
+## Changes
+* >In python3.3+ you don't need to pass the class name explicitly, you can just do:
+	```
+	#instead of super(MdiChild, self).__init__()
+	super().__init__()
+	```
+* >in python 3+ class Base(object) and class Base() and class Base are same.
+
+
+
+## REFERENCES
  1. https://stackoverflow.com/questions/49005651/how-does-asyncio-actually-work
  2. https://tenthousandmeters.com/blog/python-behind-the-scenes-1-how-the-cpython-vm-works/
  3. https://www.javatpoint.com/pointer-in-python

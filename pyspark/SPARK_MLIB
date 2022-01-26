@@ -1,47 +1,301 @@
-spark MLIB is on top of RDD API of spark.
-we have MLIB connector in pyspark.
+Regression Algorithms:
+* Linear Regression  ax+b
+* Ridge regression
+* neural network regression
+* lasso regression
+* decision tree regression
+* random forest
+* KNN model
+* Support vector machine  
 
-Graph:
-	Density graph:
-		normal value
-		log value
+Classification Algorithms:
+* Logistic Regression
+* Naive Bayes
+* Stochastic Gradient Descent
+* K-nearest neighbors
+* Decision Tree
+* Random forest
+* Support vector machine
+  
+Most of the machine learning algorithm based on optimization problem. and for that these following alorithm exist.
+Optimization Algorithms:
 
-DataPipeline:
-	RealTime DataPipeline
-	Bathch DataPipeline
-	Lambda Architecture
-	ETL:small portion of DataPipeline
-	
-DataLake:
-	s3
-	google cloud storage
+* First Order
+  * GD
+  * Stochastic Gradient Descent
+  * NAG
+  * AdaGrad
+  * AdaDelta/RMSProp
+  * Adam
+  * SAG
+  * SVRG
+  * ADMM
+  * Frank-wolfe
+  
+* Highrer Order
+  * Conjugate Gradient
+  * Newton's Method
+  * Quasi-Newton Method
+  * Sochastic Quasi-Newton Method
+  * Hessian Free Method
+  * Sub-sampled Hessian Free Method
+  * Natural Gradient
+  
+* heuristic derivative-free
+  * Heuristic Algorithm
+  * it an appropriate function according to the samples of the objective function
+  * coordinate descent method
+## SPARK MLLIB
+    spark.mllib carries the original API built on top of RDDs.
 
-Is SQL important for DataEngineer?
-yes, almost 1 hour Question will be on SQL, and specially Window function.
+    spark.ml contains higher-level API built on top of DataFrames for constructing ML pipelines.
+* pyspark.ml
+  * pipeline class
+    * Transformer
+    * UnaryTransformer
+    * Estimator
+    * Model
+    * Pipeline
+    * PipelineModel
+  * param
+  * feature
+  * classification
+  * clustering
+  * linalg
+  * recommendation
+  * regression
+  * stat
+  * evaluation
+  * fpm
+  * image
+  * util
 
-What is more important, Hadoop or Hive?
-Hive is more,since metadata store and execution engine. also execution will be replaced by spark. also more companies moving to s3, cloud than hdfs. So, Spark is recomended.
+## Vector
+since sometimes , spark ml algorithm needs data in vector type so we need this. we can convert one whole row to one vector too using VectorAssembler which is a Transformer class.
+```
+from pyspark.ml.linalg import Vectors
+```
+now let's describe an array  [0,2,0,0,2,4] in both as dense and sparse
 
-SO, DataEngineer Question, atleast should know about DSA and average level coding Question. Be descent in one programming language. learn SQL. Data Modeling. Explore Cloud.
-
-is Hive going to be dead because of spark SQl.
-Yes, spark is taking over. Apache Iceberg Metastore is good than hive.
-
-Bi engineers is different from DataEngineers.
-
-Good resource for Datamodeling.
-
-Career growth in DataEngineer
-Senior DataEngineer: DataEngineer Manager, Product Manager, techlead, So, the more you experience, the more you will be towards to product manager. Your opinion could change.
-
-Kafka vs SparkStreaming vs RabbitmQ vs Apache Flink. StreamProcessing will be in demand and stands out from the crowd.
-Top is kafka with (Flink or sparkStreaming). flink is good.
-
-Snowflake vs golang for parallel processing.
-Snowflake is awesome. 
-
+DenseVector
+```
+Vectors.dense(0,2,0,0,2,4)
+```
+SparseVector
+it does not store 0
+```
+#5 is the length, and each tuple contains (array_index,value)
+Vectors.sparse(5,[(1,2),(3,2),(4,4)])
+#5 is the length, and left tuple contains array_indexes and right tuple contains respected values
+Vectors.sparse(5,(1,3,4),(2,2,4))
+```
 
 
+## chi-square test for independence
+>There are two different kinds of chi-square tests: the test of independence, which asks a question of relationship, such as, "Is there a relationship between gender and SAT scores?"; and the goodness-of-fit test, which asks something like "If a coin is tossed 100 times, will it come up heads 50 times and tails 50 times?" we need chisquare value which lies between two P values with associated degrees of freedom row. Degrees of freedom is simply the number of classes that can vary independently minus one, (n-1), for example, in a data sample we have 5 different numbers and 4 of them are  {3,8,5,4} and say the average of those 5 numbers is 6. so the 5th number must be 10. so, the 5th number has no freedom. so the degrees of freedom will be in this case 4.
+
+relationship between two variable exist if the resultant value of chi-square lies in the table of chi-square distribution table where alpha value is 0.05, i.e. 5. Favorite color can be one variable, gender can be one variable. where the color variable can store green,blue,pink for example and gender can store male,female for example.
+first step is to build the contiguency table.
+for example, let's say we have 500 people and we build the contingency table like this below.
+|		|blue	|green	|pink	|total	|
+|-------|-------|-------|-------|-------|
+|male	|100	|150	|20		|300	|
+|female	|20		|30		|180	|200	|
+|total	|120	|180	|200	|500	|
+
+null hypothesis : gender and favorite color are not related
+
+alternate hypothesis: gender and favorite color are related
+
+alpha = 0.05
+
+degrees of freedom = (rows-1)(columns-1) = (2-1)(3-1) = 2
+
+decision rule = get the value from chi-square table and select the rows where degrees of freedom is 2 and select the column where alpha value is 0.05. using this we got a critical value of 5.99147. so our decision rule is if the calculated chi-square value greater than 5.99147 then reject the null hypothesis.
+
+calculate test statistic which are expected value: 
+|		|blue	|green	|pink	|total	|
+|-------|-------|-------|-------|-------|
+|male	|72		|108	|120	|300	|
+|female	|48		|72		|80		|200	|
+|total	|120	|180	|200	|500	|
+
+for (male,blue) = $\frac{(120\times300)}{500}$ = 72
+
+for (female,blue) = $\frac{(120\times200)}{500}$ = 48
+
+...
+
+
+χ2 = $\frac{(100-72)^2}{72}$+$\frac{(150-108)^2}{108}$+$\frac{(20-120)^2}{120}$+$\frac{(20-48)^2}{48}$+$\frac{(30-72)^2}{72}$+$\frac{(180-80)^2}{80}$
+
+χ2 = 276.389
+
+so $χ2>5.99147$ and we reject the null hypothesis. so there is a relation between gender and favorite color.
+
+
+In Pyspark to calculate this we need the data like below - 
+```
+male   = 0
+female = 1
+blue   = 2
+green  = 3
+pink   = 4
+```
+
+we need the dataset like this
+|personID|features|label|
+|--------|--------|-----|
+|1       |male    |green|
+|2       |male    |blue |
+|3       |male    |pink |
+|4       |female  |pink |
+
+then we need to convert like this
+|personID|features|label|
+|--------|--------|-----|
+|1       |0       |3    |
+|2       |0       |2    |
+|3       |0       |4    |
+|4       |1       |4    |  
+
+```
+data = [(0, Vectors.dense(2)) for x in range(100)] + [(0, Vectors.dense(3)) for x in range(150)] + [(0, Vectors.dense(4)) for x in range(20)] +\
+       [(1, Vectors.dense(2)) for x in range(20)] + [(1, Vectors.dense(3)) for x in range(30)] + [(1, Vectors.dense(4)) for x in range(180)]
+df = spark.createDataFrame(data, ["label", "features"])
+
+r = ChiSquareTest.test(df, "features", "label")
+r.show(truncate=False)
+#Anyway, if your software displays a p values of 0, it means the null hypothesis is rejected and your test is statistically significant
+```
+
+
+## summarizer
+
+
+## Pipeline
+before doing it, first Transformer and then Estimator class should be understand then Pipeline will be easy to build.
+```
+from pyspark.ml import Pipeline
+```
+A **pipiline** chains multiple transformers and estimators to complete the ML workflow.
+
+**estimator**: an algorithm which can be fit on a DF to produce a Transformer. it's an abstraction which implements fit() method which accept a DF and produce a Model which is a Transformer. So, below each estimator returns an instance of Transformer class on fit(). on most of the time if the estimator is "ChiSqSelector" then the output model will be "ChiSqSelectorModel"
+```
+from pyspark.ml.feature import \
+BucketedRandomProjectionLSH
+ChiSqSelector
+CountVectorizer
+IDF
+Imputer
+MaxAbsScaler
+MinHashLSH
+MinMaxScaler
+StringIndexer
+OneHotEncoderEstimator
+PCA
+QuantileDescretizer
+RFormula
+StandardScaler
+VectorIndexer
+Word2Vec
+
+from pyspark.ml.classification import \
+LinearSVC
+LogisticRegression
+DecisionTreeClassifier
+GBTClassifier
+RandomForestClassifier
+NaiveBayes
+MultilayerPerceptronClassifier
+OneVsRest
+
+from pyspark.ml.clustering import \
+BisectingKMeans
+KMeans
+GaussianMixture
+LDA
+
+
+from pyspark.ml.recommendation import \
+ALS
+
+from pyspark.ml.regression import \
+AFTSurvivalRegression
+DecisionTreeRegressor
+GBTRegressor
+GeneralizedLinearRegression
+IsotonicRegression
+LinearRegression
+RandomForestRegressor
+
+from pyspark.ml.tuning import \
+CrossValidator
+TrainingValidationSplit
+
+from pyspark.ml.fpm import \
+FPGrowth
 
 
 
+```
+
+**Transformer**: an algorithm which transforms one DF to another DF. it's an abstraction which implements transform() method. so, let's think that Transformer is an abstract class which has abstract method called transform(). Now, class which implements this Transformer class will also implement transform() method. Now, the task of this transform() method is to apply some transform on a DataFrame and Output one new DataFrame. example of such classes are - 
+```
+from pyspark.ml.feature import \
+VectorAssembler
+Binarizer
+Bucketizer
+DCT
+ElementwiseProduct
+FeatureHasher
+HashingTF
+NGram
+Normalizer
+OneHotEncoder
+PolynomialExpansion
+RegexTokenizer
+SQLTransfomer
+StopWordsRemover
+Tokenizer
+VectorSlicer
+VectorSizeHint
+``` 
+
+
+```
+from pyspark.ml.classification import LogisticRegression
+
+lr = LogisticRegression(...)  #an estimator
+
+
+model = lr.fit(...) #output is a Transformer from fit()
+
+model.transform(...) #calling transform() on it
+
+```
+
+the above can be used in a pipeline as below
+```
+from pyspark.ml import Pipeline
+from pyspark.ml.classification import LogisticRegression
+
+lr = LogisticRegression(...)  #an estimator
+
+pipeline = Pipeline(stages=[lr]) # defining our pipeline 
+
+model = pipeline.fit(...) #output is a Transformer from fit()
+
+model.transform(...) #calling transform() on it
+
+```
+
+### REFERENCES
+1. https://spark.apache.org/docs/2.3.1/api/python/pyspark.ml.html
+2. https://spark.apache.org/docs/latest/ml-guide.html
+3. https://spark.apache.org/docs/1.1.0/mllib-data-types.html
+4. https://www.analyticsvidhya.com/blog/2019/11/what-is-chi-square-test-how-it-works/
+5. https://passel2.unl.edu/view/lesson/9beaa382bf7e/8
+6. https://statisticsbyjim.com/hypothesis-testing/chi-squared-independence/
+7. https://stackoverflow.com/questions/58070125/how-to-properly-use-the-chisquaretest-function-in-pyspark
+8. https://arxiv.org/pdf/1906.06821.pdf A survey of optimization method
