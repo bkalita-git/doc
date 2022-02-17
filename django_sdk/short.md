@@ -172,21 +172,35 @@ How to interact with the auth system?
 |       |admin|django_admin_log[id,action_time,object_id,object_repr,change_message,content_type_id,user_id,action_flag]|
 |       |staticfiles| |
 |rest_framework|auth_token|authtoken_token[key,created,user_id]|
+||rest_framework| |
 
 
+## restframework authenticate vs permission
+authenticate class should contain code that validates the user otherwise raise exceptions.AuthenticationFailed('No such user')
+.
+permission class should contain code that check if the user is permitted to access something.
 
 
 ## Cross Site Request Forgery protection (CSRFP)
 an attack where cookie is used by attacker site to make a request.
-site A send request to site B with site B's cookie
-solution 1: for every request the server send a token to client and client's next request should contain this token and then again server will send a new token and this will not be stored in cookie.
-solution 2: every session have 1 token. this will also not stored in cookie.
+site A send request to site B with site B's cookie  
+solution 1: for every request the server send a token(anti-forgery token) to client and client's next request should contain this token and then again server will send a new token and this will not be stored in cookie.  
+solution 2: every session have 1 token( anti-forgery token). this will also not stored in cookie.  
 solution 3: check the referer and accept.
+both solution 2 and 3 can be stored in cookie if "double submit cookie" pattern" is used.
 
 Response header:
 Cross-Origin-Opener-Policy
 Referrer-Policy
 
+## Headers related to CORS  
+headers are not case sensitive but values are.
+1. Origin #Origin is a 'forbidden' header, meaning that you cannot change it programatically
+2. Access-Control-Request-Method
+3. Access-Control-Request-Headers
+
 
 REFERENCES:
 1. https://www.kite.com/python/docs/django.middleware
+2. https://cheatsheetseries.owasp.org/index.html
+3. https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers#cors

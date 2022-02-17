@@ -270,7 +270,7 @@
 
 #<function signature> specifies the input arguments to the function
 
-#Optional[int] from typing module is, Union[int,None], ie. either int or None
+#Optional[int] from typing module is, Union[int,None], ie. either int or None,  isinstance(x, T) where T is our custom TypeVar
 
 #with statement
 	 It allows you to ensure that a resource is "cleaned up" when the code that uses it finishes running, even if exceptions are thrown. It provides 'syntactic sugar' for try/finally blocks.

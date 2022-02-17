@@ -58,7 +58,7 @@ API GATEWAY MODEL:
 		...INCOMPLETE
 		
 MICROSERVICE DEPLOYMENT: 
-	OPTION A. CONAINER PATTERN:1 service in 1 container
+	OPTION A. CONTAINER PATTERN:1 service in 1 container
 	OPTION B. MULTIPLE SERVICE INSTANCE PER HOST PATTERN: each service instance runs at a well known port since 1 host(eg 1 ip)
 		B1. 1 service instance in one process or process group.
 		B2. MULTIPLE SERVICE INSTANCE IN THE SAME PROCESS OR PROCESS GROUP 

@@ -10,7 +10,23 @@
 	#create an app inside project
 	python manage.py startapp app_name
 	#create a user for db
-	python manage.py createsuperuser
+	python manage.py createsuperuser-fail                 Fail silently (no output at all) on HTTP errors
+ -h, --help <category>      Get help for commands
+ -i, --include              Include protocol response headers in the output
+ -o, --output <file>        Write to file instead of stdout
+ -O, --remote-name          Write output to a file named as the remote file
+ -s, --silent               Silent mode
+ -T, --upload-file <file>   Transfer local FILE to destination
+ -u, --user <user:password> Server user and password
+ -A, --user-agent <name>    Send User-Agent <name> to server
+ -v, --verbose              Make the operation more talkative
+ -V, --version              Show version number and quit
+
+This is not the full help, this menu is stripped into categories.
+Use "--help category" to get an overview of all categories.
+For all options use the manual or "--help all".
+[bipul@archlinux ~]$ 
+
 	#apply model changes
 	python manage.py makemigrations
 	python manage.py migrate
@@ -157,11 +173,19 @@
 	django:
 
 ## database_orm?
-	django:
-		#python manage.py makemigratations #to make the tables in db from models.
-		#python manage.py migrate
-		#results = Users.objects.all() here results is "querysets"
-		#django model by default creates "id" field in each class. 
+* django:
+	```
+	#python manage.py makemigratations #to generate sql from models.
+	#python manage.py migrate #to apply those above code
+	#results = Users.objects.all() here results is "querysets"
+	#django model by default creates "id" field in each class.
+
+    # below "user" becomes "user_id" in real table and UserFiles().user.email can be used. also User().files can be used
+    user = models.ForeignKey(
+        to=User, on_delete=models.CASCADE, related_name='files')
+
+	# the ManyToOneRel is different and not to be used.
+	```
 
 
 ## Extras - Authentication then Authorization
@@ -260,6 +284,83 @@
   ```
   #in settings.py
   ```
+## Extras - OpenID Connect
+>OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol. OpenID Connect performs many of the same tasks as OpenID 2.0. in OpenID Connect, OAuth 2.0 capabilities are integrated with the protocol itself. basically Open ID Connect and Open ID 2.0 and OAuth 2.0 is a server-client thing. So, we need the server version of it and then connect using its client which must be registered with the server version. for example, google OAuth2.0 server to communicate with it, it provides HTTP Request, Google Sign in and Google client Libraries for different programming languages to iteract. the service will provide **document discovery** where all necessary endpoints will be included. The main differene between openid connect and OAuth2.0 is Openid connect gives an extra token called id_token along with access_token which tells the information about the user, but access_token does not contain information about user. **if say request scope="openid profile email" then the access_token won't get the profile info of user but id_token will display the information about the user.** But Google way is different. Google have many APIs. and each API has some scopes. scope defines the information we want from that specific API. what if we send a scope = "https://www.googleapis.com/auth/userinfo.email" in request param?. then after login it adds two more scope with it in response, these are "email", "https://www.googleapis.com/auth/userinfo.email" and "openid". but same scope is linked with more than 1 API so? which API was used? the answer is to whom you are sending the request. for now, https://accounts.google.com/o/oauth2/v2/auth is where the scope was sent which is a Google OAuth2 API, v2. so How it added "openid" in response even though we did not define in google oauthconsent screen and also we did not sent it in request. the thing is openid is not an API, by default google OAuth2.0 uses openid by default which will give us a id_token. simply, access_token is linked with a specific API and id_token is the information of user. so why we can't get a id_token without access_token? the access_token always come. it's because we ask for it to oauth2 API which is a service and it provides the access_token to use its service along with id_token. so, basically, google OAuth2.0 API provides open id connect features too. so, using access_token you can use a service but using id_token you can't use a service. because id_token is like a status that the user logged in with gmail. no need to store those in server.
+***the confusion is using access_token also an django server app can call userinfo endpoint to obtain more information about the user. But, userinfo endpoint is the part of openid connect system. Also, another thing is that, django server app gets two tokens at the same time. Access_token and id_token, that means we can verify that access_token is not send to the django server app by some other site since django app server also gets id_token so that user must have logged in recently. Also the confusion is before openid connect Google, Facebook used oauth2.0 for authentication also, it's like a hack for oauth2 to use authentication.***
+```
+#OAuth2.0 web server flow
+server.tempCode = client.get_temporary_code_from_OAuth2.0()
+server.access_token = server.get_real_acccess_token_from_OAuth2.0(server.tempCode)
+result = google.contact_service(server.access_token)
+#this access_token is for authorization with google contact service. this token contains the information of scope and key to authorize the google contact service for example.  
+
+#OpenIDConnect web server flow
+server.tempCode = client.get_temporary_code_from_OAuth2.0()
+(server.access_token, server.id_token) = server.get_real_acccess_token_from_OAuth2.0(server.tempCode)
+server.user_profile = decode(server.id_token)
+#this id_token is a JWT and can be used to authenticate a client. this token contains the information of the client.
+```
+
+* using HTTP Request	
+  * Create an anti-forgery state token. which will be `state`
+  * get the "`authorization_endpoint`" value from this link. it's called **document discovery**. https://accounts.google.com/.well-known/openid-configuration. for now as of updated by google it's 
+	```
+	{"authorization_endpoint":"https://accounts.google.com/o/oauth2/v2/auth"}
+	```
+	which will be used as BASE URI
+  * get `client_id` from https://console.developers.google.com/apis/credentials. which is a django app for example. that client must be registered before.
+  * `response_type` which can be retrieve from document discovery.
+  * `scope` which can be retrieve from document discovery. this value describes if it's simple oauth or open id connect.
+  * `redirect_uri` this value must be matched with the redirect_uri defined in while making the client credentials in oauth server.
+  * `login_hint` which is a user's email id which will allow the Oauth server to access its data.
+  * send HTTPS GET request to `authorization_endpoint` to get `code` from google which is a temorary grant. but not very secure so again get access token in next step.
+	```
+	https://accounts.google.com/o/oauth2/v2/auth?
+	response_type=code&
+	client_id=117939782928-pouc8jel9tf0iu31fm2vlb1k84es2h5r.apps.googleusercontent.com&
+	scope=openid%20email&
+	redirect_uri=http%3A//localhost:8000/uploadfile/&
+	state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2-login-demo.example.com%2FmyHome&
+	login_hint=hastetough1@gmail.com
+
+	#it will redirect this below and extract the `code` value which is a token. but the value `state` must be checked with the `state` which was sent so that this request is the same request that was sent by the server.
+	http://localhost:8000/uploadfile/?state=security_token%3D138r5719ru3e1%26url%3Dhttps%3A%2F%2Foauth2-login-demo.example.com%2FmyHome&code=4%2F0AX4XfWgT8B3oPMbmhorP1Che4KvPtI0iy-3T07Um9amKxWLgYLq1KSMVLQ&scope=email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=1&prompt=consent
+	```
+  * After getting the `code` from google exchange get access_token and id_token from  google with POST request to `token_endpoint`
+	```
+	POST /token HTTP/1.1
+	Host: oauth2.googleapis.com
+	Content-Type: application/x-www-form-urlencoded
+
+	code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7& #which was sent by google
+	client_id=your-client-id&
+	client_secret=your-client-secret&
+	redirect_uri=http%3A//localhost:8000/uploadfile/&
+	grant_type=authorization_code
+
+	#Response will be 
+	access_token #A token that can be sent to a Google API.
+	expires_in 	#The remaining lifetime of the access token in seconds.
+	id_token  #A JWT that contains identity information about the user that is digitally signed by Google.
+	scope #The scopes of access granted by the access_token expressed as a list of space-delimited, case-sensitive strings.
+	token_type 	#Identifies the type of token returned. At this time, this field always has the value Bearer.
+	refresh_token #(optional) This field is only present if the access_type parameter was set to offline in the authentication request. For details, see Refresh tokens.
+	```
+  * decode `id_token` which is a JWT using encoding information in `jwks_uri` which is in **discovery document**. so, jwt has 3 parts, first one is header then payload and then signature. both header and payload can be decoded using BASE64URL decoder which does not need any secret key. but the signature string must be validate. to do so, 
+	```
+	curl --location --request GET 'https://www.googleapis.com/oauth2/v3/certs'
+	```
+  * decode `id_token` JWT for development purpose.
+	```
+	curl --location --request GET 'https://oauth2.googleapis.com/tokeninfo?id_token=the_id_token_sent_by_google
+	```
+  * Obtain user information using the `access_token` by sending GET request to `userinfo_endpoint` in discovery document.
+	```
+	curl --location --request GET 'https://openidconnect.googleapis.com/v1/userinfo?scope=openid%20profile%20email' \
+	--header 'Authorization: Bearer the access_token_sent_by_google'
+	```
+
+
 ## Extras - Testing
 ```
 from rest_framework.test import APIRequestFactory
@@ -274,4 +375,7 @@ REFERENCES:
 4. https://www.cdrf.co/
 5. https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
 6. https://docs.djangoproject.com/en/4.0/topics/auth/
+7. https://developers.google.com/identity/protocols/oauth2/openid-connect
+8. https://developers.google.com/identity/protocols/oauth2/scopes
+9. https://firebase.google.com/docs/auth/admin/verify-id-tokens#python
 		

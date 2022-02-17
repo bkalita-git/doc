@@ -1,5 +1,16 @@
+## Reinforcement : different algo
+## Supervised : eg many many
+## Unsupervised: eg Topic Modling using LDA
+
+## Machine Learning
+1. Structure made of formula, we call it Model
+2. Optimization applies to that Model, we call it Learning
+3. Test and Tweak the Structure + Optimization for validation 
+
 Regression Algorithms:
-* Linear Regression  ax+b
+* Linear Regression   
+  
+  $output = ax+b$
 * Ridge regression
 * neural network regression
 * lasso regression
@@ -9,9 +20,12 @@ Regression Algorithms:
 * Support vector machine  
 
 Classification Algorithms:
-* Logistic Regression
-* Naive Bayes
-* Stochastic Gradient Descent
+* Logistic Regression  
+  $output = \frac{1}{1+e^{-(ax+b)}}$
+* Naive Bayes  
+  > probabilty of input data being in one class over other class
+
+  $P(A|B)=\frac{P(B|A).P(A)}{P(B)}$
 * K-nearest neighbors
 * Decision Tree
 * Random forest
@@ -45,11 +59,21 @@ Optimization Algorithms:
   * Heuristic Algorithm
   * it an appropriate function according to the samples of the objective function
   * coordinate descent method
+
+## DataStructure Most Fundamental
+* Rank 0 Tensor is Scalar
+* Rank 1 Tensor is Vector (1D)
+* Rank 2 Tensor is Matrix (2D)
+* Rank 3 Tensor (3D)
+* Rank 4 Tensor (4D)
+
 ## SPARK MLLIB
     spark.mllib carries the original API built on top of RDDs.
 
     spark.ml contains higher-level API built on top of DataFrames for constructing ML pipelines.
 * pyspark.ml
+  * functions
+    * vector_to_array
   * pipeline class
     * Transformer
     * UnaryTransformer
@@ -90,6 +114,14 @@ Vectors.sparse(5,[(1,2),(3,2),(4,4)])
 Vectors.sparse(5,(1,3,4),(2,2,4))
 ```
 
+## CountVectorizer
+as we have seen CountVectorizer will first identify all unique words and put in a list like this ['another', 'is', 'this', 'sentence', 'one'] so, count_vector size will be 5. 
+  
+|sentence            |tokens                   |count_vector             |
+|--------------------|-------------------------|-------------------------|
+|this is one sentence|[this, is, one, sentence]|[0.0, 1.0, 1.0, 1.0, 1.0]|
+|this is another     |[this, is, another]      |[2.0, 1.0, 1.0, 0.0, 0.0]|
+|--------------------|-------------------------|-------------------------|
 
 ## chi-square test for independence
 >There are two different kinds of chi-square tests: the test of independence, which asks a question of relationship, such as, "Is there a relationship between gender and SAT scores?"; and the goodness-of-fit test, which asks something like "If a coin is tossed 100 times, will it come up heads 50 times and tails 50 times?" we need chisquare value which lies between two P values with associated degrees of freedom row. Degrees of freedom is simply the number of classes that can vary independently minus one, (n-1), for example, in a data sample we have 5 different numbers and 4 of them are  {3,8,5,4} and say the average of those 5 numbers is 6. so the 5th number must be 10. so, the 5th number has no freedom. so the degrees of freedom will be in this case 4.
@@ -177,6 +209,10 @@ r.show(truncate=False)
 before doing it, first Transformer and then Estimator class should be understand then Pipeline will be easy to build.
 ```
 from pyspark.ml import Pipeline
+```
+to access a stage in a pieline we can do
+```
+pipelineModel.stages[index]
 ```
 A **pipiline** chains multiple transformers and estimators to complete the ML workflow.
 
