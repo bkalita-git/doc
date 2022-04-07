@@ -74,3 +74,9 @@ $ git push --set-upstream origin branch_name
 $ git submodule add techvariable:techvariable/go-fileupload <destination_folder>
 
 ```
+
+6. to change a repo url so it can push to this
+
+```
+git remote set-url origin bkalita:username/reponame
+```
