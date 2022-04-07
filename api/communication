@@ -56,7 +56,8 @@ API GATEWAY MODEL:
 		1st layer: INGRESS/ EDGE GATEWAY
 		...INCOMPLETE
 		...INCOMPLETE
-		
+ 
+
 MICROSERVICE DEPLOYMENT: 
 	OPTION A. CONTAINER PATTERN:1 service in 1 container
 	OPTION B. MULTIPLE SERVICE INSTANCE PER HOST PATTERN: each service instance runs at a well known port since 1 host(eg 1 ip)
@@ -115,6 +116,11 @@ TECHNOLOGY:
    12. COFIGURATION
    			DECLARATING CONF
    			Imperative style configuration
+
+
+## Meaning
+* TLS TERMINATION:
+	A proxy server which job is to decrypting/encrypting encrypted/decrypted traffic before passing it along to a web server/client.
 
 REFERENCES:
 	1. https://www.nginx.com/blog/deploying-microservices/

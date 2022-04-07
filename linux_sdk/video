@@ -44,3 +44,4 @@ ffmpeg -i sample.webm -c:a copy -c:v copy -f matroska /dev/null
 ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 out.webm #duration in seconds
 
 #https://opensource.com/article/17/6/ffmpeg-convert-media-file-formats
+#https://www.ffmpeg.org/ffmpeg-protocols.html#data

@@ -181,8 +181,9 @@ For all options use the manual or "--help all".
 	#django model by default creates "id" field in each class.
 
     # below "user" becomes "user_id" in real table and UserFiles().user.email can be used. also User().files can be used
-    user = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, related_name='files')
+	Model UserFiles:
+		user = models.ForeignKey(
+			to=User, on_delete=models.CASCADE, related_name='files')
 
 	# the ManyToOneRel is different and not to be used.
 	```

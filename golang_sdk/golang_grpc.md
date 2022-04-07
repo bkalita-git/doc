@@ -1,0 +1,103 @@
+## GRPC 
+IS A RPC FRAMEWORK
+>[a client application can directly call a method on a server application on a different machine as if it were a local object]
+
+gRPC is based around the idea of defining a service, specifying the methods that can be called remotely with their parameters and return types.  
+* On the server side, the server implements this interface and runs a gRPC server to handle client calls.  
+* On the client side, the client has a stub (referred to as just a client in some languages) that provides the same methods as the server.
+```		
+			GRPC SERVER  <=====> GRPC STUB
+```
+## Data serialization 
+is the process of converting data objects present in complex data structures into a byte stream for storage, transfer and distribution purposes on physical devices. the byte stream can be of type XML, JSON , BSON, YAML , MessagePack, and protobuf  
+eg: 
+```
+var x = struct{int x}{x:2} 
+```
+can be converted to [JSON byte stream]  or [JSON text file] using some json encoder.  
+the process of serializing an object is called **marshalling**. the object can be a structure object, or a class object with functions in it
+
+* how protobuf encoding works:
+	1. use .proto file which containes the structure you want to encode 
+	2. generate language specific code using the .proto file so you can use the structure
+	3. create the object by initialization of the structure 
+	4. export the object by desired format, eg:/to file, byte
+* how protobug decoding works:
+	1. use .proto file which containes the structure you want to decode
+	2. generate language specific code using the .proto file so you can use the structure
+	3. import file from the earlier export eg:/from file, byte string
+	4. convert the file to object
+* how to setup protocol buffer in golang
+	1. download the compiler for aarch64[already compiled]
+	2. export /home/common/Programs/Arch_linux/protoc-3.17.1-linux-aarch_64/bin and $ source ~/.profiles
+	3. use protoc command
+
+I got 3 directores of GO in arch linux:
+```
+/home/bipul/go
+	d_bin : executables
+		go-outline
+		gopkgs
+		gocode
+		gopls
+		lv
+	d_pkg
+		d_sumdb
+			
+		d_mod
+		
+		
+/usr/lib/go:
+	d_api
+		has 20 text files
+	d_bin
+		go
+			the go compiler executable file
+		gofmt
+			executable file
+	d_doc link to /usr/share/doc/go
+	d_lib
+		d_time
+			README file
+			update.bash file
+	d_misc
+		
+	d_pkg
+		all machine code packages with extensions .a and .h and some executable file
+	d_src
+		all the source code, eg built in ,runtime go  files
+	d_test
+		so many go files
+	VERSION
+		
+		
+/usr/bin/go links to /usr/lib/go/bin/go
+```
+```
+export GOROOT=/usr/lib/go
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
+export PATH=$PATH:$GOROOT:$GOPATH:$GOBIN
+```
+```
+$ go get github.com/golang/protobuf/protoc-gen-go 
+#/home/bipul/go/bin/protoc-gen will be there
+```
+
+```
+#currency.proto file
+	syntax = "proto3";
+	option go_package = "/currency"; //where to out
+	message RateRequest{
+		string Base = 1;
+		string Destination = 2;
+	}
+
+$ protoc --go_out=. currency.proto
+				or
+$ protoc currency.proto --go_out=plugins=grpc:.
+```
+
+REFERENCES:
+	
+

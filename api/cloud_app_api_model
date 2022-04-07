@@ -27,3 +27,15 @@ PROJECT:
      |				     			 |
      v                               v
 YOUR SERVER <-> APP SERVICE <-> APP CLIENT
+
+
+AWS:
+	Create a service
+	Make Role and add service to it:
+		Make Policy for each Role 
+	Default Root user:
+		Make Groups and add permission boundary by adding policy to it.
+		Make Other User and add policy to it and add it to existing group and make credential for it.
+	
+
+		

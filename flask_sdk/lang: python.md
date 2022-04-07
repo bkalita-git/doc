@@ -363,7 +363,31 @@ re.sub(pattern, lambda match: match.group().replace('\n',''),str)
 
 output >>> ''There is a techfsdf dfsffdsfsdf. \n\n IoooopLooop\n\n''
 ```
+## The art of doing async tasks
+An example
+```
+import asyncio
 
+async def hello(i):
+    print(f"hello {i} started")
+    await asyncio.sleep(4)
+    print(f"hello {i} done")
+
+async def main(): #task3
+    task1 = asyncio.create_task(hello(1)) #task 1
+    task2 = asyncio.create_task(hello(2)) #task 2
+    await task1
+    await task2
+
+asyncio.run(main())  # task4
+
+>>> hello 1 started
+hello 2 started
+hello 1 done
+hello 2 done
+```
+What can be run asynchronously? for example if we have two tasks and we want them to run asyncronously then we will need a 3rd task called an  event loop/event controller and we will need 4th task to start the task3. in the above example task1 and task2 are two tasks we wanted to run asyncronously and main() is the 3rd task i.e. event loop. and we are feeding the event loop in task4.  
+Now what if we want to run two async tasks where one task returning a response to a client? then what will be our event loop and at what code block we will feed the event loop? there is no way in WSGI. Let's say we made the view as async still it will not be possible to run views and task2 concurrently since there's no code to build the event loop.
 
 ## Changes
 * >In python3.3+ you don't need to pass the class name explicitly, you can just do:
