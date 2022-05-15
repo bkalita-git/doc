@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "/communication"; //where to out
+service Node{
+  rpc InitNode(stream NodeReq) returns (stream NodeRes);
+}
+message NodeReq{
+  string Message = 1;
+}
+message NodeRes{
+  string Message = 1;
+}

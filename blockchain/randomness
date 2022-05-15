@@ -1,0 +1,31 @@
+- pseudo random number generator(PRNG)
+  - serial congruential generator
+  ```
+  ((4567*93)+23)
+  ```
+  _ pseudorandomness
+  _ mersenne twister
+  \*True number generator (TRNG)
+
+Entropy Generator:
+Mobile Phones : may be from its cpu temp
+Laptop : may be from ...
+Real random number generator : api call
+
+entropy validator
+entropy of a given password
+$E = log_2(R^L)$
+R = possible character within the password
+L = numbers of char in the password
+
+entrpy ~~ seed
+entropy source validation
+
+An RBG may be a deterministic random bit generator (DRBG) or a non-deterministic random bit generator (NRBG).
+
+Can a Blockchain be used to create a random number generator?
+
+1. https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-90b.pdf
+2. https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Module-Validation-Program/documents/fips140-2/FIPS1402IG.pdf
+3. https://www.synopsys.com/designware-ip/technical-bulletin/true-random-number-generator-security-2019q3.html
+4. https://medium.com/ginar-io/a-review-of-random-number-generator-rng-on-blockchain-fe342d76261b

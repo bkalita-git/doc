@@ -1,0 +1,51 @@
+package main
+
+import (
+	"fmt"
+	"go-p2p/communication"
+	"net"
+
+	"google.golang.org/grpc"
+)
+
+// func (s *routeServer) SayHello(ctx context.Context, strct *communication.HelloRequest) (*communication.HelloReply, error) {
+
+// 	return &communication.HelloReply{Message: "Hi I am server"}, nil
+
+// }
+
+// func (s *routeServer) SayHello(req *communication.HelloRequest, shs communication.Route_SayHelloServer) error {
+// 	shs.Send(&communication.HelloReply{Message: "HI I AM SERVER"})
+// 	shs.Send(&communication.HelloReply{Message: "HI I AM SERVER again"})
+// 	return nil
+// }
+
+func (s *routeServer) SayHello(stream communication.Route_SayHelloServer) error {
+	reply, _ := stream.Recv()
+	fmt.Println(reply)
+	stream.Send(&communication.HelloReply{Message: "HI I AM SERVER"})
+	reply, _ = stream.Recv()
+	fmt.Println(reply)
+	return nil
+}
+
+type routeServer struct {
+	communication.UnimplementedRouteServer //embedded types
+}
+
+func runBootstrapNode() {
+	listener, err := net.Listen("tcp4", "0.0.0.0:4678")
+	CheckErr(err)
+	fmt.Printf("\nAddr %v", listener.Addr())
+
+	/*connection, err := listener.Accept()
+	CheckErr(err)
+	io.Copy(connection, strings.NewReader("HI I am bipul"))
+	listener.Close()
+	*/
+	grpc_server := grpc.NewServer()
+
+	communication.RegisterRouteServer(grpc_server, &routeServer{})
+
+	grpc_server.Serve(listener)
+}

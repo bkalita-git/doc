@@ -80,3 +80,8 @@ $ git submodule add techvariable:techvariable/go-fileupload <destination_folder>
 ```
 git remote set-url origin bkalita:username/reponame
 ```
+
+7. Merge one branch to the current branch 
+```
+git merge other_branch
+```

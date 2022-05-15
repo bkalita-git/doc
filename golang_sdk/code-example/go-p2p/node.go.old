@@ -1,0 +1,34 @@
+package main
+
+/*
+
+func runNode() {
+	// conn, err := net.Dial("tcp4", "0.0.0.0:4678")
+	// CheckErr(err)
+	// io.Copy(os.Stdout, conn)
+	// conn.Close()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	conn, err := grpc.Dial("0.0.0.0:4678", opts...)
+	CheckErr(err)
+	defer conn.Close()
+	client := communication.NewRouteClient(conn)
+	//reply, _ := client.SayHello(context.Background(), &communication.HelloRequest{Name: "HI I am Client"})
+	//fmt.Println(reply)
+	// reply, _ := client.SayHello(context.Background(), &communication.HelloRequest{Name: "HI I am Client"})
+	// fmt.Println(reply.Recv())
+	reply, _ := client.SayHello(context.Background())
+	reply.Send(&communication.HelloRequest{Name: "hi I am client"})
+	fmt.Println(reply.Recv())
+	reply.Send(&communication.HelloRequest{Name: "hi I am client again"})
+
+}
+
+// it sends something it gets something
+// SayHello is implemented by client by grpc.pb.go file, and SayHello is implemented manually by Server
+// HelloReply is  implemented by the simply pb.go file
+//
+*/
+func runNode() {
+	// the grpc server part should always run in one goroutine, 	// use syn.Waitgroup
+	// use dial when necessary
+}

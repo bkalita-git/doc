@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "/test"; //where to out
+service Auth{
+  rpc VerifyToken(TokenReq) returns (TokenRes);
+}
+message TokenReq{
+  string Token = 1;
+}
+message TokenRes{
+  bool Verify = 1;
+}
+
+
+

@@ -24,6 +24,8 @@ Service Model:
 3. Software as a service (SAAS)
 4. Identify as a service (IDAAS)
 5. Network as a service (NAAS)
+6. infrastructure as a code (IAAC) ex: aws step function where give json and produce program.
+
 
 
 IAAS: ex: AWS_EC2
