@@ -13,7 +13,7 @@
 - To create a new Blockchain (ie instance of a VM) you must provide the Genesis data for the blockchain.
 - genesis data is built using a particular(can be a custom VM) VM api but the creation of the custom blockchain is done using platform VM(by providing subnet id and VM id and that genesis data) but adding data(block) to the blockchain or exploring it is done through the Custom VM api.
 - bitcoin and avalanche and some multichain uses UTXO MODEL
-
+- you need to whitelist a subnetid in a node while running ./avalanchego
 ## Node Implementation of Avalanche
 
 - https://github.com/ava-labs/avalanchego

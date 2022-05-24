@@ -79,3 +79,8 @@ linux:
 ```
 sudo ln -s firefox-developer-edition /usr/bin/google-chrome-stable
 ```
+
+## desktop entries
+/usr/share/applications/
+/usr/local/share/applications/
+/home/bipul/.local/share/applications/
