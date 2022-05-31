@@ -1,4 +1,8 @@
 ## database
+	LDAP
+	SQL
+	NOSQL
+	What matters are use case, architecture, data structure, read vs write requirements, horizontal vs vertical scaling, (virtual) hardware, etc.
 ## data warehouse
 >Data Warehouse is data that you have in other databases but organized specifically for the questions you want to ask.
 

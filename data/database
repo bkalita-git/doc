@@ -1,0 +1,10 @@
+RAPID DEVELOPMENT is for STARTUP.
+Indexing:
+	Phone book is indexed with last_name. so it's sorted and can be scanned with last_name.
+	B-Tree(Balanced Tree)
+		leaf nodes are doubly linked list
+		everynode {
+			VALUE
+			ROWID
+		}
+	Index writing slower because the B-Tree must be balanced on every insert.

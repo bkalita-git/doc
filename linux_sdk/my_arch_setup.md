@@ -84,3 +84,47 @@ sudo ln -s firefox-developer-edition /usr/bin/google-chrome-stable
 /usr/share/applications/
 /usr/local/share/applications/
 /home/bipul/.local/share/applications/
+
+
+
+## bash terminal color profile
+nano /etc/bash.bashrc
+
+PS1='\[\033[01;32m\][\u@\h \W]\[\033[00m\]\$ '
+
+if \e[5m is on then \e[25m is off for that by adding the 2
+\e[34m for foreground text color and 4 is the value, and \e[37 where 7 is the white value
+we can setup different color schemes for different command output.
+use trap command
+for example bash to see all color it supports
+```
+for C in {0..255}; do
+    tput setab $C
+    echo -n "$C "
+done
+```
+finally this is powerful
+```
+PS1='\e[23m\e[37m\e[1m\e[36m\e[7m\u@\h \e[5m¦\e[25m\e[27m \e[37m\e[1m\n\e[3m\e[31m' #at first unset whatever set at the end of PS1
+trap 'echo -ne "\e[23m\e[37m"' DEBUG #unset whatever set at the end of PS1
+```
+## What are terminal and terminal emulator and what are shells
+
+`shell` are command line interpreter. using shell command user communicates with kernel. eg. bash, cshell, kshell, sh.
+```
+#!/bin/bash
+#!/bin/sh
+```
+`xterm` is the terminal emulator for `X windows system`. A terminal-emulator/pty is the GUI way to write shell command.
+`bashrc` file is a bash script and get excuted when `bash` command is run.
+
+Terminal is a real keyboard and communicates with a computer.
+Terminal emulator(TTY) emulates terminal: example - xterm,uxterm,xfce-terminal
+Pseudo Terminal
+## tmux
+in ~/.profile
+[ -z "$DISPLAY" ] && [ $XDG_VTNR -eq 1 ] && exec startx 
+then add into /etc/bash.bashrc  at first
+[[ $TERM != "screen" ]] && exec tmux
+
+

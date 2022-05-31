@@ -36,3 +36,90 @@ type Thing interface{
 
 back quote
 FAT Table
+
+interface are ends with "er". That is Writer, Reader etc.
+
+direct pointer(array pointer) and indirect pointer(slice pointer to a array pointer)
+
+See, #golang design pattern
+# Golang design pattern
+- Creational
+	- Abstract Factory
+	- Builder
+	- Factory
+	- Object Pool
+	- Prototype
+	- Singleton
+- Behavioural
+	- Chain of Responsibility
+	- Command
+	- Iterator
+	- Mediator
+	- Memento
+	- Null Object
+	- Observer
+	- State
+	- Strategy
+	- Template Method
+	- Visitor
+- Structural 
+	- Adapter
+	- Bridge
+	- Composite
+	- Decorator
+	- Facade
+	- Flyweight
+	- Proxy
+	
+	
+## CONTEXT
+each request makes a goroutine inside the httpserver. Now, developer can make additional go routine for that request handler function. Now we want to control all those goroutines and stuff for that particular request. and for that we use context package.
+1 context has 4 methods
+```
+error()
+done()
+value()
+deadline()
+```
+so it's useful when client request the server and before the server sending response the client disconnect. so the server processing is useless.
+
+
+In particular, when a parent operation starts goroutines for sub-operations, those sub-operations should not be able to cancel the parent. Ie. you can't just cancel the ctx by calling ctx.Cancel()
+
+comma for same action on multiple
+delete from
+updade   set
+'a%' same as a*
+_a% this _ is first position
+[acs] means any of acs these
+[!letter]
+like/not like
+
+
+## package
+how to run a package? well it should be from the main package.
+
+## struct tags in go 
+type User struct{
+	Name string `example:"name"`
+}
+reflect package can use this
+
+## project layout
+>serviceatlas:serviceatlas module
+	>app:app package
+		>logger: logger package
+		>container: container package
+			>
+		>config: config package
+	>applicationservice: applicationservice package	
+		>
+	>cmd: main package
+		>grpcserver: main package
+		>grpcclient: main package
+	>domain
+		>model: model package
+		>usecase: usecase package
+	>script: sql file = manual run
+	>tool: tool package
+	
