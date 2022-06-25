@@ -1,8 +1,7 @@
 ## Maintaining Multiple Git Account
-
 1. In `~/.ssh/config` file
 
-   ```
+```
    #hastetough
    Host github.com-hastetough
    HostName github.com
@@ -32,17 +31,16 @@
    User ec2-user
    IdentityFile ~/.ssh/id_rsa_ec2
    Compression yes
-   ```
-
+```
 2. Place Private Keyfile in `$HOME/.ssh/`
 
-   ```
+```
    /home/bipul/.ssh/id_rsa_bkalita-git #private key
    /home/bipul/.ssh/id_rsa_bkalita-git.pub #in github
 
    /home/bipul/.ssh/id_rsa_hastetough #private key
    /home/bipul/.ssh/id_rsa_hastetough.pub #in github
-   ```
+```
 
 3. Now you'll be able to do `git clone git@{Host}:{Username}/{repository}`
 
@@ -77,6 +75,7 @@ To undo the above step
 
 ```
 git rm --cached filename
+git rm -r --cached .
 ```
 
 ## How it works
@@ -212,7 +211,42 @@ git remote set-url origin bkalita:username/reponame
 git merge other_branch
 
 ```
-
+## How To use CICD for a repository
+* inside the repository create a `.yml` file like this `.github/workflows/build.yml`
+* remember, each `.yml` file is a script which will get run on condition written inside that file. for example, an `.yml` can be written so that it gets executed each time when  something is pushed to that corresponding repository.
+* Now, what gets executed? first of all content inside that script will get executed by the github runner. it's like a computing environment for those yml files. let's look at a simple such file - 
 ```
+name: ict_health build
 
+on:
+  push:
+    branches: [ dev_branch ]
+    
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10.5
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.5
+      - name: Run Python commands
+        run: |
+          pip install --upgrade pip
+          
+          python3.10 -m venv venv-ictchat
+          python3.10 -m venv venv-ictservice
+          
+          source venv-ictchat/bin/activate
+          pip install -r ictchat/requirements.txt
+          deactivate
+          
+          source venv-ictservice/bin/activate
+          pip install -r ictservice/requirements.txt
+          deactivate
 ```
+Look at the above line `action/checkout@v2` what it does that it copies the repository to the action runner computing environment. 
